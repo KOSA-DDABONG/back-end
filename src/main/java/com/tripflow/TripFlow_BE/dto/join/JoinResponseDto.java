@@ -1,5 +1,6 @@
 package com.tripflow.TripFlow_BE.dto.join;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,4 +20,5 @@ public class JoinResponseDto {
     private Date birth; //생년월일 (YYYY-MM-DD)
 
     private LocalDateTime createdtime; //가입 일시
+    private LocalDateTime recessaccess; //최근 로그인 일시
 }
