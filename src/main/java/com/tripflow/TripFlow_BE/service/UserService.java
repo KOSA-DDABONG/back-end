@@ -38,9 +38,9 @@ public class UserService {
             System.out.println(userEntity.getUsername());
             System.out.println(userEntity.getNickname());
             userEntity.setCreatedtime(LocalDateTime.now()); //가입 일시
-//            userEntity.setLogin_num(0L); //로그인 횟수
+            userEntity.setRecessaccess(null);
             userRepository.save(userEntity);
-            return new ResponseDataDto("Signup Success", 200, new JoinResponseDto(optUserid.get().getUsername(), optUserid.get().getNickname(), optUserid.get().getUserid(), optUserid.get().getEmail(), optUserid.get().getPhonenumber(), optUserid.get().getBirth(), optUserid.get().getCreatedtime()));
+            return new ResponseDataDto("Signup Success", 200, new JoinResponseDto(optUserid.get().getUsername(), optUserid.get().getNickname(), optUserid.get().getUserid(), optUserid.get().getEmail(), optUserid.get().getPhonenumber(), optUserid.get().getBirth(), optUserid.get().getCreatedtime(), optUserid.get().getRecessaccess()));
         }
         else { //회원가입 실패
             return new ResponseDataDto("Signup Failed", 406, null);
@@ -60,12 +60,11 @@ public class UserService {
                 final String jwttoken = tokenProvider.create(optUserid.get()); //토큰 생성
 
                 System.out.println(userInfo);
-//                userInfo.setLogin_num(loginNumber);
-//                userInfo.setRecent_access(LocalDateTime.now());
-                System.out.println(optUserid);
+                userInfo.setRecessaccess(LocalDateTime.now());
 
-//                userRepository.save(userInfo);
-                return new ResponseDataDto("Login Success", 200, new LoginResponseDto(optUserid.get().getUsername(), optUserid.get().getNickname(), optUserid.get().getUserid(), optUserid.get().getEmail(), optUserid.get().getPhonenumber(), optUserid.get().getBirth(), optUserid.get().getCreatedtime(), jwttoken));
+                userRepository.save(userInfo);
+                System.out.println(optUserid);
+                return new ResponseDataDto("Login Success", 200, new LoginResponseDto(optUserid.get().getUsername(), optUserid.get().getNickname(), optUserid.get().getUserid(), optUserid.get().getEmail(), optUserid.get().getPhonenumber(), optUserid.get().getBirth(), optUserid.get().getCreatedtime(), optUserid.get().getRecessaccess(), jwttoken));
             }
             else {
                 return new ResponseDataDto("Info is wrong", 406, null);

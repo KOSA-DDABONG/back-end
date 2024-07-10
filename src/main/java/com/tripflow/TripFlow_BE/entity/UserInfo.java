@@ -30,4 +30,5 @@ public class UserInfo {
     @Column private Date birth; //생년월일 (YYYY-MM-DD)
 
     @Column private LocalDateTime createdtime; //가입 일시
+    @Column private LocalDateTime recessaccess; //최근 로그인 일시
 }
