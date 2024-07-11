@@ -27,7 +27,7 @@ public class UserInfo {
     @Column private String password; //비밀번호
     @Column(unique = true) private String email; //이메일
     @Column(unique = true) private String phonenumber; //전화번호
-    @Column private Date birth; //생년월일 (YYYY-MM-DD)
+    @Column private String birth; //생년월일 (YYYY-MM-DD)
 
     @Column private LocalDateTime createdtime; //가입 일시
     @Column private LocalDateTime recessaccess; //최근 로그인 일시

@@ -20,9 +20,10 @@ public class JoinRequestDto {
     private String password; //비밀번호
     private String email; //이메일
     private String phonenumber; //전화번호
-    private Date birth; //생년월일 (YYYY-MM-DD)
+    private String birth; //생년월일 (YYYY-MM-DD)
 
     private LocalDateTime createdtime; //가입 일시
+    private LocalDateTime recessaccess; //최근 로그인 일시
 
     public UserInfo toEntity() {
         UserInfo userInfo = new UserInfo();
@@ -36,6 +37,7 @@ public class JoinRequestDto {
         userInfo.setPhonenumber(this.phonenumber);
         userInfo.setBirth(this.birth);
         userInfo.setCreatedtime(this.createdtime);
+        userInfo.setRecessaccess(this.recessaccess);
 
         return userInfo;
     }

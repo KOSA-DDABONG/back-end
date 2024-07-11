@@ -20,8 +20,8 @@ public class TokenProvider {
         Date expiryDate = Date.from(Instant.now().plus(1, ChronoUnit.DAYS));
         return Jwts.builder()
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
-                .setSubject(member.getEmail())
-                .setIssuer("Buddle")
+                .setSubject(member.getUserid())
+                .setIssuer("TripFlow")
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
                 .compact();
