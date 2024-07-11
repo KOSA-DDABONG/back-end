@@ -29,18 +29,19 @@ public class UserService {
         Optional<UserInfo> optEmail = userRepository.findByEmail(users.getEmail());
         Optional<UserInfo> optPhonenumber = userRepository.findByPhonenumber(users.getPhonenumber());
 
-        System.out.println(users.getUsername());
+//        System.out.println(users.getUsername());
 
         if(optNickname.isEmpty() && optUserid.isEmpty() && optEmail.isEmpty() && optPhonenumber.isEmpty()){ //같은 게 없으면 (회원가입 성공)
-
             //초기 설정
             UserInfo userEntity = users.toEntity();
-            System.out.println(userEntity.getUsername());
-            System.out.println(userEntity.getNickname());
+//            System.out.println(userEntity.getUsername());
+//            System.out.println(userEntity.getNickname());
             userEntity.setCreatedtime(LocalDateTime.now()); //가입 일시
-            userEntity.setRecessaccess(null);
+            userEntity.setRecessaccess(LocalDateTime.now()); //최근 접속
             userRepository.save(userEntity);
-            return new ResponseDataDto("Signup Success", 200, new JoinResponseDto(optUserid.get().getUsername(), optUserid.get().getNickname(), optUserid.get().getUserid(), optUserid.get().getEmail(), optUserid.get().getPhonenumber(), optUserid.get().getBirth(), optUserid.get().getCreatedtime(), optUserid.get().getRecessaccess()));
+
+            JoinResponseDto responseDto = new JoinResponseDto(userEntity.getUsername(), userEntity.getNickname(), userEntity.getUserid(), userEntity.getEmail(), userEntity.getPhonenumber(), userEntity.getBirth(), userEntity.getCreatedtime(), userEntity.getRecessaccess());
+            return new ResponseDataDto("Signup Success", 200, responseDto);
         }
         else { //회원가입 실패
             return new ResponseDataDto("Signup Failed", 406, null);
@@ -64,7 +65,9 @@ public class UserService {
 
                 userRepository.save(userInfo);
                 System.out.println(optUserid);
-                return new ResponseDataDto("Login Success", 200, new LoginResponseDto(optUserid.get().getUsername(), optUserid.get().getNickname(), optUserid.get().getUserid(), optUserid.get().getEmail(), optUserid.get().getPhonenumber(), optUserid.get().getBirth(), optUserid.get().getCreatedtime(), optUserid.get().getRecessaccess(), jwttoken));
+
+                LoginResponseDto responseDto = new LoginResponseDto(optUserid.get().getUsername(), optUserid.get().getNickname(), optUserid.get().getUserid(), optUserid.get().getEmail(), optUserid.get().getPhonenumber(), optUserid.get().getBirth(), optUserid.get().getCreatedtime(), optUserid.get().getRecessaccess(), jwttoken);
+                return new ResponseDataDto("Login Success", 200, responseDto);
             }
             else {
                 return new ResponseDataDto("Info is wrong", 406, null);
