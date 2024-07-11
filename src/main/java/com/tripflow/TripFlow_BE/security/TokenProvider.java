@@ -1,10 +1,9 @@
 package com.tripflow.TripFlow_BE.security;
 
 import com.tripflow.TripFlow_BE.entity.UserInfo;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -15,6 +14,8 @@ import java.util.Date;
 @Service
 public class TokenProvider {
     private static final String SECRET_KEY = "NMA8JPctFuna59f5";
+//    @Value("${security.jwt.secret}")
+//    private String SECRET_KEY;
 
     public String create(UserInfo member) {
         Date expiryDate = Date.from(Instant.now().plus(1, ChronoUnit.DAYS));
@@ -28,14 +29,6 @@ public class TokenProvider {
     }
 
     public String validateAndGetUserId(String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(SECRET_KEY)
-                .parseClaimsJws(token)
-                .getBody();
-        return claims.getSubject();
-    }
-
-    public static String GetUserId(String token) {
         Claims claims = Jwts.parser()
                 .setSigningKey(SECRET_KEY)
                 .parseClaimsJws(token)

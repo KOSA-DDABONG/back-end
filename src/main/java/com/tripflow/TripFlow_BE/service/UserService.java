@@ -52,21 +52,17 @@ public class UserService {
     public ResponseDataDto<LoginResponseDto> login(LoginRequestDto users) {
 
         Optional<UserInfo> optUserid = userRepository.findByUserid(users.getUserid());
-
+//        System.out.println(optUserid);
         if(optUserid.isPresent()){ //아이디가 있으면
             UserInfo userInfo = optUserid.get();
-
+//            System.out.println(userInfo);
             //데베에 저장된 비번과 입력받은 비번 비교
-            if (userInfo.getPassword().equals(users.getPassword())) { //로그인 성공
+            if (userInfo.getPassword().equals(/*users.getPassword()*/optUserid.get().getPassword())) { //로그인 성공
                 final String jwttoken = tokenProvider.create(optUserid.get()); //토큰 생성
-
-                System.out.println(userInfo);
+//                System.out.println(jwttoken);
                 userInfo.setRecessaccess(LocalDateTime.now());
-
                 userRepository.save(userInfo);
-                System.out.println(optUserid);
-
-                LoginResponseDto responseDto = new LoginResponseDto(optUserid.get().getUsername(), optUserid.get().getNickname(), optUserid.get().getUserid(), optUserid.get().getEmail(), optUserid.get().getPhonenumber(), optUserid.get().getBirth(), optUserid.get().getCreatedtime(), optUserid.get().getRecessaccess(), jwttoken);
+                LoginResponseDto responseDto = new LoginResponseDto(userInfo.getUsername(), userInfo.getNickname(), userInfo.getUserid(), userInfo.getEmail(), userInfo.getPhonenumber(), userInfo.getBirth(), userInfo.getCreatedtime(), userInfo.getRecessaccess(), jwttoken);
                 return new ResponseDataDto("Login Success", 200, responseDto);
             }
             else {
@@ -74,7 +70,7 @@ public class UserService {
             }
         }
         else {
-            return new ResponseDataDto("Email is not found", 406, null);
+            return new ResponseDataDto("Id is not found", 406, null);
         }
     }
 }
