@@ -1,5 +1,6 @@
 package com.tripflow.TripFlow_BE.controller;
 
+import com.tripflow.TripFlow_BE.dto.ResponseDataDto;
 import com.tripflow.TripFlow_BE.dto.join.JoinRequestDto;
 import com.tripflow.TripFlow_BE.dto.join.JoinResponseDto;
 import com.tripflow.TripFlow_BE.dto.login.LoginRequestDto;
@@ -16,13 +17,13 @@ public class UserController {
     UserService userService;
 
     @PostMapping("/user/register")
-    public JoinResponseDto userJoin(@RequestBody JoinRequestDto reqDto)
+    public ResponseDataDto userJoin(@RequestBody JoinRequestDto reqDto)
     {
         return userService.join(reqDto);
     }
 
     @PostMapping("/user/login")
-    public LoginResponseDto userLogin(@RequestBody LoginRequestDto reqDto)
+    public ResponseDataDto userLogin(@RequestBody LoginRequestDto reqDto)
     {
         return userService.login(reqDto);
     }
