@@ -8,7 +8,6 @@ import com.tripflow.TripFlow_BE.dto.login.LoginRequestDto;
 import com.tripflow.TripFlow_BE.entity.UserInfo;
 import com.tripflow.TripFlow_BE.repository.UserRepository;
 import com.tripflow.TripFlow_BE.security.TokenProvider;
-import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
