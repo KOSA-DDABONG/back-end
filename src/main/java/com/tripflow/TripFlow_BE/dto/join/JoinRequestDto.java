@@ -12,7 +12,7 @@ import java.util.Date;
 @Setter
 public class JoinRequestDto {
 
-    private Long pkid; //primary key(PK)
+    private Long memberid; //primary key(PK)
 
     private String username; //사용자이름
     private String nickname; //닉네임
@@ -27,7 +27,7 @@ public class JoinRequestDto {
 
     public UserInfo toEntity() {
         UserInfo userInfo = new UserInfo();
-        userInfo.setPkid(this.pkid);
+        userInfo.setMemberid(this.memberid);
 
         userInfo.setUsername(this.username);
         userInfo.setNickname(this.nickname);

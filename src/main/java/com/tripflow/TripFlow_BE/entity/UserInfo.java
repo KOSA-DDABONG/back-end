@@ -3,6 +3,7 @@ package com.tripflow.TripFlow_BE.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -19,7 +20,7 @@ public class UserInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) //자동 번호 부여
     @Column(unique = true)
-    private Long pkid; //primary key(PK)
+    private Long memberid; //primary key(PK)
 
     @Column private String username; //사용자이름
     @Column(unique = true) private String nickname; //닉네임
