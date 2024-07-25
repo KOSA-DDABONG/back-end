@@ -23,8 +23,7 @@ public class JasyptTest {
     }
 
     private String jasyptEncoding(String value) {
-        //String key = getJasyptEncryptorPassword();
-        String key = "kosaFinalTripFlowDdabong666!@";
+        String key = getJasyptEncryptorPassword();
         StandardPBEStringEncryptor pbeEnc = new StandardPBEStringEncryptor();
         pbeEnc.setAlgorithm("PBEWITHHMACSHA512ANDAES_256");
         pbeEnc.setPassword(key);
