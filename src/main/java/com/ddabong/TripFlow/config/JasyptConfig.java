@@ -41,7 +41,7 @@ public class JasyptConfig {
 
     private String getJasyptEncryptorPassword() {
         try {
-            ClassPathResource resource = new ClassPathResource("jasypt-encryptor-password.txt");
+            ClassPathResource resource = new ClassPathResource("config/jasypt-encryptor-password.txt");
             return Files.readAllLines(Paths.get(resource.getURI())).stream()
                     .collect(Collectors.joining(""));
         } catch (IOException e) {
