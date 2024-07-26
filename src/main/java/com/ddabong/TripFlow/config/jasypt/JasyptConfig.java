@@ -1,4 +1,4 @@
-package com.ddabong.TripFlow.config;
+package com.ddabong.TripFlow.config.jasypt;
 
 import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
 import org.jasypt.encryption.StringEncryptor;
