@@ -7,8 +7,9 @@ import org.springframework.stereotype.Repository;
 @Mapper
 public interface IMemberRepository {
     void joinMember(Member member);
-    Boolean isExistByNickName(String nickName);
+    Boolean isExistByNickname(String nickname);
     Boolean isExistByUserId(String userId);
     Boolean isExistByEmail(String email);
     Boolean isExistByPhoneNumber(String phoneNumber);
+
 }

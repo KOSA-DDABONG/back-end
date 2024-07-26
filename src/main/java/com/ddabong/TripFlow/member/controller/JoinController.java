@@ -17,10 +17,17 @@ public class JoinController {
         this.memberService = memberService;
     }
 
-    @PostMapping("/join")
+    @PostMapping("/user/register")
     public String joinProcess(MemberDTO memberDTO){
         try {
-            Boolean isExistNickName = memberService.isExistByNickName(memberDTO);
+            System.out.println("username : " + memberDTO.getUsername());
+            System.out.println("nickname : " + memberDTO.getNickname());
+            System.out.println("user id : " + memberDTO.getUserId());
+            System.out.println("password : " + memberDTO.getPassword());
+            System.out.println("email : " + memberDTO.getEmail());
+            System.out.println("birth : " + memberDTO.getBirth());
+
+            Boolean isExistNickName = memberService.isExistByNickname(memberDTO);
             Boolean isExistUserId = memberService.isExistByUserId(memberDTO);
             Boolean isExistEmail = memberService.isExistByEmail(memberDTO);
             Boolean isExistPhoneNumber = memberService.isExistByPhoneNumber(memberDTO);
