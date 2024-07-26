@@ -31,8 +31,8 @@ public class MemberService {
 
         Member member = new Member();
 
-        member.setUserName(memberDTO.getUserName());
-        member.setNickName(memberDTO.getNickName());
+        member.setUsername(memberDTO.getUsername());
+        member.setNickname(memberDTO.getNickname());
         member.setUserId(memberDTO.getUserId());
         member.setPassword(bCryptPasswordEncoder.encode(memberDTO.getPassword()));
         member.setEmail(memberDTO.getEmail());
@@ -48,11 +48,11 @@ public class MemberService {
     }
 
 
-    public Boolean isExistByNickName(MemberDTO memberDTO) {
-        String nickName = memberDTO.getNickName();
-        Boolean isExistNickName = iMemberRepository.isExistByNickName(nickName);
+    public Boolean isExistByNickname(MemberDTO memberDTO) {
+        String nickname = memberDTO.getNickname();
+        Boolean isExistNickname = iMemberRepository.isExistByNickname(nickname);
 
-        if(isExistNickName) {
+        if(isExistNickname) {
             return true;
         } else {
             return false;
