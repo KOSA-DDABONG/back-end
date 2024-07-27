@@ -1,7 +1,6 @@
 package com.ddabong.TripFlow.member.controller;
 
 import com.ddabong.TripFlow.member.dto.MemberDTO;
-import com.ddabong.TripFlow.member.model.Member;
 import com.ddabong.TripFlow.member.service.MemberService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,10 +26,10 @@ public class JoinController {
             System.out.println("email : " + memberDTO.getEmail());
             System.out.println("birth : " + memberDTO.getBirth());
 
-            Boolean isExistNickName = memberService.isExistByNickname(memberDTO);
-            Boolean isExistUserId = memberService.isExistByUserId(memberDTO);
-            Boolean isExistEmail = memberService.isExistByEmail(memberDTO);
-            Boolean isExistPhoneNumber = memberService.isExistByPhoneNumber(memberDTO);
+            Boolean isExistNickName = memberService.isExistByNickname(memberDTO.getNickname());
+            Boolean isExistUserId = memberService.isExistByUserId(memberDTO.getUserId());
+            Boolean isExistEmail = memberService.isExistByEmail(memberDTO.getEmail());
+            Boolean isExistPhoneNumber = memberService.isExistByPhoneNumber(memberDTO.getPhoneNumber());
 
             if(isExistNickName) {
                 System.out.println("이미 사용중인 닉네임");
@@ -53,6 +52,5 @@ public class JoinController {
 
         return "ok";
     }
-
 
 }
