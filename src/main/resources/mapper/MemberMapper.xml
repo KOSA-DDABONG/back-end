@@ -6,23 +6,23 @@
     <!-- 회원 가입 -->
     <insert id="joinMember" parameterType="com.ddabong.TripFlow.member.model.Member">
         INSERT INTO MEMBER
-            (member_id, user_name, nick_name, user_id, password,
-            email, phone_number, birth, created_time, recess_access)
+            (memberid, username, nickname, userid, password,
+            email, phonenumber, birth, createdtime, recessaccess, role)
         VALUES
-            (#{memberId}, #{userName}, #{nickName}, #{userId}, #{password},
-            #{email}, #{phoneNumber}, #{birth}, #{createdTime}, #{recessAccess})
+            (#{memberId}, #{username}, #{nickname}, #{userId}, #{password},
+            #{email}, #{phoneNumber}, #{birth}, #{createdTime}, #{recessAccess}, #{role})
     </insert>
 
     <!-- 중복 닉네임 확인 -->
-    <select id="isExistByNickName" parameterType="String">
+    <select id="isExistByNickname" parameterType="String">
         SELECT COUNT(*) FROM MEMBER
-        WHERE nick_name = #{nickName}
+        WHERE nickname = #{nickname}
     </select>
 
     <!-- 중복 아이디 확인 -->
     <select id="isExistByUserId" parameterType="String">
         SELECT COUNT(*) FROM MEMBER
-        WHERE user_id = #{userId}
+        WHERE userid = #{userId}
     </select>
 
     <!-- 중복 이메일 확인 -->
@@ -34,6 +34,12 @@
     <!-- 중복 전화번호 확인 -->
     <select id="isExistByPhoneNumber" parameterType="String">
         SELECT COUNT(*) FROM MEMBER
-        WHERE phone_number = #{phoneNumber}
+        WHERE phonenumber = #{phoneNumber}
+    </select>
+
+    <!-- 유저 찾기 -->
+    <select id="findByUserId" parameterType="String">
+        SELECT * FROM MEMBER
+        WHERE userid = #{userId}
     </select>
 </mapper>

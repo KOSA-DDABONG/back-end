@@ -44,12 +44,13 @@ public class MemberService {
         member.setCreatedTime(Timestamp.valueOf(now.format(dateTimeFormatter)));
         member.setRecessAccess(Timestamp.valueOf(now.format(dateTimeFormatter)));
 
+        member.setRole("ROLE_ADMIN");
+
         return member;
     }
 
 
-    public Boolean isExistByNickname(MemberDTO memberDTO) {
-        String nickname = memberDTO.getNickname();
+    public Boolean isExistByNickname(String nickname) {
         Boolean isExistNickname = iMemberRepository.isExistByNickname(nickname);
 
         if(isExistNickname) {
@@ -59,8 +60,7 @@ public class MemberService {
         }
     }
 
-    public Boolean isExistByUserId(MemberDTO memberDTO) {
-        String userId = memberDTO.getUserId();
+    public Boolean isExistByUserId(String userId) {
         Boolean isExistUserId = iMemberRepository.isExistByUserId(userId);
 
         if (isExistUserId){
@@ -70,8 +70,7 @@ public class MemberService {
         }
     }
 
-    public Boolean isExistByEmail(MemberDTO memberDTO) {
-        String email = memberDTO.getEmail();
+    public Boolean isExistByEmail(String email) {
         Boolean isExistEmail = iMemberRepository.isExistByEmail(email);
 
         if (isExistEmail) {
@@ -81,8 +80,7 @@ public class MemberService {
         }
     }
 
-    public Boolean isExistByPhoneNumber(MemberDTO memberDTO) {
-        String phoneNumber = memberDTO.getPhoneNumber();
+    public Boolean isExistByPhoneNumber(String phoneNumber) {
         Boolean isExistPhoneNumber = iMemberRepository.isExistByPhoneNumber(phoneNumber);
 
         if (isExistPhoneNumber){
