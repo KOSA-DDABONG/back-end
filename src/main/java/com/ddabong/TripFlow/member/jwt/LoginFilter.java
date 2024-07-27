@@ -15,6 +15,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -64,17 +65,37 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         // 사용자 정보를 JSON 형태로 응답에 추가
         LoginMemberInfoDTO loginMemberInfoDTO = new LoginMemberInfoDTO();
+        loginMemberInfoDTO = setLoginMemberInfo(customUserDetails, token);
+
+
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(new ObjectMapper().writeValueAsString(loginMemberInfoDTO));
+    }
+
+    private LoginMemberInfoDTO setLoginMemberInfo(CustomUserDetails customUserDetails, String token){
+        LoginMemberInfoDTO loginMemberInfoDTO = new LoginMemberInfoDTO();
         loginMemberInfoDTO.setUsername(customUserDetails.getMembername());
         loginMemberInfoDTO.setNickname(customUserDetails.getNickname());
         loginMemberInfoDTO.setUserId(customUserDetails.getUsername());
         loginMemberInfoDTO.setEmail(customUserDetails.getEmail());
         loginMemberInfoDTO.setPhoneNumber(customUserDetails.getPhoneNumber());
         loginMemberInfoDTO.setBirth(customUserDetails.getBirth());
-        loginMemberInfoDTO.setToken(token);
 
+        String createdTime = timestampToString(customUserDetails.getCreatedTime());
+        String recessAccess = timestampToString(customUserDetails.getRecessAccess());
+        loginMemberInfoDTO.setCreatedTime(createdTime);
+        loginMemberInfoDTO.setRecessAccess(recessAccess);
 
-        response.setContentType("application/json;charset=UTF-8");
-        response.getWriter().write(new ObjectMapper().writeValueAsString(loginMemberInfoDTO));
+        loginMemberInfoDTO.setJwtToken(token);
+
+        return loginMemberInfoDTO;
+    }
+
+    private String timestampToString(Timestamp timestamp){
+        String curtime = timestamp.toString();
+        String str = curtime.split(" ")[0] + "T" + curtime.split(" ")[1];
+
+        return str;
     }
 
     // 로그인 실패시 실행하는 메서드

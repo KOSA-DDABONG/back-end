@@ -3,6 +3,8 @@ package com.ddabong.TripFlow.member.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.sql.Timestamp;
+
 @Setter @Getter
 public class LoginMemberInfoDTO {
     private String username;
@@ -11,5 +13,7 @@ public class LoginMemberInfoDTO {
     private String email;
     private String phoneNumber;
     private String birth;
-    private String token;
+    private String createdTime;
+    private String recessAccess;
+    private String jwtToken;
 }
