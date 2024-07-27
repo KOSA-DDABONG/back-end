@@ -1,6 +1,9 @@
 package com.ddabong.TripFlow.member.jwt;
 
 import com.ddabong.TripFlow.member.dto.CustomUserDetails;
+import com.ddabong.TripFlow.member.dto.LoginMemberInfoDTO;
+import com.ddabong.TripFlow.member.dto.MemberDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,6 +14,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -41,7 +45,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     // 로그인 성공시 실행하는 메서드 (여기서 JWT를 발급하면 됨)
     @Override
-    protected  void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication){
+    protected  void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) throws IOException {
         System.out.println("login success >>> ");
 
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -57,6 +61,20 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String token = jwtUtil.createJwt(userId, role, 60*60*10L);
 
         response.addHeader("Authorization", "Bearer " + token);
+
+        // 사용자 정보를 JSON 형태로 응답에 추가
+        LoginMemberInfoDTO loginMemberInfoDTO = new LoginMemberInfoDTO();
+        loginMemberInfoDTO.setUsername(customUserDetails.getMembername());
+        loginMemberInfoDTO.setNickname(customUserDetails.getNickname());
+        loginMemberInfoDTO.setUserId(customUserDetails.getUsername());
+        loginMemberInfoDTO.setEmail(customUserDetails.getEmail());
+        loginMemberInfoDTO.setPhoneNumber(customUserDetails.getPhoneNumber());
+        loginMemberInfoDTO.setBirth(customUserDetails.getBirth());
+        loginMemberInfoDTO.setToken(token);
+
+
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(new ObjectMapper().writeValueAsString(loginMemberInfoDTO));
     }
 
     // 로그인 실패시 실행하는 메서드

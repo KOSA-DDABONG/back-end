@@ -14,31 +14,31 @@
     </insert>
 
     <!-- 중복 닉네임 확인 -->
-    <select id="isExistByNickname" parameterType="String">
+    <select id="isExistByNickname" parameterType="String" resultType="int">
         SELECT COUNT(*) FROM MEMBER
         WHERE nickname = #{nickname}
     </select>
 
     <!-- 중복 아이디 확인 -->
-    <select id="isExistByUserId" parameterType="String">
+    <select id="isExistByUserId" parameterType="String" resultType="int">
         SELECT COUNT(*) FROM MEMBER
         WHERE userid = #{userId}
     </select>
 
     <!-- 중복 이메일 확인 -->
-    <select id="isExistByEmail" parameterType="String">
+    <select id="isExistByEmail" parameterType="String" resultType="int">
         SELECT COUNT(*) FROM MEMBER
         WHERE email = #{email}
     </select>
 
     <!-- 중복 전화번호 확인 -->
-    <select id="isExistByPhoneNumber" parameterType="String">
+    <select id="isExistByPhoneNumber" parameterType="String" resultType="int">
         SELECT COUNT(*) FROM MEMBER
         WHERE phonenumber = #{phoneNumber}
     </select>
 
     <!-- 유저 찾기 -->
-    <select id="findByUserId" parameterType="String">
+    <select id="findByUserId" parameterType="String" resultType="com.ddabong.TripFlow.member.model.Member">
         SELECT * FROM MEMBER
         WHERE userid = #{userId}
     </select>
