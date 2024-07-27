@@ -27,4 +27,5 @@ public class Member {
     private String birth;
     private Timestamp createdTime;
     private Timestamp recessAccess;
+    private String role;
 }
