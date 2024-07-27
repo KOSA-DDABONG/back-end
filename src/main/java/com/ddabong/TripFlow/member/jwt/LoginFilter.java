@@ -2,7 +2,8 @@ package com.ddabong.TripFlow.member.jwt;
 
 import com.ddabong.TripFlow.member.dto.CustomUserDetails;
 import com.ddabong.TripFlow.member.dto.LoginMemberInfoDTO;
-import com.ddabong.TripFlow.member.dto.MemberDTO;
+import com.ddabong.TripFlow.member.dto.ResponseDTO;
+import com.ddabong.TripFlow.member.exception.CustomAuthenticationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,6 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
@@ -37,11 +39,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         System.out.println("userId >>> :: " + userId);
 
-        // 스프링 시큐리티에서 userId와 password를 검증하기 위해서는 token에 담아야 함
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userId, password, null); // 유저네임, 패스워드, 역할
-
-        // token에 담은 검증을 위한 AuthenticationManager로 전달
-        return authenticationManager.authenticate(authToken);
+        try {
+            // 스프링 시큐리티에서 userId와 password를 검증하기 위해서는 token에 담아야 함
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userId, password, null); // 유저네임, 패스워드, 역할
+            // token에 담은 검증을 위한 AuthenticationManager로 전달
+            return authenticationManager.authenticate(authToken);
+        } catch (UsernameNotFoundException e) {
+            throw new CustomAuthenticationException("Id is not found");
+        } catch (AuthenticationException e) {
+            throw new CustomAuthenticationException("Info is wrong");
+        }
     }
 
     // 로그인 성공시 실행하는 메서드 (여기서 JWT를 발급하면 됨)
@@ -67,9 +74,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         LoginMemberInfoDTO loginMemberInfoDTO = new LoginMemberInfoDTO();
         loginMemberInfoDTO = setLoginMemberInfo(customUserDetails, token);
 
+        ResponseDTO responseDTO = new ResponseDTO("Login Success", 200, loginMemberInfoDTO);
+
 
         response.setContentType("application/json;charset=UTF-8");
-        response.getWriter().write(new ObjectMapper().writeValueAsString(loginMemberInfoDTO));
+        response.getWriter().write(new ObjectMapper().writeValueAsString(responseDTO));
     }
 
     private LoginMemberInfoDTO setLoginMemberInfo(CustomUserDetails customUserDetails, String token){
@@ -100,9 +109,21 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     // 로그인 실패시 실행하는 메서드
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed){
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException{
         System.out.println("login fail >>> ");
 
-        response.setStatus(401);
+        String message;
+        if (failed.getMessage().equals("Id is not found")) {
+            message = "Id is not found";
+        } else {
+            message = "Info is wrong";
+        }
+
+        ResponseDTO responseDTO = new ResponseDTO(message, 406, null);
+
+        response.setContentType("application/json; charset=UTF-8");
+        response.setStatus(406);
+        response.getWriter().write(new ObjectMapper().writeValueAsString(responseDTO));
+
     }
 }
