@@ -14,25 +14,25 @@
     </insert>
 
     <!-- 중복 닉네임 확인 -->
-    <select id="isExistByNickname" parameterType="String" resultType="int">
+    <select id="getCountByNickname" parameterType="String" resultType="int">
         SELECT COUNT(*) FROM MEMBER
         WHERE nickname = #{nickname}
     </select>
 
     <!-- 중복 아이디 확인 -->
-    <select id="isExistByUserId" parameterType="String" resultType="int">
+    <select id="getCountByUserId" parameterType="String" resultType="int">
         SELECT COUNT(*) FROM MEMBER
         WHERE userid = #{userId}
     </select>
 
     <!-- 중복 이메일 확인 -->
-    <select id="isExistByEmail" parameterType="String" resultType="int">
+    <select id="getCountByEmail" parameterType="String" resultType="int">
         SELECT COUNT(*) FROM MEMBER
         WHERE email = #{email}
     </select>
 
     <!-- 중복 전화번호 확인 -->
-    <select id="isExistByPhoneNumber" parameterType="String" resultType="int">
+    <select id="getCountByPhoneNumber" parameterType="String" resultType="int">
         SELECT COUNT(*) FROM MEMBER
         WHERE phonenumber = #{phoneNumber}
     </select>

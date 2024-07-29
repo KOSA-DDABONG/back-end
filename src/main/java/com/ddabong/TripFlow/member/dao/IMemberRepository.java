@@ -6,9 +6,9 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface IMemberRepository {
     void joinMember(Member member);
-    Boolean isExistByNickname(String nickname);
-    Boolean isExistByUserId(String userId);
-    Boolean isExistByEmail(String email);
-    Boolean isExistByPhoneNumber(String phoneNumber);
+    int getCountByNickname(String nickname);
+    int getCountByUserId(String userId);
+    int getCountByEmail(String email);
+    int getCountByPhoneNumber(String phoneNumber);
     Member findByUserId(String userId);
 }
