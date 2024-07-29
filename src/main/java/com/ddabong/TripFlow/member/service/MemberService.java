@@ -51,9 +51,11 @@ public class MemberService {
 
 
     public Boolean isExistByNickname(String nickname) {
-        Boolean isExistNickname = iMemberRepository.isExistByNickname(nickname);
+        int cnt = iMemberRepository.getCountByNickname(nickname);
+        boolean flag = false;
+        if (cnt>0) flag = true;
 
-        if(isExistNickname) {
+        if(flag) {
             return true;
         } else {
             return false;
@@ -61,9 +63,11 @@ public class MemberService {
     }
 
     public Boolean isExistByUserId(String userId) {
-        Boolean isExistUserId = iMemberRepository.isExistByUserId(userId);
+        int cnt = iMemberRepository.getCountByUserId(userId);
+        boolean flag = false;
+        if(cnt>0) flag = true;
 
-        if (isExistUserId){
+        if (flag){
             return true;
         } else {
             return false;
@@ -71,9 +75,11 @@ public class MemberService {
     }
 
     public Boolean isExistByEmail(String email) {
-        Boolean isExistEmail = iMemberRepository.isExistByEmail(email);
+        int cnt = iMemberRepository.getCountByEmail(email);
+        boolean flag = false;
+        if(cnt>0) flag = true;
 
-        if (isExistEmail) {
+        if (flag) {
             return true;
         } else {
             return false;
@@ -81,9 +87,11 @@ public class MemberService {
     }
 
     public Boolean isExistByPhoneNumber(String phoneNumber) {
-        Boolean isExistPhoneNumber = iMemberRepository.isExistByPhoneNumber(phoneNumber);
+        int cnt = iMemberRepository.getCountByPhoneNumber(phoneNumber);
+        boolean flag = false;
+        if(cnt>0) flag = true;
 
-        if (isExistPhoneNumber){
+        if (flag){
             return true;
         } else {
             return false;
