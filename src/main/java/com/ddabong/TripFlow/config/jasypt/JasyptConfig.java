@@ -31,7 +31,8 @@ public class JasyptConfig {
         //암복호화에 사용된 비밀번호 설정 (필수)
         config.setPassword(jasyptPassword);
         //아래 설정은 모두 옵션 (디폴트로 셋팅함)
-        config.setAlgorithm("PBEWITHHMACSHA512ANDAES_256");
+        //config.setAlgorithm("PBEWITHHMACSHA512ANDAES_256");
+        config.setAlgorithm("PBEWithMD5AndDES");
         config.setKeyObtentionIterations("100000");
         config.setPoolSize("1");
         config.setProviderName("SunJCE");
