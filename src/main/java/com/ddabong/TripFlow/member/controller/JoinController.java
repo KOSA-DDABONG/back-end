@@ -31,6 +31,11 @@ public class JoinController {
             Boolean isExistEmail = memberService.isExistByEmail(memberDTO.getEmail());
             Boolean isExistPhoneNumber = memberService.isExistByPhoneNumber(memberDTO.getPhoneNumber());
 
+            System.out.println("닉네임 존재 여부 : " + isExistNickName);
+            System.out.println("아이디 존재 여부 : " + isExistUserId);
+            System.out.println("이메일 존재 여부 : " + isExistEmail);
+            System.out.println("전화번호 존재 여부 : " + isExistPhoneNumber);
+
             if(isExistNickName) {
                 System.out.println("이미 사용중인 닉네임");
                 return "이미 사용중인 닉네임";

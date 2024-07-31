@@ -1,12 +1,16 @@
 package com.ddabong.TripFlow.config.jasypt;
 
 import jakarta.annotation.PostConstruct;
+import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
+import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class EncryptConfig {
 
-    /* datasource
+    // datasource
+    /*
     @Value("${spring.datasource.url}")
     private String url;
 
@@ -19,8 +23,12 @@ public class EncryptConfig {
 
     @PostConstruct
     public void init() {
-        //System.out.println("Datasource URL: " + url);
-        //System.out.println("Datasource Username: " + username);
-        //System.out.println("Datasource Password: " + password);
+        PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
+
+        //System.out.println("Datasource URL: " + encryptor.decrypt(url));
+        //System.out.println("Datasource Username: " + encryptor.decrypt(username));
+        //System.out.println("Datasource Password: " + encryptor.decrypt(password));
+
     }
+
 }
