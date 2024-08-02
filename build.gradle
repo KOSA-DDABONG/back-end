@@ -62,7 +62,7 @@ tasks.named('test') {
 	useJUnitPlatform()
 
 	// -P를 통해 전달하는 경우
-	systemProperty "jasypt.encryptor.password", project.getProperty("jasypt.encryptor.password")
+	//systemProperty "jasypt.encryptor.password", project.getProperty("jasypt.encryptor.password")
 	// -D를 통해 전달하는 경우
 	systemProperty "jasypt.encryptor.password", System.getProperty("jasypt.encryptor.password")
 }
