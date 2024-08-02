@@ -10,6 +10,9 @@ public class CorsMvcConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry corsRegistry){
         corsRegistry.addMapping("/**")
                 //.allowedOrigins("http://localhost:3000"); // 프론트 서버 주소
-                .allowedOrigins("*"); // 프론트 서버 주소
+                .allowedOrigins("*") // 프론트 서버 주소
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true);
     }
 }
