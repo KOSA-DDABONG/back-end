@@ -12,17 +12,24 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Service
-public class MemberService {
-    private final IMemberRepository iMemberRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+public class MemberService implements IMemberService {
 
+    @Autowired
+    private IMemberRepository iMemberRepository;
+
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    /*
     @Autowired
     public MemberService(IMemberRepository iMemberRepository,
                          BCryptPasswordEncoder bCryptPasswordEncoder){
         this.iMemberRepository = iMemberRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
+     */
 
+    @Override
     public void joinMember(MemberDTO memberDTO) {
         Member member = setMember(memberDTO);
         iMemberRepository.joinMember(member);
@@ -49,9 +56,12 @@ public class MemberService {
         return member;
     }
 
-
+    @Override
+    public int getCountByNickname(String nickname) {
+        return iMemberRepository.getCountByNickname(nickname);
+    }
     public Boolean isExistByNickname(String nickname) {
-        int cnt = iMemberRepository.getCountByNickname(nickname);
+        int cnt = getCountByNickname(nickname);
         boolean flag = false;
         if (cnt>0) flag = true;
 
@@ -62,8 +72,12 @@ public class MemberService {
         }
     }
 
+    @Override
+    public int getCountByUserId(String userId) {
+        return iMemberRepository.getCountByUserId(userId);
+    }
     public Boolean isExistByUserId(String userId) {
-        int cnt = iMemberRepository.getCountByUserId(userId);
+        int cnt = getCountByUserId(userId);
         boolean flag = false;
         if(cnt>0) flag = true;
 
@@ -74,8 +88,12 @@ public class MemberService {
         }
     }
 
+    @Override
+    public int getCountByEmail(String email) {
+        return iMemberRepository.getCountByEmail(email);
+    }
     public Boolean isExistByEmail(String email) {
-        int cnt = iMemberRepository.getCountByEmail(email);
+        int cnt = getCountByEmail(email);
         boolean flag = false;
         if(cnt>0) flag = true;
 
@@ -86,8 +104,12 @@ public class MemberService {
         }
     }
 
+    @Override
+    public int getCountByPhoneNumber(String phoneNumber) {
+        return iMemberRepository.getCountByPhoneNumber(phoneNumber);
+    }
     public Boolean isExistByPhoneNumber(String phoneNumber) {
-        int cnt = iMemberRepository.getCountByPhoneNumber(phoneNumber);
+        int cnt = getCountByPhoneNumber(phoneNumber);
         boolean flag = false;
         if(cnt>0) flag = true;
 
@@ -96,5 +118,10 @@ public class MemberService {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public Member findByUserId(String userId) {
+        return null;
     }
 }
