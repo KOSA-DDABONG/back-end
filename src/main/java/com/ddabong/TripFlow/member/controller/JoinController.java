@@ -4,6 +4,7 @@ import com.ddabong.TripFlow.member.dto.MemberDTO;
 import com.ddabong.TripFlow.member.service.MemberService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
@@ -17,7 +18,7 @@ public class JoinController {
     }
 
     @PostMapping("/user/register")
-    public String joinProcess(MemberDTO memberDTO){
+    public String joinProcess(@RequestBody MemberDTO memberDTO){
         try {
             System.out.println("username : " + memberDTO.getUsername());
             System.out.println("nickname : " + memberDTO.getNickname());
