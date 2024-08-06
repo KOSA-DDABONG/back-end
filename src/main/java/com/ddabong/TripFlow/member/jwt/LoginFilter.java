@@ -2,6 +2,7 @@ package com.ddabong.TripFlow.member.jwt;
 
 import com.ddabong.TripFlow.member.dto.CustomUserDetails;
 import com.ddabong.TripFlow.member.dto.LoginMemberInfoDTO;
+import com.ddabong.TripFlow.member.dto.LoginRequestDTO;
 import com.ddabong.TripFlow.member.dto.ResponseDTO;
 import com.ddabong.TripFlow.member.exception.CustomAuthenticationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +25,7 @@ import java.util.Iterator;
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil){
         this.authenticationManager = authenticationManager;
@@ -32,18 +34,19 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     }
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        // 클라이언트 요청에서 userId, password 추출
-        setUsernameParameter("userId");
-        String userId = obtainUsername(request);
-        String password = obtainPassword(request);
-
-        System.out.println("userId >>> :: " + userId);
-
         try {
+            // JSON 형식의 요청 바디를 LoginRequestDTO로 파싱
+            LoginRequestDTO loginRequest = objectMapper.readValue(request.getInputStream(), LoginRequestDTO.class);
+            String userId = loginRequest.getUserId();
+            String password = loginRequest.getPassword();
+
+            System.out.println("userId >>> :: " + userId);
             // 스프링 시큐리티에서 userId와 password를 검증하기 위해서는 token에 담아야 함
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userId, password, null); // 유저네임, 패스워드, 역할
             // token에 담은 검증을 위한 AuthenticationManager로 전달
             return authenticationManager.authenticate(authToken);
+        } catch (IOException e) {
+            throw new CustomAuthenticationException("Invalid login request");
         } catch (UsernameNotFoundException e) {
             throw new CustomAuthenticationException("Id is not found");
         } catch (AuthenticationException e) {
