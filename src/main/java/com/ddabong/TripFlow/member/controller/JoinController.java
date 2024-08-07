@@ -1,7 +1,9 @@
 package com.ddabong.TripFlow.member.controller;
 
 import com.ddabong.TripFlow.member.dto.MemberDTO;
+import com.ddabong.TripFlow.member.service.IMemberService;
 import com.ddabong.TripFlow.member.service.MemberService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,12 +12,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @ResponseBody
 public class JoinController {
-    private final MemberService memberService;
 
-
-    public JoinController(MemberService memberService) {
-        this.memberService = memberService;
-    }
+    @Autowired
+    private IMemberService memberService;
 
     @PostMapping("/user/register")
     public String joinProcess(@RequestBody MemberDTO memberDTO){
