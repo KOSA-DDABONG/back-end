@@ -10,4 +10,8 @@ public interface IMemberService {
     int getCountByEmail(String email);
     int getCountByPhoneNumber(String phoneNumber);
     Member findByUserId(String userId);
+    Boolean isExistByNickname(String nickname);
+    Boolean isExistByUserId(String userId);
+    Boolean isExistByEmail(String email);
+    Boolean isExistByPhoneNumber(String phoneNumber);
 }

@@ -20,15 +20,6 @@ public class MemberService implements IMemberService {
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    /*
-    @Autowired
-    public MemberService(IMemberRepository iMemberRepository,
-                         BCryptPasswordEncoder bCryptPasswordEncoder){
-        this.iMemberRepository = iMemberRepository;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-    }
-     */
-
     @Override
     public void joinMember(MemberDTO memberDTO) {
         Member member = setMember(memberDTO);
