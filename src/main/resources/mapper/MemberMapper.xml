@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ddabong.TripFlow.member.dao.IMemberRepository">
+<mapper namespace="com.ddabong.tripflow.member.dao.IMemberRepository">
 
     <!-- 회원 가입 -->
-    <insert id="joinMember" parameterType="com.ddabong.TripFlow.member.model.Member">
+    <insert id="joinMember" parameterType="com.ddabong.tripflow.member.model.Member">
         INSERT INTO MEMBER
             (memberid, username, nickname, userid, password,
             email, phonenumber, birth, createdtime, recessaccess, role)
@@ -38,7 +38,7 @@
     </select>
 
     <!-- 유저 찾기 -->
-    <select id="findByUserId" parameterType="String" resultType="com.ddabong.TripFlow.member.model.Member">
+    <select id="findByUserId" parameterType="String" resultType="com.ddabong.tripflow.member.model.Member">
         SELECT * FROM MEMBER
         WHERE userid = #{userId}
     </select>
