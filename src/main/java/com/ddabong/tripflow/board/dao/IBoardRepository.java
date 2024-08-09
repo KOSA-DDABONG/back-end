@@ -21,4 +21,5 @@ public interface IBoardRepository {
     //List<BoardDTO>findComment(Long id);
     List<CommentDTO>findComment(Long id);
 
+    List<BoardDTO> findTOP();
 }

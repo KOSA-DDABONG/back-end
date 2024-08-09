@@ -54,13 +54,16 @@ public class BoardController {//클래스명 BoardController
 //        //return responseDTO;
 //    }
 
-    @GetMapping("/list") // list를 조회 하는 메소드
+    @GetMapping("/list") // 좋아요 전체 list를 조회 하는 메소드 // 좋아요 상위3개 추출
     public ResponseEntity<ResponseDTO> findAll() { // json 형식으로 데이터를 반환
         List<BoardDTO> boardDTOList = boardService.findAll();
-        System.out.println("*****" + boardDTOList);
+        List<BoardDTO> boardDTOListtop = boardService.findTOP();
+
+        System.out.println("boardDTOList:" + boardDTOList);
+        System.out.println("boardDTOListtop:" + boardDTOListtop);
 
         // JSON 형식으로 반환할 ResponseDTO 객체 생성
-        ResponseDTO responseDTO = new ResponseDTO("success", 200, boardDTOList);
+        ResponseDTO responseDTO = new ResponseDTO("success", 200,boardDTOListtop,boardDTOList);
         // ResponseEntity를 통해 JSON 응답 반환
         return ResponseEntity.ok(responseDTO);
     }

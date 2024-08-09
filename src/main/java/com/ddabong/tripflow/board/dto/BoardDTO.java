@@ -22,6 +22,4 @@ public class BoardDTO {
     //게시물 내용
     private String content;
 
-
-
 }

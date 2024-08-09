@@ -11,7 +11,19 @@
     </insert>
 
     <select id="findAll" resultType="com.ddabong.tripflow.board.dto.BoardDTO">
-        select * from tripflow.DDABONG order by likeid desc
+        SELECT
+        d.postid,
+        d.likecount,
+        c.comcontentcount
+        FROM
+        (SELECT postid, COUNT(*) AS likecount
+        FROM tripflow.DDABONG
+        GROUP BY postid) d
+        LEFT JOIN
+        (SELECT postid, COUNT(*) AS comcontentcount
+        FROM tripflow.COMMENT
+        GROUP BY postid) c ON d.postid = c.postid
+        ORDER BY postid desc;
     </select>
 
     <update id="updateHits" parameterType="long">
@@ -38,6 +50,24 @@
 <!--        where p.postid=#{id}-->
 <!--    </select>-->
 
+    <select id="findTOP" resultType="com.ddabong.tripflow.board.dto.BoardDTO">
+        SELECT
+        d.postid,
+        d.likecount,
+        c.comcontentcount
+        FROM
+        (SELECT postid, COUNT(*) AS likecount
+        FROM tripflow.DDABONG
+        GROUP BY postid) d
+        LEFT JOIN
+        (SELECT postid, COUNT(*) AS comcontentcount
+        FROM tripflow.COMMENT
+        GROUP BY postid) c ON d.postid = c.postid
+        order BY d.likecount desc
+        limit 3;
+    </select>
+
+
     <select id="findDetail" resultType="com.ddabong.tripflow.board.dto.BoardDTO">
         SELECT
         COUNT(d.likeid) AS likecount,
@@ -54,7 +84,6 @@
         p.postid = #{id}
         GROUP BY
         p.postid, p.travelid, p.memberid, p.content;
-
     </select>
 
     <select id="findComment" resultType="com.ddabong.tripflow.board.dto.CommentDTO">
