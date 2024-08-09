@@ -56,6 +56,10 @@ public class BoardService implements IBoardService {
     //public List<BoardDTO> findComment(Long id){return boardRepository.findComment(id);}
     public List<CommentDTO> findComment(Long id){return boardRepository.findComment(id);}
 
+    public List<BoardDTO> findTOP() {
+        return boardRepository.findTOP();
+    }
+
     public void update(BoardDTO boardDTO){
         boardRepository.update(boardDTO);
     }

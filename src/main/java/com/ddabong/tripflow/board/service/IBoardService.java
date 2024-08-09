@@ -26,4 +26,5 @@ public interface IBoardService {
     //List<BoardDTO> findComment(Long id);
     List<CommentDTO> findComment(Long id);
 
+    List<BoardDTO> findTOP();
 }
