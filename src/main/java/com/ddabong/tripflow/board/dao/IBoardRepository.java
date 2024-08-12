@@ -17,9 +17,9 @@ public interface IBoardRepository {
     List<BoardDTO>findDetail(Long id);
     void update(BoardDTO boardDTO);
     void delete(Long id);
-
     //List<BoardDTO>findComment(Long id);
     List<CommentDTO>findComment(Long id);
 
     List<BoardDTO> findTOP();
+    void saveComment(CommentDTO commentDTO);
 }

@@ -91,7 +91,6 @@
         order by commentid asc;
     </select>
 
-
 <!--    제목과 내용만 수정-->
     <update id="update">
         update board_table set boardTitle=#{boardTitle}, boardContents=#{boardContents} where id=#{id}
@@ -100,4 +99,12 @@
     <delete id="delete" parameterType="long">
         delete from board_table where id=#{id}
     </delete>
+
+    <insert id="saveComment" parameterType="com.ddabong.tripflow.board.dto.CommentDTO">
+        INSERT INTO tripflow.COMMENT
+            (commentid, postid, travelid, commentid2, memberid, comcontent)
+        VALUES
+            (#{commentid},#{postid},#{travelid},#{commentid2},#{memberid},#{comcontent})
+    </insert>
+
 </mapper>
