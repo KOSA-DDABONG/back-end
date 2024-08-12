@@ -39,25 +39,15 @@ public class BoardService implements IBoardService {
         return boardRepository.findLike(id);
     }
 
-//    public List<BoardDTO> findLikeRep(Long id) {
-//        //Ddabong ddabong = findLike(id);
-//        List<BoardDTO> boardDTOList = new ArrayList<>();
-//
-//        for(){
-//            BoardDTO boardDTO = new BoardDTO();
-//            ser~~~;
-//            boardDTOList.add(boardDTO);
-//        }
-//
-//
-//        return boardDTOList;
-//    }
-
     //public List<BoardDTO> findComment(Long id){return boardRepository.findComment(id);}
     public List<CommentDTO> findComment(Long id){return boardRepository.findComment(id);}
 
     public List<BoardDTO> findTOP() {
         return boardRepository.findTOP();
+    }
+
+    public void saveCommnet(CommentDTO commentDTO) {
+        boardRepository.saveComment(commentDTO);
     }
 
     public void update(BoardDTO boardDTO){
@@ -67,5 +57,4 @@ public class BoardService implements IBoardService {
     public void delete(Long id) {
         boardRepository.delete(id);
     }
-
 }

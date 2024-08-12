@@ -20,11 +20,9 @@ public interface IBoardService {
     void update(BoardDTO boardDTO);
 
     void delete(Long id);
-
     List<BoardDTO> findLike(Long id);
-
     //List<BoardDTO> findComment(Long id);
     List<CommentDTO> findComment(Long id);
-
     List<BoardDTO> findTOP();
+    void saveCommnet(CommentDTO commentDTO);
 }

@@ -12,6 +12,7 @@ public class ResponseDTO<T1, T2> {
     private int status;
     private List<T1> data1; // 첫 번째 데이터 리스트
     private List<T2> data2; // 두 번째 데이터 리스트
+    private  T1 data3;
 
     // 두 개의 리스트를 받는 생성자
     public ResponseDTO(String message, int status, List<T1> data1, List<T2> data2) {
@@ -27,6 +28,13 @@ public class ResponseDTO<T1, T2> {
         this.status = status;
         this.data1 = data1;
     }
+
+    public ResponseDTO(String message, int status, T1 data3) {
+        this.message = message;
+        this.status = status;
+        this.data3 = data3;
+    }
+
 
     // 메시지와 데이터1만 받는 생성자
     public ResponseDTO(String message, List<T1> data1) {
