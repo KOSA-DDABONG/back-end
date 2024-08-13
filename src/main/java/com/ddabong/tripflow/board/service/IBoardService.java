@@ -25,4 +25,6 @@ public interface IBoardService {
     List<CommentDTO> findComment(Long id);
     List<BoardDTO> findTOP();
     void saveCommnet(CommentDTO commentDTO);
+
+    void savePost(BoardDTO boardDTO);
 }

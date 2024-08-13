@@ -42,7 +42,6 @@ public class BoardController {//클래스명 BoardController
     @PostMapping("/list/savecomment")//댓글 저장 기능
     public ResponseEntity<ResponseDTO> saveComment(@RequestBody CommentDTO commentDTO){
         try{
-            System.out.println("출력결과:");
             System.out.println("commentid: " + commentDTO.getCommentid());
             System.out.println("postid: " + commentDTO.getPostid());
             System.out.println("travelid: " + commentDTO.getTravelid());
@@ -53,8 +52,24 @@ public class BoardController {//클래스명 BoardController
             System.out.println(e.getMessage());
         }
         boardService.saveCommnet(commentDTO);
-        ResponseDTO responseDTO = new ResponseDTO("sss",200, commentDTO);
+        ResponseDTO responseDTO = new ResponseDTO("success",200, commentDTO);
         return  ResponseEntity.ok(responseDTO);
+    }
+
+    @PostMapping("/savepost")//게시물 저장 기능
+    public ResponseEntity<ResponseDTO> savePost(@RequestBody BoardDTO boardDTO){
+        try{
+            System.out.println("Postid: " + boardDTO.getPostid());
+            System.out.println("travelid: " + boardDTO.getTravelid());
+            System.out.println("content: " + boardDTO.getContent());
+            System.out.println("memberid: " + boardDTO.getMemberid());
+            System.out.println("createdtime: " + boardDTO.getCreatedtime());
+        }catch(RuntimeException e){
+            System.out.println(e.getMessage());
+        }
+        boardService.savePost(boardDTO);
+        ResponseDTO responseDTO = new ResponseDTO("success",200,boardDTO);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @Transactional
@@ -72,7 +87,7 @@ public class BoardController {//클래스명 BoardController
         return ResponseEntity.ok(responseDTO);
     }
 
-    @GetMapping("/{id}") // 조회할 때마다 조회수가 증가하도록 하는 메소드
+    @GetMapping("/{id}") // 조회할 때마다 조회수가 증가하도록 하는 메소드 //사용 안할 예정
     public ResponseEntity<BoardDTO> findById(@PathVariable("id") Long id) {
         // 조회수 처리
         // 상세 내용 가져옴

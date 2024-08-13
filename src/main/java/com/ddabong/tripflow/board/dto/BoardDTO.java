@@ -1,8 +1,12 @@
 package com.ddabong.tripflow.board.dto;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.sql.Timestamp;
+import java.util.Date;
 
 @Getter //getter setter를 사용하므로서 각 필드에 대해 설정해준다.
 @Setter
@@ -21,5 +25,6 @@ public class BoardDTO {
     private Long travelid;
     //게시물 내용
     private String content;
-
+    //생성시간
+    private Date createdtime;
 }
