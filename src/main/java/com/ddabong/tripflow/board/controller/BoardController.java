@@ -1,8 +1,6 @@
 package com.ddabong.tripflow.board.controller;
 
-import com.ddabong.tripflow.board.dto.BoardDTO;
-import com.ddabong.tripflow.board.dto.CommentDTO;
-import com.ddabong.tripflow.board.dto.ResponseDTO;
+import com.ddabong.tripflow.board.dto.*;
 import com.ddabong.tripflow.board.service.IBoardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +38,7 @@ public class BoardController {//클래스명 BoardController
     }
 
     @PostMapping("/list/savecomment")//댓글 저장 기능
-    public ResponseEntity<ResponseDTO> saveComment(@RequestBody CommentDTO commentDTO){
+    public ResponseEntity<ResponseDTO_C> saveComment(@RequestBody CommentDTO commentDTO){
         try{
             System.out.println("commentid: " + commentDTO.getCommentid());
             System.out.println("postid: " + commentDTO.getPostid());
@@ -52,12 +50,12 @@ public class BoardController {//클래스명 BoardController
             System.out.println(e.getMessage());
         }
         boardService.saveCommnet(commentDTO);
-        ResponseDTO responseDTO = new ResponseDTO("success",200, commentDTO);
+        ResponseDTO_C responseDTO = new ResponseDTO_C("success",200, commentDTO);
         return  ResponseEntity.ok(responseDTO);
     }
 
     @PostMapping("/savepost")//게시물 저장 기능
-    public ResponseEntity<ResponseDTO> savePost(@RequestBody BoardDTO boardDTO){
+    public ResponseEntity<ResponseDTO_B> savePost(@RequestBody BoardDTO boardDTO){
         try{
             System.out.println("Postid: " + boardDTO.getPostid());
             System.out.println("travelid: " + boardDTO.getTravelid());
@@ -68,13 +66,13 @@ public class BoardController {//클래스명 BoardController
             System.out.println(e.getMessage());
         }
         boardService.savePost(boardDTO);
-        ResponseDTO responseDTO = new ResponseDTO("success",200,boardDTO);
+        ResponseDTO_B responseDTO = new ResponseDTO_B("success",200,boardDTO);
         return ResponseEntity.ok(responseDTO);
     }
 
     @Transactional
     @GetMapping("/list") // 좋아요 전체 list를 조회 하는 메소드 // 좋아요 상위3개 추출
-    public ResponseEntity<ResponseDTO> findAll() { // json 형식으로 데이터를 반환
+    public ResponseEntity<ResponseDTO_BLBL> findAll() { // json 형식으로 데이터를 반환
         List<BoardDTO> boardDTOList = boardService.findAll();
         List<BoardDTO> boardDTOListtop = boardService.findTOP();
 
@@ -82,7 +80,7 @@ public class BoardController {//클래스명 BoardController
         System.out.println("boardDTOListtop:" + boardDTOListtop);
 
         // JSON 형식으로 반환할 ResponseDTO 객체 생성
-        ResponseDTO responseDTO = new ResponseDTO("success", 200,boardDTOListtop,boardDTOList);
+        ResponseDTO_BLBL responseDTO = new ResponseDTO_BLBL("success", 200,boardDTOListtop,boardDTOList);
         // ResponseEntity를 통해 JSON 응답 반환
         return ResponseEntity.ok(responseDTO);
     }
@@ -100,13 +98,13 @@ public class BoardController {//클래스명 BoardController
 
     //이미지를 선택하면 디테일한 데이터를 넘겨주는 데이터(좋아요 갯수, content, 댓글, 해쉬태그...)
     @GetMapping("/list/{id}")
-    public ResponseEntity<ResponseDTO> findDetail(@PathVariable("id") Long id){
+    public ResponseEntity<ResponseDTO_BLCL> findDetail(@PathVariable("id") Long id){
         List<BoardDTO> boardDTODetail = boardService.findDetail(id); //postid, content
         List<CommentDTO> commentDTO = boardService.findComment(id);
         List<BoardDTO> boardDTOList = new ArrayList<>();
         boardDTOList.addAll(boardDTODetail);
 
-        ResponseDTO responseDTO = new ResponseDTO("sss",200, boardDTOList,commentDTO);
+        ResponseDTO_BLCL responseDTO = new ResponseDTO_BLCL("success",200, boardDTOList,commentDTO);
         return  ResponseEntity.ok(responseDTO);
     }
 
