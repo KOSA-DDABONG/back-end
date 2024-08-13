@@ -57,4 +57,7 @@ public class BoardService implements IBoardService {
     public void delete(Long id) {
         boardRepository.delete(id);
     }
+
+    public void savePost(BoardDTO boardDTO) {boardRepository.savePost(boardDTO);}
+
 }

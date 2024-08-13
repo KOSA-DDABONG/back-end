@@ -22,4 +22,6 @@ public interface IBoardRepository {
 
     List<BoardDTO> findTOP();
     void saveComment(CommentDTO commentDTO);
+
+    void savePost(BoardDTO boardDTO);
 }

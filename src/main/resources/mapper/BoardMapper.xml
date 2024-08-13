@@ -107,4 +107,19 @@
             (#{commentid},#{postid},#{travelid},#{commentid2},#{memberid},#{comcontent})
     </insert>
 
+    <insert id="savePost" parameterType="com.ddabong.tripflow.board.dto.BoardDTO">
+        INSERT INTO tripflow.POST
+            (postid, travelid, content, memberid, createdtime)
+        VALUES
+            (#{postid},#{travelid},#{content},#{memberid},#{createdtime})
+    </insert>
+
+<!--    <insert id="savePost" parameterType="com.ddabong.tripflow.board.dto.BoardDTO">-->
+<!--        INSERT INTO tripflow.POST-->
+<!--            (postid, travelid, content, memberid, createdtime)-->
+<!--        VALUES-->
+<!--            (1,2,"dsfs",3,"2024-10-15 10:10:10")-->
+<!--    </insert>-->
+
+
 </mapper>
