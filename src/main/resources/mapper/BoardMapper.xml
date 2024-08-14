@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ddabong.tripflow.board.dao.IBoardRepository">
+<!--        id가 의미하는 것은 repository에서 "Board.save"-->
+<!--        parameterType = "board"가 의미하는 것은 mybatis 에서 "com.codingrecipe.board.dto.BoardDTO 를 board라는 별칭으로 부르겠다-->
+    <insert id="save" parameterType="com.ddabong.tripflow.board.dto.BoardDTO">
+        insert into board_table(boardTitle, boardWriter, boardPass, boardContents)
+        values(#{boardTitle}, #{boardWriter}, #{boardPass}, #{boardContents})
+    </insert>
+
+    <select id="findAll" resultType="com.ddabong.tripflow.board.dto.BoardDTO">
+        SELECT
+        d.postid,
+        d.likecount,
+        c.comcontentcount
+        FROM
+        (SELECT postid, COUNT(*) AS likecount
+        FROM tripflow.DDABONG
+        GROUP BY postid) d
+        LEFT JOIN
+        (SELECT postid, COUNT(*) AS comcontentcount
+        FROM tripflow.COMMENT
+        GROUP BY postid) c ON d.postid = c.postid
+        ORDER BY postid desc;
+    </select>
+
+    <update id="updateHits" parameterType="long">
+        update board_table set boardHits=boardHits+1 where id=#{id}
+    </update>
+
+    <select id="findById" parameterType="long" resultType="com.ddabong.tripflow.board.dto.BoardDTO">
+        SELECT dd.likeid, dd.postid, dd.memberid, po.travelid, po.content
+        FROM tripflow.DDABONG dd
+        LEFT JOIN tripflow.POST po ON dd.postid = po.postid
+
+        UNION ALL
+
+        SELECT dd.likeid, dd.postid, dd.memberid, po.travelid, po.content
+        FROM tripflow.DDABONG dd
+        RIGHT JOIN tripflow.POST po ON dd.postid = po.postid
+        WHERE dd.postid IS NULL;
+    </select>
+
+<!--    <select id="findLike" resultType="com.ddabong.tripflow.board.dto.BoardDTO">-->
+<!--        select COUNT(d.likeid) AS likecount , p.postid, p.travelid ,p.content-->
+<!--        from tripflow.POST p-->
+<!--        join tripflow.DDABONG d on p.postid=d.postid-->
+<!--        where p.postid=#{id}-->
+<!--    </select>-->
+
+    <select id="findTOP" resultType="com.ddabong.tripflow.board.dto.BoardDTO">
+        SELECT
+        d.postid,
+        d.likecount,
+        c.comcontentcount
+        FROM
+        (SELECT postid, COUNT(*) AS likecount
+        FROM tripflow.DDABONG
+        GROUP BY postid) d
+        LEFT JOIN
+        (SELECT postid, COUNT(*) AS comcontentcount
+        FROM tripflow.COMMENT
+        GROUP BY postid) c ON d.postid = c.postid
+        order BY d.likecount desc
+        limit 3;
+    </select>
+
+
+    <select id="findDetail" resultType="com.ddabong.tripflow.board.dto.BoardDTO">
+        SELECT
+        COUNT(d.likeid) AS likecount,
+        p.postid,
+        p.travelid,
+        p.memberid,
+        p.content,
+        (SELECT COUNT(*) FROM tripflow.COMMENT c WHERE c.postid = p.postid) AS comcontentcount
+        FROM
+        tripflow.POST p
+        JOIN
+        tripflow.DDABONG d ON p.postid = d.postid
+        WHERE
+        p.postid = #{id}
+        GROUP BY
+        p.postid, p.travelid, p.memberid, p.content;
+    </select>
+
+    <select id="findComment" resultType="com.ddabong.tripflow.board.dto.CommentDTO">
+        select * from tripflow.COMMENT where postid = #{id}
+        order by commentid asc;
+    </select>
+
+<!--    제목과 내용만 수정-->
+    <update id="update">
+        update board_table set boardTitle=#{boardTitle}, boardContents=#{boardContents} where id=#{id}
+    </update>
+
+    <delete id="delete" parameterType="long">
+        delete from board_table where id=#{id}
+    </delete>
+
+    <insert id="saveComment" parameterType="com.ddabong.tripflow.board.dto.CommentDTO">
+        INSERT INTO tripflow.COMMENT
+            (commentid, postid, travelid, commentid2, memberid, comcontent)
+        VALUES
+            (#{commentid},#{postid},#{travelid},#{commentid2},#{memberid},#{comcontent})
+    </insert>
+
+    <insert id="savePost" parameterType="com.ddabong.tripflow.board.dto.BoardDTO">
+        INSERT INTO tripflow.POST
+            (postid, travelid, content, memberid, createdtime)
+        VALUES
+            (#{postid},#{travelid},#{content},#{memberid},#{createdtime})
+    </insert>
+
+<!--    <insert id="savePost" parameterType="com.ddabong.tripflow.board.dto.BoardDTO">-->
+<!--        INSERT INTO tripflow.POST-->
+<!--            (postid, travelid, content, memberid, createdtime)-->
+<!--        VALUES-->
+<!--            (1,2,"dsfs",3,"2024-10-15 10:10:10")-->
+<!--    </insert>-->
+
+
+</mapper>

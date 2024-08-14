@@ -58,15 +58,6 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-tasks.named('test') {
-	useJUnitPlatform()
-
-	// -P를 통해 전달하는 경우
-	//systemProperty "jasypt.encryptor.password", project.getProperty("jasypt.encryptor.password")
-	// -D를 통해 전달하는 경우
-	systemProperty "jasypt.encryptor.password", System.getProperty("jasypt.encryptor.password")
-}
-
 tasks.withType(JavaCompile) {
 	options.compilerArgs << '-parameters'
 }
