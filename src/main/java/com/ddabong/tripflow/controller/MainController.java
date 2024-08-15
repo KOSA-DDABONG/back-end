@@ -22,6 +22,7 @@ public class MainController {
     @GetMapping("/memberinfo")
     public String memberInfo(){
         // 토큰으로 사용자 정보 확인
+        System.out.println("사용자 정보 출력");
         return getMemberInfoService.getUserIdByJWT() + " " + getMemberInfoService.getMemberRoleByJWT();
     }
 }
