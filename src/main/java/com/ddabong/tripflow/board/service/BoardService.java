@@ -3,6 +3,7 @@ package com.ddabong.tripflow.board.service;
 import com.ddabong.tripflow.board.dao.IBoardRepository;
 import com.ddabong.tripflow.board.dto.BoardDTO;
 import com.ddabong.tripflow.board.dto.CommentDTO;
+import com.ddabong.tripflow.board.dto.HashDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +47,9 @@ public class BoardService implements IBoardService {
         return boardRepository.findTOP();
     }
 
+    public List<HashDTO> findHash(Long id) {
+        System.out.println(id);
+        return boardRepository.findHash(id);}
     public void saveCommnet(CommentDTO commentDTO) {
         boardRepository.saveComment(commentDTO);
     }

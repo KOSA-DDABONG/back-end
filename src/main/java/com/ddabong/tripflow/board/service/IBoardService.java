@@ -2,6 +2,7 @@ package com.ddabong.tripflow.board.service;
 
 import com.ddabong.tripflow.board.dto.BoardDTO;
 import com.ddabong.tripflow.board.dto.CommentDTO;
+import com.ddabong.tripflow.board.dto.HashDTO;
 
 import java.util.List;
 
@@ -27,4 +28,6 @@ public interface IBoardService {
     void saveCommnet(CommentDTO commentDTO);
 
     void savePost(BoardDTO boardDTO);
+
+    List<HashDTO> findHash(Long id);
 }

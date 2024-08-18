@@ -101,10 +101,11 @@ public class BoardController {//클래스명 BoardController
     public ResponseEntity<ResponseDTO_BLCL> findDetail(@PathVariable("id") Long id){
         List<BoardDTO> boardDTODetail = boardService.findDetail(id); //postid, content
         List<CommentDTO> commentDTO = boardService.findComment(id);
+        List<HashDTO> hashDTO = boardService.findHash(id); //HASH태그 불러오기
         List<BoardDTO> boardDTOList = new ArrayList<>();
         boardDTOList.addAll(boardDTODetail);
 
-        ResponseDTO_BLCL responseDTO = new ResponseDTO_BLCL("success",200, boardDTOList,commentDTO);
+        ResponseDTO_BLCL responseDTO = new ResponseDTO_BLCL("success",200, boardDTOList,commentDTO,hashDTO);
         return  ResponseEntity.ok(responseDTO);
     }
 
