@@ -75,6 +75,7 @@
         p.travelid,
         p.memberid,
         p.content,
+        p.createdtime,
         (SELECT COUNT(*) FROM tripflow.COMMENT c WHERE c.postid = p.postid) AS comcontentcount
         FROM
         tripflow.POST p
