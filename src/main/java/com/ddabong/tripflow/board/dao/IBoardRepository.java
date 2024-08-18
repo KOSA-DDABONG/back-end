@@ -2,6 +2,7 @@ package com.ddabong.tripflow.board.dao;
 
 import com.ddabong.tripflow.board.dto.BoardDTO;
 import com.ddabong.tripflow.board.dto.CommentDTO;
+import com.ddabong.tripflow.board.dto.HashDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -19,9 +20,9 @@ public interface IBoardRepository {
     void delete(Long id);
     //List<BoardDTO>findComment(Long id);
     List<CommentDTO>findComment(Long id);
+    List<HashDTO>findHash(Long id);
 
     List<BoardDTO> findTOP();
     void saveComment(CommentDTO commentDTO);
-
     void savePost(BoardDTO boardDTO);
 }
