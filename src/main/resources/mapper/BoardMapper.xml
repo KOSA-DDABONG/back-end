@@ -97,6 +97,14 @@
         update board_table set boardTitle=#{boardTitle}, boardContents=#{boardContents} where id=#{id}
     </update>
 
+<!--    이미지 조회 기능-->
+    <select id="findImage" resultType="com.ddabong.tripflow.board.dto.ImageDTO">
+        select i.imageid, i.filename, i.url from tripflow.IMAGE i
+        Inner join tripflow.POST_IMAGE pi
+        On i.imageid = pi.imageid
+        where pi.postid = #{id}
+    </select>
+
     <select id="findHash" resultType="com.ddabong.tripflow.board.dto.HashDTO">
         select h.hashname from tripflow.HASHTAG h
         INNER JOIN tripflow.HASHTAG_JOIN hj
@@ -119,17 +127,28 @@
     <!--    postid는 알아서 1씩증가하도록 테이블에서 AUTO_INCREMENT를 사용-->
     <insert id="savePost" parameterType="com.ddabong.tripflow.board.dto.BoardDTO">
         INSERT INTO tripflow.POST
-            (travelid, content, memberid, createdtime)
+            (postid,travelid, content, memberid, createdtime)
         VALUES
-            (#{travelid},#{content},#{memberid},#{createdtime})
+            (#{postid},#{travelid},#{content},#{memberid},#{createdtime})
     </insert>
 
-<!--    <insert id="savePost" parameterType="com.ddabong.tripflow.board.dto.BoardDTO">-->
-<!--        INSERT INTO tripflow.POST-->
-<!--            (postid, travelid, content, memberid, createdtime)-->
-<!--        VALUES-->
-<!--            (1,2,"dsfs",3,"2024-10-15 10:10:10")-->
-<!--    </insert>-->
+    <insert id="saveImage" parameterType="com.ddabong.tripflow.board.dto.ImageDTO">
 
+        INSERT INTO tripflow.IMAGE (imageid,filename, url, imagetype)
+        VALUES (#{imageid},#{filename}, #{url},#{imagetype});
+
+    </insert>
+
+    <select id="findPostid" parameterType="com.ddabong.tripflow.board.dto.BoardDTO" >
+        select postid, travelid from tripflow.POST where postid = (select max(postid) from tripflow.POST );
+    </select>
+    <insert id="savePostImage" parameterType="com.ddabong.tripflow.board.dto.PostImageDTO" >
+        INSERT INTO tripflow.POST_IMAGE (imageid, postid, travelid)
+        VALUES (#{imageid},#{postid},#{travelid});
+    </insert>
+
+    <select id="findImageid" parameterType="com.ddabong.tripflow.board.dto.PostImageDTO" >
+        select max(imageid) from tripflow.IMAGE;
+    </select>
 
 </mapper>

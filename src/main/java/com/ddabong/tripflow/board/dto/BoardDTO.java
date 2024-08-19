@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.joda.time.DateTime;
 
 import java.sql.Timestamp;
 import java.util.Date;

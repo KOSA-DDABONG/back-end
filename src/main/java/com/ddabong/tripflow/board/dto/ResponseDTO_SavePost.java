@@ -7,14 +7,16 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class ResponseDTO_B {
+public class ResponseDTO_SavePost {
     private String message;
     private int status;
-    private BoardDTO data;
+    private BoardDTO board;
+    private List<ImageDTO> image;
 
-    public ResponseDTO_B(String message, int status, BoardDTO data) {
+    public ResponseDTO_SavePost(String message, int status,BoardDTO board, List<ImageDTO> image ) {
         this.message = message;
         this.status = status;
-        this.data =data;
+        this.board =board;
+        this.image = image;
     }
 }

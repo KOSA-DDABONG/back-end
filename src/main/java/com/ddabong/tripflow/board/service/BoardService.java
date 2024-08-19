@@ -1,9 +1,7 @@
 package com.ddabong.tripflow.board.service;
 
 import com.ddabong.tripflow.board.dao.IBoardRepository;
-import com.ddabong.tripflow.board.dto.BoardDTO;
-import com.ddabong.tripflow.board.dto.CommentDTO;
-import com.ddabong.tripflow.board.dto.HashDTO;
+import com.ddabong.tripflow.board.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +31,7 @@ public class BoardService implements IBoardService {
     }
 
     public List<BoardDTO> findDetail(Long id){
+        System.out.println("check2");
         return boardRepository.findDetail(id);
     }
 
@@ -46,9 +45,7 @@ public class BoardService implements IBoardService {
     public List<BoardDTO> findTOP() {
         return boardRepository.findTOP();
     }
-
     public List<HashDTO> findHash(Long id) {
-        System.out.println(id);
         return boardRepository.findHash(id);}
     public void saveCommnet(CommentDTO commentDTO) {
         boardRepository.saveComment(commentDTO);
@@ -64,4 +61,11 @@ public class BoardService implements IBoardService {
 
     public void savePost(BoardDTO boardDTO) {boardRepository.savePost(boardDTO);}
 
+    //이미지 후기작성 저장시 사용
+    public void saveImage(ImageDTO imageDTO) {boardRepository.saveImage(imageDTO);}
+    public void savePostImage(PostImageDTO postImageDTO) {boardRepository.savePostImage(postImageDTO);}
+    //이미지 조회
+    public List<ImageDTO> findImage(Long id){ return boardRepository.findImage(id);}
+    public Long findImageid(){return boardRepository.findImageid();}
+    public PostImageDTO findPostid(){return boardRepository.findPostid();}
 }

@@ -1,8 +1,6 @@
 package com.ddabong.tripflow.board.dao;
 
-import com.ddabong.tripflow.board.dto.BoardDTO;
-import com.ddabong.tripflow.board.dto.CommentDTO;
-import com.ddabong.tripflow.board.dto.HashDTO;
+import com.ddabong.tripflow.board.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -25,4 +23,11 @@ public interface IBoardRepository {
     List<BoardDTO> findTOP();
     void saveComment(CommentDTO commentDTO);
     void savePost(BoardDTO boardDTO);
+    void saveImage(ImageDTO imageDTO);
+    void savePostImage(PostImageDTO postImageDTO);
+    List<ImageDTO>findImage(Long id);
+
+    PostImageDTO findPostid();
+    Long findImageid();
+
 }
