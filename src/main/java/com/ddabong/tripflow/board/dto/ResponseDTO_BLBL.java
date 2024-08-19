@@ -10,13 +10,13 @@ import java.util.List;
 public class ResponseDTO_BLBL {
     private String message;
     private int status;
-    private List<BoardDTO> data1;
-    private List<BoardDTO> data2;
+    private List<BoardDTO> top3;
+    private List<BoardDTO> Recentboard;
 
-    public ResponseDTO_BLBL(String message, int status, List<BoardDTO> data1, List<BoardDTO> data2) {
+    public ResponseDTO_BLBL(String message, int status, List<BoardDTO> top3, List<BoardDTO> Recentboard) {
         this.message = message;
         this.status = status;
-        this.data1 =data1;
-        this.data2 =data2;
+        this.top3 =top3;
+        this.Recentboard =Recentboard;
     }
 }

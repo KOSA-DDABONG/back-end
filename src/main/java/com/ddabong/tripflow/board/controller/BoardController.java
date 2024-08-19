@@ -54,8 +54,68 @@ public class BoardController {//클래스명 BoardController
         return  ResponseEntity.ok(responseDTO);
     }
 
-    @PostMapping("/savepost")//게시물 저장 기능
-    public ResponseEntity<ResponseDTO_B> savePost(@RequestBody BoardDTO boardDTO){
+//    @PostMapping("/savepost")//게시물 저장 기능
+//    public ResponseEntity<ResponseDTO_B> savePost(@RequestBody BoardDTO boardDTO){
+//        try{
+//            System.out.println("Postid: " + boardDTO.getPostid());
+//            System.out.println("travelid: " + boardDTO.getTravelid());
+//            System.out.println("content: " + boardDTO.getContent());
+//            System.out.println("memberid: " + boardDTO.getMemberid());
+//            System.out.println("createdtime: " + boardDTO.getCreatedtime());
+//        }catch(RuntimeException e){
+//            System.out.println(e.getMessage());
+//        }
+//        boardService.savePost(boardDTO);
+//        ResponseDTO_B responseDTO = new ResponseDTO_B("success",200,boardDTO);
+//        return ResponseEntity.ok(responseDTO);
+//    }
+
+
+//    @PostMapping("/savepost")//게시물 저장 기능 + 이미 추가 기능
+//    public ResponseEntity<ResponseDTO_SavePost> savePost(@RequestBody SavePostDTO savepostDTO){
+//        BoardDTO boardDTO = savepostDTO.getBoardDTO();
+//        List<ImageDTO> imageDTOList = savepostDTO.getImageDTO();
+//        try{
+//            System.out.println("Postid: " + boardDTO.getPostid());
+//            System.out.println("travelid: " + boardDTO.getTravelid());
+//            System.out.println("content: " + boardDTO.getContent());
+//            System.out.println("memberid: " + boardDTO.getMemberid());
+//            System.out.println("createdtime: " + boardDTO.getCreatedtime());
+//        }catch(RuntimeException e){
+//            System.out.println(e.getMessage());
+//        }
+//        boardService.savePost(boardDTO);
+//        boardService.saveImage(imageDTOList);
+//        ResponseDTO_SavePost responseDTO = new ResponseDTO_SavePost("success",200,boardDTO,imageDTOList);
+//        return ResponseEntity.ok(responseDTO);
+//    }
+
+//    @PostMapping("/savepost")//게시물 저장 기능 + 이미 추가 기능
+//    public ResponseEntity<ResponseDTO_SavePost> savePost(@RequestBody List<ImageDTO> savepostDTO){
+////        BoardDTO boardDTO = savepostDTO.getBoardDTO();
+////        List<ImageDTO> imageDTOList = savepostDTO.getImageDTO();
+////        try{
+////            System.out.println("Postid: " + boardDTO.getPostid());
+////            System.out.println("travelid: " + boardDTO.getTravelid());
+////            System.out.println("content: " + boardDTO.getContent());
+////            System.out.println("memberid: " + boardDTO.getMemberid());
+////            System.out.println("createdtime: " + boardDTO.getCreatedtime());
+////        }catch(RuntimeException e){
+////            System.out.println(e.getMessage());
+////        }
+////        boardService.savePost(boardDTO);
+//        boardService.saveImage(savepostDTO);
+//        ResponseDTO_SavePost responseDTO = new ResponseDTO_SavePost("success",200,savepostDTO);
+//        return ResponseEntity.ok(responseDTO);
+//    }
+
+    @PostMapping("/savepost")//게시물 저장 기능 + 이미 추가 기능
+    public ResponseEntity<ResponseDTO_SavePost> savePost(@RequestBody SavePostDTO savepostDTO){
+        //@RequestBody를 사용하면 하나의 class만 받을 수 있다. 따라서 두개를 통합하는 DTO를 만들었다.
+        //두개의 DTO 필드를 하나의 class에 저장하여 Post를 받을 때 새로운 DTO롤 또 다시 생성하지 않고 기존의 코드를 재사용
+        //savepostDTO는 두 DTO의 필드를 모두 상속 받을 수 있다.
+        BoardDTO boardDTO = savepostDTO.getBoardDTO();
+        List<ImageDTO> imageDTOList = savepostDTO.getImageDTO();
         try{
             System.out.println("Postid: " + boardDTO.getPostid());
             System.out.println("travelid: " + boardDTO.getTravelid());
@@ -66,9 +126,19 @@ public class BoardController {//클래스명 BoardController
             System.out.println(e.getMessage());
         }
         boardService.savePost(boardDTO);
-        ResponseDTO_B responseDTO = new ResponseDTO_B("success",200,boardDTO);
+        PostImageDTO postImageDTO =  boardService.findPostid(); //현재 저장될 postid를 미리 저장하여 postimage 저장 할때 사용
+        for(int i = 0 ; i < imageDTOList.size() ; i++) { // for문을 사용하여 여러 이미지가 들어와도 저장 가능하도록 설계
+            ImageDTO saveImagetmp = imageDTOList.get(i);
+            boardService.saveImage(saveImagetmp); //단일 이미지 데이터 저장
+            Long imageid= boardService.findImageid(); // 저장된 이미지 id 추출
+            postImageDTO.setImageid(imageid); // id를 postimagedto에 저장
+            boardService.savePostImage(postImageDTO);// imageid, postid, travelid아이디를 사용해서 저장
+        }
+        // new를 사용하여 새로운 인스턴스를 생성. new를 사용하면 JVM 메모리 공간에 할당되고 이것을 인스턴스라 한다.
+        ResponseDTO_SavePost responseDTO = new ResponseDTO_SavePost("success",200,boardDTO,imageDTOList);
         return ResponseEntity.ok(responseDTO);
     }
+
 
     @Transactional
     @GetMapping("/list") // 좋아요 전체 list를 조회 하는 메소드 // 좋아요 상위3개 추출
@@ -96,16 +166,17 @@ public class BoardController {//클래스명 BoardController
         return ResponseEntity.ok(boardDTO);
     }
 
-    //이미지를 선택하면 디테일한 데이터를 넘겨주는 데이터(좋아요 갯수, content, 댓글, 해쉬태그...)
-    @GetMapping("/list/{id}")
+    @GetMapping("/list/{id}") //위 동작하는 데이터 남겨두고 이미지 작업 진행
     public ResponseEntity<ResponseDTO_BLCL> findDetail(@PathVariable("id") Long id){
+        System.out.println("check1");
         List<BoardDTO> boardDTODetail = boardService.findDetail(id); //postid, content
         List<CommentDTO> commentDTO = boardService.findComment(id);
         List<HashDTO> hashDTO = boardService.findHash(id); //HASH태그 불러오기
         List<BoardDTO> boardDTOList = new ArrayList<>();
+        List<ImageDTO> findiamgeDTO = boardService.findImage(id);
         boardDTOList.addAll(boardDTODetail);
-
-        ResponseDTO_BLCL responseDTO = new ResponseDTO_BLCL("success",200, boardDTOList,commentDTO,hashDTO);
+        System.out.println("check3");
+        ResponseDTO_BLCL responseDTO = new ResponseDTO_BLCL("success",200, boardDTOList,commentDTO,hashDTO,findiamgeDTO);
         return  ResponseEntity.ok(responseDTO);
     }
 

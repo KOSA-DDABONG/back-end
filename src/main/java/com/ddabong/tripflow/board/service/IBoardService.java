@@ -1,8 +1,6 @@
 package com.ddabong.tripflow.board.service;
 
-import com.ddabong.tripflow.board.dto.BoardDTO;
-import com.ddabong.tripflow.board.dto.CommentDTO;
-import com.ddabong.tripflow.board.dto.HashDTO;
+import com.ddabong.tripflow.board.dto.*;
 
 import java.util.List;
 
@@ -30,4 +28,11 @@ public interface IBoardService {
     void savePost(BoardDTO boardDTO);
 
     List<HashDTO> findHash(Long id);
+
+    void saveImage(ImageDTO imageDTO);
+    void savePostImage(PostImageDTO postImageDTO);
+    List<ImageDTO> findImage(Long id);
+
+    PostImageDTO findPostid();
+    Long findImageid();
 }
