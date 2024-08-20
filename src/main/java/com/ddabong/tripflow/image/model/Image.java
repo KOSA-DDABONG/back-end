@@ -1,4 +1,4 @@
-package com.ddabong.tripflow.post.model;
+package com.ddabong.tripflow.image.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

@@ -21,4 +21,10 @@
         SELECT postid FROM POST
         WHERE travelid = #{travelId}
     </select>
+    
+    <!-- 여행 일정 id 확인 -->
+    <select id="getTravelIdByPostId" parameterType="Long" resultType="Long">
+        SELECT travelid FROM POST
+        WHERE postid = #{postId}
+    </select>
 </mapper>

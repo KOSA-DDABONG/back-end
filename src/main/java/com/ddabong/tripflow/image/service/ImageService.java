@@ -1,8 +1,8 @@
-package com.ddabong.tripflow.post.service;
+package com.ddabong.tripflow.image.service;
 
-import com.ddabong.tripflow.post.dao.IImageRepository;
-import com.ddabong.tripflow.post.dto.ImageDTO;
-import com.ddabong.tripflow.post.model.Image;
+import com.ddabong.tripflow.image.dao.IImageRepository;
+import com.ddabong.tripflow.image.dto.ImageDTO;
+import com.ddabong.tripflow.image.model.Image;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +26,11 @@ public class ImageService implements IImageService{
         image.setFileName(imageDTO.getFileName());
         image.setUrl(imageDTO.getUrl());
         return iImageRepository.getImageIdByFilenameAndUrl(image);
+    }
+
+    @Override
+    public String getProfileUrlByImageId(Long imageId) {
+        return iImageRepository.getProfileUrlByImageId(imageId);
     }
 
 }

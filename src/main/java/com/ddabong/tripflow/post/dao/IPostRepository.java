@@ -11,4 +11,6 @@ public interface IPostRepository {
     void saveReview(Post post);
 
     Long getPostIdByTravelId(Long travelId);
+
+    Long getTravelIdByPostId(Long postid);
 }

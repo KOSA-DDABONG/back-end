@@ -36,4 +36,9 @@ public class PostService implements IPostService {
     public Long getPostIdByTravelId(Long travelId) {
         return iPostRepository.getPostIdByTravelId(travelId);
     }
+
+    @Override
+    public Long getTravelIdByPostId(Long postid) {
+        return iPostRepository.getTravelIdByPostId(postid);
+    }
 }

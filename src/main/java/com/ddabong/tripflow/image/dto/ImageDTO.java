@@ -1,4 +1,4 @@
-package com.ddabong.tripflow.post.dto;
+package com.ddabong.tripflow.image.dto;
 
 
 import lombok.Getter;

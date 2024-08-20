@@ -42,4 +42,16 @@
         SELECT * FROM MEMBER
         WHERE userid = #{userId}
     </select>
+
+    <!-- member id 조회 -->
+    <select id="getMemberIdByUserId" parameterType="String" resultType="Long">
+        SELECT memberid FROM MEMBER
+        WHERE userid = #{userId}
+    </select>
+
+    <!-- member 닉네임 조회 -->
+    <select id="getNicknameByMemberId" parameterType="Long" resultType="String">
+        SELECT nickname FROM MEMBER
+        WHERE memberid = #{memberId}
+    </select>
 </mapper>
