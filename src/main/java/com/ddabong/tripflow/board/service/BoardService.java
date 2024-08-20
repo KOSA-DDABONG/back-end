@@ -2,12 +2,14 @@ package com.ddabong.tripflow.board.service;
 
 import com.ddabong.tripflow.board.dao.IBoardRepository;
 import com.ddabong.tripflow.board.dto.*;
+import lombok.ToString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@ToString
 public class BoardService implements IBoardService {
 
     //IBoardRepository를 boardRepository로 이름 변경
@@ -68,4 +70,10 @@ public class BoardService implements IBoardService {
     public List<ImageDTO> findImage(Long id){ return boardRepository.findImage(id);}
     public Long findImageid(){return boardRepository.findImageid();}
     public PostImageDTO findPostid(){return boardRepository.findPostid();}
+
+    public Long findMemberid(String s){ return boardRepository.findMemberid(s);}
+
+    public void saveHash(HashDTO hashDTO){boardRepository.saveHash(hashDTO);}
+    public void saveHashJoin(HashDTO hashDTO){boardRepository.saveHashJoin(hashDTO);}
+    public Long findHashid(String s){return boardRepository.findHashid(s);}
 }

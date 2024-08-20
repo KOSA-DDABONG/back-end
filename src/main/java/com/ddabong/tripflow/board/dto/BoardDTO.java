@@ -24,8 +24,10 @@ public class BoardDTO {
     private Long memberid;
     //일정 기본키
     private Long travelid;
+
+    private String userid;
     //게시물 내용
     private String content;
     //생성시간
-    private Date createdtime;
+    private String createdtime;
 }

@@ -149,4 +149,27 @@
         select max(imageid) from tripflow.IMAGE;
     </select>
 
+    <select id="findMemberid" parameterType="java.lang.String" resultType="Long">
+        select memberid from tripflow.MEMBER
+        where userid = #{s};
+    </select>
+
+    <insert id="saveHash" parameterType="com.ddabong.tripflow.board.dto.HashDTO">
+        INSERT INTO tripflow.HASHTAG(hashname)
+        SELECT #{hashname}
+        WHERE NOT EXISTS (
+        SELECT 1 FROM tripflow.HASHTAG WHERE hashname = #{hashname}
+        );
+    </insert>
+
+    <insert id="saveHashJoin" parameterType="com.ddabong.tripflow.board.dto.HashDTO">
+        insert into tripflow.HASHTAG_JOIN(postid, travelid, hashtagid)
+        values (#{postid}, #{travelid}, #{hashtagid});
+    </insert>
+
+    <select id="findHashid" parameterType="String" resultType="Long">
+        select hashtagid from tripflow.HASHTAG
+        where hashname = #{s};
+    </select>
+
 </mapper>
