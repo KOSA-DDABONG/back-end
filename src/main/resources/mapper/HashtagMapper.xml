@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ddabong.tripflow.hashtag.dao.IHashtagRepository">
+    <!-- hashtag 유무 확인 -->
+    <select id="isExistHashtag" parameterType="String" resultType="int">
+        SELECT count(*) FROM HASHTAG
+        WHERE hashname = #{curHashtag}
+    </select>
+
+    <!-- 새로운 해시태그 추가 -->
+    <insert id="createNewHashtag" parameterType="com.ddabong.tripflow.hashtag.model.Hashtag">
+        INSERT INTO HASHTAG
+            (hashtagid, hashname)
+        VALUES
+            (#{hashtagId}, #{hashtagName})
+    </insert>
+
+    <!-- hashtag id 확인 -->
+    <select id="getHashtagIdByHashtagName" parameterType="String" resultType="Long">
+        SELECT hashtagid FROM HASHTAG
+        WHERE hashname = #{curHashtag}
+    </select>
+
+</mapper>
