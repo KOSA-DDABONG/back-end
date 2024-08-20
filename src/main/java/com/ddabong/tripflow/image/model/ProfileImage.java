@@ -1,4 +1,4 @@
-package com.ddabong.tripflow.post.model;
+package com.ddabong.tripflow.image.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -12,10 +12,9 @@ import lombok.Setter;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostImage {
+public class ProfileImage {
     @Id
     private Long imageId;
 
-    private Long postId;
-    private Long travelId;
+    private Long memberId;
 }

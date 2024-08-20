@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ddabong.tripflow.image.dao.IProfileImageRepository">
+    <!-- 유저 프로필 존재 여부 확인 -->
+    <select id="isExistProfileUrl" parameterType="Long" resultType="int">
+        SELECT count(*) FROM PROFILE_IMAGE
+        WHERE memberid = #{memberId}
+    </select>
+
+    <!-- 프로필 이미지 id 조회 -->
+    <select id="getImageIdByMemberId" parameterType="Long" resultType="Long">
+        SELECT imageid FROM PROFILE_IMAGE
+        WHERE memberid = #{memberid}
+    </select>
+
+</mapper>

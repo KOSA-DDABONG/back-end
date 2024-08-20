@@ -5,4 +5,6 @@ import com.ddabong.tripflow.post.dto.PostDTO;
 public interface IPostService {
     void saveReview(PostDTO postDTO, String userIdByJWT);
     Long getPostIdByTravelId(Long travelId);
+
+    Long getTravelIdByPostId(Long postid);
 }
