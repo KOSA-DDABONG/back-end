@@ -35,4 +35,10 @@ public interface IBoardService {
 
     PostImageDTO findPostid();
     Long findImageid();
+
+    Long findMemberid(String s);
+
+    void saveHash(HashDTO hashDTO);
+    void saveHashJoin(HashDTO hashDTO);
+    Long findHashid(String s);
 }
