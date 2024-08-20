@@ -127,16 +127,14 @@
     <!--    postid는 알아서 1씩증가하도록 테이블에서 AUTO_INCREMENT를 사용-->
     <insert id="savePost" parameterType="com.ddabong.tripflow.board.dto.BoardDTO">
         INSERT INTO tripflow.POST
-            (postid,travelid, content, memberid, createdtime)
+            (travelid, content, memberid, createdtime)
         VALUES
-            (#{postid},#{travelid},#{content},#{memberid},#{createdtime})
+            (#{travelid},#{content},#{memberid},#{createdtime})
     </insert>
-
+    <!--    imageid는 자동으로 증가 -->
     <insert id="saveImage" parameterType="com.ddabong.tripflow.board.dto.ImageDTO">
-
-        INSERT INTO tripflow.IMAGE (imageid,filename, url, imagetype)
-        VALUES (#{imageid},#{filename}, #{url},#{imagetype});
-
+        INSERT INTO tripflow.IMAGE (filename, url, imagetype)
+        VALUES (#{filename}, #{url},#{imagetype});
     </insert>
 
     <select id="findPostid" parameterType="com.ddabong.tripflow.board.dto.BoardDTO" >

@@ -1,18 +1,26 @@
 package com.ddabong.tripflow.board.controller;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.MultipartUpload;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.ddabong.tripflow.board.dto.*;
 import com.ddabong.tripflow.board.service.IBoardService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequiredArgsConstructor
 
 @Controller
 public class BoardController {//클래스명 BoardController
@@ -54,25 +62,12 @@ public class BoardController {//클래스명 BoardController
         return  ResponseEntity.ok(responseDTO);
     }
 
-//    @PostMapping("/savepost")//게시물 저장 기능
-//    public ResponseEntity<ResponseDTO_B> savePost(@RequestBody BoardDTO boardDTO){
-//        try{
-//            System.out.println("Postid: " + boardDTO.getPostid());
-//            System.out.println("travelid: " + boardDTO.getTravelid());
-//            System.out.println("content: " + boardDTO.getContent());
-//            System.out.println("memberid: " + boardDTO.getMemberid());
-//            System.out.println("createdtime: " + boardDTO.getCreatedtime());
-//        }catch(RuntimeException e){
-//            System.out.println(e.getMessage());
-//        }
-//        boardService.savePost(boardDTO);
-//        ResponseDTO_B responseDTO = new ResponseDTO_B("success",200,boardDTO);
-//        return ResponseEntity.ok(responseDTO);
-//    }
-
-
+//     //이미지 s3 저장 제외 모든 기능 정상작동 확인 savepost
 //    @PostMapping("/savepost")//게시물 저장 기능 + 이미 추가 기능
 //    public ResponseEntity<ResponseDTO_SavePost> savePost(@RequestBody SavePostDTO savepostDTO){
+//        //@RequestBody를 사용하면 하나의 class만 받을 수 있다. 따라서 두개를 통합하는 DTO를 만들었다.
+//        //두개의 DTO 필드를 하나의 class에 저장하여 Post를 받을 때 새로운 DTO롤 또 다시 생성하지 않고 기존의 코드를 재사용
+//        //savepostDTO는 두 DTO의 필드를 모두 상속 받을 수 있다.
 //        BoardDTO boardDTO = savepostDTO.getBoardDTO();
 //        List<ImageDTO> imageDTOList = savepostDTO.getImageDTO();
 //        try{
@@ -85,39 +80,35 @@ public class BoardController {//클래스명 BoardController
 //            System.out.println(e.getMessage());
 //        }
 //        boardService.savePost(boardDTO);
-//        boardService.saveImage(imageDTOList);
+//        PostImageDTO postImageDTO =  boardService.findPostid(); //현재 저장될 postid를 미리 저장하여 postimage 저장 할때 사용
+//        for(int i = 0 ; i < imageDTOList.size() ; i++) { // for문을 사용하여 여러 이미지가 들어와도 저장 가능하도록 설계
+//            ImageDTO saveImagetmp = imageDTOList.get(i);
+//            boardService.saveImage(saveImagetmp); //단일 이미지 데이터 저장
+//            Long imageid= boardService.findImageid(); // 저장된 이미지 id 추출
+//            postImageDTO.setImageid(imageid); // id를 postimagedto에 저장
+//            boardService.savePostImage(postImageDTO);// imageid, postid, travelid아이디를 사용해서 저장
+//        }
+//        // new를 사용하여 새로운 인스턴스를 생성. new를 사용하면 JVM 메모리 공간에 할당되고 이것을 인스턴스라 한다.
 //        ResponseDTO_SavePost responseDTO = new ResponseDTO_SavePost("success",200,boardDTO,imageDTOList);
 //        return ResponseEntity.ok(responseDTO);
 //    }
 
-//    @PostMapping("/savepost")//게시물 저장 기능 + 이미 추가 기능
-//    public ResponseEntity<ResponseDTO_SavePost> savePost(@RequestBody List<ImageDTO> savepostDTO){
-////        BoardDTO boardDTO = savepostDTO.getBoardDTO();
-////        List<ImageDTO> imageDTOList = savepostDTO.getImageDTO();
-////        try{
-////            System.out.println("Postid: " + boardDTO.getPostid());
-////            System.out.println("travelid: " + boardDTO.getTravelid());
-////            System.out.println("content: " + boardDTO.getContent());
-////            System.out.println("memberid: " + boardDTO.getMemberid());
-////            System.out.println("createdtime: " + boardDTO.getCreatedtime());
-////        }catch(RuntimeException e){
-////            System.out.println(e.getMessage());
-////        }
-////        boardService.savePost(boardDTO);
-//        boardService.saveImage(savepostDTO);
-//        ResponseDTO_SavePost responseDTO = new ResponseDTO_SavePost("success",200,savepostDTO);
-//        return ResponseEntity.ok(responseDTO);
-//    }
+    //s3 업로드를 위한 데이터
+    private final AmazonS3Client amazonS3Client;
+    private String postFileUploadPath = "postimg/";
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
 
-    @PostMapping("/savepost")//게시물 저장 기능 + 이미 추가 기능
-    public ResponseEntity<ResponseDTO_SavePost> savePost(@RequestBody SavePostDTO savepostDTO){
+    @PostMapping("/savepost")//게시물 저장 기능 + 이미 추가 기능 + 이미지S3 업로드 기능까지
+    public ResponseEntity<ResponseDTO_SavePost> savePost(@RequestPart BoardDTO boardDTO,
+                                                         @RequestPart (required = false)List<MultipartFile> files) throws IOException {
         //@RequestBody를 사용하면 하나의 class만 받을 수 있다. 따라서 두개를 통합하는 DTO를 만들었다.
         //두개의 DTO 필드를 하나의 class에 저장하여 Post를 받을 때 새로운 DTO롤 또 다시 생성하지 않고 기존의 코드를 재사용
         //savepostDTO는 두 DTO의 필드를 모두 상속 받을 수 있다.
-        BoardDTO boardDTO = savepostDTO.getBoardDTO();
-        List<ImageDTO> imageDTOList = savepostDTO.getImageDTO();
+        //BoardDTO boardDTO = savepostDTO.getBoardDTO();
+        //List<ImageDTO> imageDTOList = savepostDTO.getImageDTO();
         try{
-            System.out.println("Postid: " + boardDTO.getPostid());
+            //System.out.println("Postid: " + boardDTO.getPostid());
             System.out.println("travelid: " + boardDTO.getTravelid());
             System.out.println("content: " + boardDTO.getContent());
             System.out.println("memberid: " + boardDTO.getMemberid());
@@ -127,8 +118,32 @@ public class BoardController {//클래스명 BoardController
         }
         boardService.savePost(boardDTO);
         PostImageDTO postImageDTO =  boardService.findPostid(); //현재 저장될 postid를 미리 저장하여 postimage 저장 할때 사용
-        for(int i = 0 ; i < imageDTOList.size() ; i++) { // for문을 사용하여 여러 이미지가 들어와도 저장 가능하도록 설계
-            ImageDTO saveImagetmp = imageDTOList.get(i);
+
+        //ObjectMetadata metadata = new ObjectMetadata();
+        List<ImageDTO> imageDTOList = new ArrayList<>();
+        for(int i = 0 ; i < files.size() ; i++) { // for문을 사용하여 여러 이미지가 들어와도 저장 가능하도록 설계
+            //s3 이미지 업로드
+            MultipartFile file = files.get(i); // 이미지 리스트에서 한개만 추출
+            StringBuffer sb = new StringBuffer();
+            sb.append(UUID.randomUUID());
+            sb.append("-");
+            sb.append(file.getOriginalFilename());
+            String originalFilename = postFileUploadPath + sb.toString();
+
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(file.getSize());
+            metadata.setContentType(file.getContentType());
+            String fileUrl= "https://" + bucket + originalFilename;
+            System.out.println(i + "fileUrl: " + fileUrl);
+            System.out.println(i + "riginalFilename!: " + originalFilename);
+            amazonS3Client.putObject(bucket, originalFilename, file.getInputStream(), metadata); // s3 업로드
+
+            //sql 이미지 데이터 입력
+            ImageDTO saveImagetmp = new ImageDTO();
+            saveImagetmp.setFilename(originalFilename);
+            saveImagetmp.setUrl(fileUrl);
+            saveImagetmp.setImagetype(3L); //후기 사진이므로3으로 설정
+            imageDTOList.add(saveImagetmp); //이미지 데이터 Response확인용
             boardService.saveImage(saveImagetmp); //단일 이미지 데이터 저장
             Long imageid= boardService.findImageid(); // 저장된 이미지 id 추출
             postImageDTO.setImageid(imageid); // id를 postimagedto에 저장
@@ -139,6 +154,24 @@ public class BoardController {//클래스명 BoardController
         return ResponseEntity.ok(responseDTO);
     }
 
+//    @PostMapping("/savepost")//게시물 저장 기능 + 이미 추가 기능 + 이미지S3 업로드 기능까지
+//    public ResponseEntity<ResponseDTO_SavePost> savePost(@RequestPart BoardDTO boardDTO) throws IOException {
+//        System.out.println("check");
+//        try{
+//            //System.out.println("Postid: " + boardDTO.getPostid());
+//            System.out.println("travelid: " + boardDTO.getTravelid());
+//            System.out.println("content: " + boardDTO.getContent());
+//            System.out.println("memberid: " + boardDTO.getMemberid());
+//            System.out.println("createdtime: " + boardDTO.getCreatedtime());
+//        }catch(RuntimeException e){
+//            System.out.println("실패");
+//            System.out.println(e.getMessage());
+//        }
+//        boardService.savePost(boardDTO);
+//        //PostImageDTO postImageDTO =  boardService.findPostid(); //현재 저장될 postid를 미리 저장하여 postimage 저장 할때 사용
+//        ResponseDTO_SavePost responseDTO = new ResponseDTO_SavePost("success",200,boardDTO);
+//        return ResponseEntity.ok(responseDTO);
+//    }
 
     @Transactional
     @GetMapping("/list") // 좋아요 전체 list를 조회 하는 메소드 // 좋아요 상위3개 추출

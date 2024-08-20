@@ -13,7 +13,7 @@ public class ResponseDTO_SavePost {
     private BoardDTO board;
     private List<ImageDTO> image;
 
-    public ResponseDTO_SavePost(String message, int status,BoardDTO board, List<ImageDTO> image ) {
+    public ResponseDTO_SavePost(String message, int status,BoardDTO board,List<ImageDTO> image) {
         this.message = message;
         this.status = status;
         this.board =board;
