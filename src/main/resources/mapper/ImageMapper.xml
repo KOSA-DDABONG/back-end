@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ddabong.tripflow.post.dao.IImageRepository">
+    <!-- 이미지 저장 -->
+    <insert id="saveImage" parameterType="com.ddabong.tripflow.post.model.Image">
+        INSERT INTO IMAGE
+            (imageid, filename, url, imagetype)
+        VALUES
+            (#{imageId}, #{fileName}, #{url}, #{imageType})
+    </insert>
+
+    <!-- 이미지 id 조회 -->
+    <select id="getImageIdByFilenameAndUrl" parameterType="com.ddabong.tripflow.post.model.Image" resultType="Long">
+        SELECT imageid FROM IMAGE
+        WHERE filename = #{fileName}
+        AND url = #{url}
+    </select>
+</mapper>

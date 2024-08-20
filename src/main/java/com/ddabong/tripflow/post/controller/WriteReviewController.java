@@ -8,8 +8,11 @@ import com.ddabong.tripflow.hashtag.dto.HashtagJoinDTO;
 import com.ddabong.tripflow.hashtag.service.IHashtagJoinService;
 import com.ddabong.tripflow.hashtag.service.IHashtagService;
 import com.ddabong.tripflow.member.service.GetMemberInfoService;
+import com.ddabong.tripflow.post.dto.ImageDTO;
 import com.ddabong.tripflow.post.dto.PostDTO;
 import com.ddabong.tripflow.post.dto.WritePostResponseDTO;
+import com.ddabong.tripflow.post.service.IImageService;
+import com.ddabong.tripflow.post.service.IPostImageService;
 import com.ddabong.tripflow.post.service.IPostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +43,10 @@ public class WriteReviewController {
     @Autowired
     private IHashtagJoinService hashtagJoinService;
     @Autowired
+    private IImageService imageService;
+    @Autowired
+    private IPostImageService postImageService;
+    @Autowired
     private AmazonS3Client amazonS3Client;
     private String fileUploadPath = "postimg/";
     @Value("${cloud.aws.s3.bucket}")
@@ -67,7 +74,7 @@ public class WriteReviewController {
             saveHashtagInHashtagJoinTable(postDTO.getTravelId(), hashtagList);
 
             System.out.println("----이미지 저장 중...");
-            saveImageFileInImageTable(postDTO.getTravelId(), multipartFiles);
+            savePostImageFileInImageTable(postDTO.getTravelId(), multipartFiles);
 
             System.out.println("게시글 저장 완료");
 
@@ -80,12 +87,13 @@ public class WriteReviewController {
         return writePostResponseDTO;
     }
 
-    private void saveImageFileInImageTable(Long travelId, List<MultipartFile> multipartFiles) {
+    private void savePostImageFileInImageTable(Long travelId, List<MultipartFile> multipartFiles) {
         try {
             Long curPostId = postService.getPostIdByTravelId(travelId);
             List<String> imageUrls = new ArrayList<>();
 
             for(MultipartFile file : multipartFiles){
+                ImageDTO imageDTO = new ImageDTO();
 
                 StringBuffer sb = new StringBuffer();
                 sb.append(UUID.randomUUID());
@@ -103,9 +111,14 @@ public class WriteReviewController {
                         file.getInputStream(),
                         metadata);
 
-                System.out.println("파일명 : " + fileUrl);
+                imageDTO.setFileName(file.getOriginalFilename());
+                imageDTO.setUrl(fileUrl);
+                imageDTO.setPostId(curPostId);
+                imageDTO.setTravelId(travelId);
 
-
+                imageService.saveImage(imageDTO);
+                Long imageId = imageService.getImageIdByFilenameAndUrl(imageDTO);
+                postImageService.saveImage(imageId, imageDTO);
             }
         } catch (IOException e) {
             e.printStackTrace();
