@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ddabong.tripflow.hashtag.dao.IHashtagJoinRepository">
+    <!-- hashtag Join에 저장 -->
+    <insert id="save" parameterType="com.ddabong.tripflow.hashtag.model.HashtagJoin">
+        INSERT INTO HASHTAG_JOIN
+        (hashtagjoinid, postid, travelid, hashtagid)
+        VALUES
+        (#{hashtagJoinId}, #{postId}, #{travelId}, #{hashtagId})
+    </insert>
+
+</mapper>
