@@ -19,10 +19,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +54,7 @@ public class ShowDetailReviewController {
     private String postImgRootPath = "postimg/";
     private String profileRootPath = "profile/";
 
+    @CrossOrigin
     @Transactional
     @GetMapping("/{id}")
     public DetailReviewResponseDTO showDetailReview(@PathVariable("id") Long postId){
