@@ -6,6 +6,8 @@ import com.ddabong.tripflow.image.model.PostImage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PostImageService implements IPostImageService {
 
@@ -19,5 +21,10 @@ public class PostImageService implements IPostImageService {
         postImage.setTravelId(imageDTO.getTravelId());
 
         iPostImageRepository.saveImage(postImage);
+    }
+
+    @Override
+    public List<Long> getImageIdByPostId(Long postId) {
+        return iPostImageRepository.getImageIdByPostId(postId);
     }
 }

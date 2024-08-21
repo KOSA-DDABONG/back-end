@@ -10,4 +10,9 @@
         (#{imageId}, #{postId}, #{travelId})
     </insert>
 
+    <!-- 게시글 이미지 id 조회 -->
+    <select id="getImageIdByPostId" parameterType="Long" resultType="Long">
+        SELECT imageid FROM POST_IMAGE
+        WHERE postid = #{postId}
+    </select>
 </mapper>

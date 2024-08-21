@@ -6,6 +6,8 @@ import com.ddabong.tripflow.image.model.Image;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ImageService implements IImageService{
 
@@ -31,6 +33,11 @@ public class ImageService implements IImageService{
     @Override
     public String getProfileUrlByImageId(Long imageId) {
         return iImageRepository.getProfileUrlByImageId(imageId);
+    }
+
+    @Override
+    public String getImageUrlByImageId(Long imageId) {
+        return iImageRepository.getImageUrlByImageId(imageId);
     }
 
 }
