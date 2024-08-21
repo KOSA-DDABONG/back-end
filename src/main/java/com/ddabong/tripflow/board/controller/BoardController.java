@@ -151,6 +151,14 @@ public class BoardController {//클래스명 BoardController
         List<BoardDTO> boardDTOList = boardService.findAll();
         List<BoardDTO> boardDTOListtop = boardService.findTOP();
 
+        for (int i = 0 ; i < boardDTOList.size() ; i++){
+            Long postid = boardDTOList.get(i).getPostid();
+            Long likecount = boardService.findLikeCount(postid);
+            Long commentcount = boardService.findCommentCount(postid);
+            boardDTOList.get(i).setComcontentcount(commentcount);
+            boardDTOList.get(i).setLikecount(likecount);
+        }
+
         System.out.println("boardDTOList:" + boardDTOList);
         System.out.println("boardDTOListtop:" + boardDTOListtop);
 

@@ -11,20 +11,10 @@
     </insert>
 
     <select id="findAll" resultType="com.ddabong.tripflow.board.dto.BoardDTO">
-        SELECT
-        d.postid,
-        d.likecount,
-        c.comcontentcount
-        FROM
-        (SELECT postid, COUNT(*) AS likecount
-        FROM tripflow.DDABONG
-        GROUP BY postid) d
-        LEFT JOIN
-        (SELECT postid, COUNT(*) AS comcontentcount
-        FROM tripflow.COMMENT
-        GROUP BY postid) c ON d.postid = c.postid
-        ORDER BY postid desc;
+        select postid from tripflow.POST
+        order by postid DESC;
     </select>
+
 
     <update id="updateHits" parameterType="long">
         update board_table set boardHits=boardHits+1 where id=#{id}
@@ -43,12 +33,12 @@
         WHERE dd.postid IS NULL;
     </select>
 
-<!--    <select id="findLike" resultType="com.ddabong.tripflow.board.dto.BoardDTO">-->
-<!--        select COUNT(d.likeid) AS likecount , p.postid, p.travelid ,p.content-->
-<!--        from tripflow.POST p-->
-<!--        join tripflow.DDABONG d on p.postid=d.postid-->
-<!--        where p.postid=#{id}-->
-<!--    </select>-->
+    <select id="findLike" resultType="com.ddabong.tripflow.board.dto.BoardDTO">
+        select COUNT(d.likeid) AS likecount , p.postid, p.travelid ,p.content
+        from tripflow.POST p
+        join tripflow.DDABONG d on p.postid=d.postid
+        where p.postid=#{id}
+    </select>
 
     <select id="findTOP" resultType="com.ddabong.tripflow.board.dto.BoardDTO">
         SELECT
@@ -170,6 +160,18 @@
     <select id="findHashid" parameterType="String" resultType="Long">
         select hashtagid from tripflow.HASHTAG
         where hashname = #{s};
+    </select>
+
+    <select id="findLikeCount" parameterType="Long" resultType="Long">
+        SELECT COUNT(*) AS count
+        FROM tripflow.DDABONG
+        WHERE postid = #{id};
+    </select>
+
+    <select id="findCommentCount" parameterType="Long" resultType="Long">
+        SELECT COUNT(*) AS count
+        FROM tripflow.COMMENT
+        WHERE postid = #{id};
     </select>
 
 </mapper>
