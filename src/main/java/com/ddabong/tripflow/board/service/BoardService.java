@@ -76,4 +76,7 @@ public class BoardService implements IBoardService {
     public void saveHash(HashDTO hashDTO){boardRepository.saveHash(hashDTO);}
     public void saveHashJoin(HashDTO hashDTO){boardRepository.saveHashJoin(hashDTO);}
     public Long findHashid(String s){return boardRepository.findHashid(s);}
+
+    public Long findLikeCount(Long id){return boardRepository.findLikeCount(id);}
+    public Long findCommentCount(Long id){return boardRepository.findCommentCount(id);}
 }

@@ -34,7 +34,9 @@ public interface IBoardRepository {
 
     void saveHash(HashDTO hashDTO);
     void saveHashJoin(HashDTO hashDTO);
-
     Long findHashid(String s);
+
+    Long findLikeCount(Long id);
+    Long findCommentCount(Long id);
 
 }
