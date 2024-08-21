@@ -64,37 +64,6 @@ public class BoardController {//클래스명 BoardController
         return  ResponseEntity.ok(responseDTO);
     }
 
-//     //이미지 s3 저장 제외 모든 기능 정상작동 확인 savepost
-//    @PostMapping("/savepost")//게시물 저장 기능 + 이미 추가 기능
-//    public ResponseEntity<ResponseDTO_SavePost> savePost(@RequestBody SavePostDTO savepostDTO){
-//        //@RequestBody를 사용하면 하나의 class만 받을 수 있다. 따라서 두개를 통합하는 DTO를 만들었다.
-//        //두개의 DTO 필드를 하나의 class에 저장하여 Post를 받을 때 새로운 DTO롤 또 다시 생성하지 않고 기존의 코드를 재사용
-//        //savepostDTO는 두 DTO의 필드를 모두 상속 받을 수 있다.
-//        BoardDTO boardDTO = savepostDTO.getBoardDTO();
-//        List<ImageDTO> imageDTOList = savepostDTO.getImageDTO();
-//        try{
-//            System.out.println("Postid: " + boardDTO.getPostid());
-//            System.out.println("travelid: " + boardDTO.getTravelid());
-//            System.out.println("content: " + boardDTO.getContent());
-//            System.out.println("memberid: " + boardDTO.getMemberid());
-//            System.out.println("createdtime: " + boardDTO.getCreatedtime());
-//        }catch(RuntimeException e){
-//            System.out.println(e.getMessage());
-//        }
-//        boardService.savePost(boardDTO);
-//        PostImageDTO postImageDTO =  boardService.findPostid(); //현재 저장될 postid를 미리 저장하여 postimage 저장 할때 사용
-//        for(int i = 0 ; i < imageDTOList.size() ; i++) { // for문을 사용하여 여러 이미지가 들어와도 저장 가능하도록 설계
-//            ImageDTO saveImagetmp = imageDTOList.get(i);
-//            boardService.saveImage(saveImagetmp); //단일 이미지 데이터 저장
-//            Long imageid= boardService.findImageid(); // 저장된 이미지 id 추출
-//            postImageDTO.setImageid(imageid); // id를 postimagedto에 저장
-//            boardService.savePostImage(postImageDTO);// imageid, postid, travelid아이디를 사용해서 저장
-//        }
-//        // new를 사용하여 새로운 인스턴스를 생성. new를 사용하면 JVM 메모리 공간에 할당되고 이것을 인스턴스라 한다.
-//        ResponseDTO_SavePost responseDTO = new ResponseDTO_SavePost("success",200,boardDTO,imageDTOList);
-//        return ResponseEntity.ok(responseDTO);
-//    }
-
     //s3 업로드를 위한 데이터
     private final AmazonS3Client amazonS3Client;
     private String postFileUploadPath = "postimg/";
@@ -130,14 +99,11 @@ public class BoardController {//클래스명 BoardController
         System.out.println("hashDTO길이: " + hashDTOList.size());
         for(int i = 0 ; i < hashDTOList.size() ; i++){
             HashDTO hashDTO_tmp = new HashDTO();
-
             hashDTO_tmp = hashDTOList.get(i);
             boardService.saveHash(hashDTO_tmp);
-
             Long hashid = boardService.findHashid(hashDTO_tmp.getHashname());
             hashDTO_tmp.setHashtagid(hashid);
             hashDTO_tmp.setPostid(postImageDTO.getPostid());
-
             hashDTO_tmp.setTravelid(postImageDTO.getTravelid());
             System.out.println("Hashtmp" + hashDTO_tmp);
             boardService.saveHashJoin(hashDTO_tmp);

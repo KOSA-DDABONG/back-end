@@ -14,8 +14,4 @@ public interface IMemberService {
     Boolean isExistByUserId(String userId);
     Boolean isExistByEmail(String email);
     Boolean isExistByPhoneNumber(String phoneNumber);
-
-    Long getMemberIdByUserId(String userIdByJWT);
-
-    String getNicknameByMemberId(Long curMemberID);
 }

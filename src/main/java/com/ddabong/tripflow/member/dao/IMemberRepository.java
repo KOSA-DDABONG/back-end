@@ -11,8 +11,4 @@ public interface IMemberRepository {
     int getCountByEmail(String email);
     int getCountByPhoneNumber(String phoneNumber);
     Member findByUserId(String userId);
-
-    Long getMemberIdByUserId(String userId);
-
-    String getNicknameByMemberId(Long memberId);
 }
