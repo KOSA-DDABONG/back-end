@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ddabong.tripflow.travel.dao.ITravelRepository">
+    <!-- 여행 일정 정보 조회 -->
+    <select id="getTravelInfoByTravelId" parameterType="Long" resultType="com.ddabong.tripflow.travel.model.Travel">
+        SELECT * FROM TRAVEL
+        WHERE travelid = #{travelId}
+    </select>
+
+</mapper>
