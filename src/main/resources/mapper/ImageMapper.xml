@@ -17,9 +17,16 @@
         AND url = #{url}
     </select>
 
-    <!-- 이미지 url 조회 -->
+    <!-- 프로필 이미지 url 조회 -->
     <select id="getProfileUrlByImageId" parameterType="Long" resultType="String">
         SELECT url FROM IMAGE
         WHERE imageid = #{imageId}
     </select>
+
+    <!-- 게시글 이미지 url 조회 -->
+    <select id="getImageUrlByImageId" parameterType="Long" resultType="String">
+        SELECT url FROM IMAGE
+        WHERE imageid = #{imageId}
+    </select>
+
 </mapper>
