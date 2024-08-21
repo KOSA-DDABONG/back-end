@@ -23,6 +23,5 @@ public class ResponseDTO_Listid {
         this.Comment =Comment;
         this.Hash = Hash;
         this.Image = Image;
-
     }
 }
