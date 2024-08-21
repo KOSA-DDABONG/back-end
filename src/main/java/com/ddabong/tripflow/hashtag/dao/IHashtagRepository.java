@@ -10,4 +10,6 @@ public interface IHashtagRepository {
     void createNewHashtag(Hashtag hashtag);
 
     Long getHashtagIdByHashtagName(String curHashtag);
+
+    String getHashtagNameByHashtagId(Long hashtagId);
 }

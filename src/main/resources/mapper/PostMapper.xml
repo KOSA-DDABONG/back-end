@@ -7,6 +7,10 @@
         SELECT memberid FROM MEMBER
         WHERE userid = #{userIdByJWT}
     </select>
+    <select id="getMemberIdByPostId" parameterType="Long" resultType="Long">
+        SELECT memberid FROM POST
+        WHERE postid = #{postId}
+    </select>
 
     <!-- 게시글 저장 -->
     <insert id="saveReview" parameterType="com.ddabong.tripflow.post.model.Post">
@@ -34,5 +38,11 @@
         SELECT * FROM POST
         WHERE memberid = #{memberid}
         ORDER BY createdtime DESC
+    </select>
+
+    <!-- 후기 내용 확인 -->
+    <select id="getContentByPostId" parameterType="Long" resultType="String">
+        SELECT content FROM POST
+        WHERE postid = #{postId}
     </select>
 </mapper>

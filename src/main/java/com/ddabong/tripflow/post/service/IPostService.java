@@ -12,4 +12,8 @@ public interface IPostService {
     Long getTravelIdByPostId(Long postid);
 
     List<ReviewListDTO> getMyReview(Long memberId);
+
+    Long getMemberIdByPostId(Long postId);
+
+    String getContentByPostId(Long postId);
 }

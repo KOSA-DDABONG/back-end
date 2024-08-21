@@ -10,4 +10,9 @@
         (#{hashtagJoinId}, #{postId}, #{travelId}, #{hashtagId})
     </insert>
 
+    <!-- hashtag 목록 가져오기 -->
+    <select id="getHashtagIDsByPostId" parameterType="Long" resultType="Long">
+        SELECT hashtagid FROM HASHTAG_JOIN
+        WHERE postid = #{postId}
+    </select>
 </mapper>

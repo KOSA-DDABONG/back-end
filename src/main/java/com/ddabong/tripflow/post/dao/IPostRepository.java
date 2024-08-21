@@ -18,4 +18,7 @@ public interface IPostRepository {
 
     List<Post> getMyReview(Long memberId);
 
+    Long getMemberIdByPostId(Long postId);
+
+    String getContentByPostId(Long postId);
 }

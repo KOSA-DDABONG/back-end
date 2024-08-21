@@ -18,4 +18,5 @@ public interface IMemberService {
     Long getMemberIdByUserId(String userIdByJWT);
 
     String getNicknameByMemberId(Long curMemberID);
+
 }

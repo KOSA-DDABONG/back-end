@@ -2,10 +2,36 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ddabong.tripflow.comment.dao.ICommentRepository">
+    <!-- 댓글 저장하기 -->
     <insert id="saveComment" parameterType="com.ddabong.tripflow.comment.model.Comment">
         INSERT INTO COMMENT
         (commentid, postid, travelid, commentid2, memberid, comcontent, createdtime)
         VALUES
         (#{commentId}, #{postId}, #{travelId}, #{commentId2}, #{memberId}, #{comcontent}, #{createdTime})
     </insert>
+
+    <!-- 댓글 수 구하기 -->
+    <select id="getCountCommentNumByPostId" parameterType="Long" resultType="int">
+        SELECT count(*) FROM COMMENT
+        WHERE postid = #{postId}
+    </select>
+
+    <!-- 게시글에 해당하는 댓글 id 목록 가져오기 -->
+    <select id="getCommentIDsByPostId" parameterType="Long" resultType="Long">
+        SELECT commentid FROM COMMENT
+        WHERE postid = #{postId}
+        ORDER BY createdtime DESC;
+    </select>
+
+    <!-- 댓글 내용 가져오기 -->
+    <select id="getCommentContentByCommentId" parameterType="Long" resultType="String">
+        SELECT comcontent FROM COMMENT
+        WHERE commentid = #{commentId}
+    </select>
+
+    <!-- memberid 가져오기 -->
+    <select id="getMemberIdByCommentId" parameterType="Long" resultType="Long">
+        SELECT memberid FROM COMMENT
+        WHERE commentid = #{commentId}
+    </select>
 </mapper>
