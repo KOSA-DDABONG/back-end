@@ -39,4 +39,9 @@ public class HashtagService implements IHashtagService{
 
         return hashtagIdList;
     }
+
+    @Override
+    public String getHashtagNameByHashtagId(Long hashtagId) {
+        return iHashtagRepository.getHashtagNameByHashtagId(hashtagId);
+    }
 }

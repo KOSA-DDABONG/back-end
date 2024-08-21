@@ -121,6 +121,7 @@ public class MemberService implements IMemberService {
         return iMemberRepository.getNicknameByMemberId(memberId);
     }
 
+
     @Override
     public Member findByUserId(String userId) {
         return null;

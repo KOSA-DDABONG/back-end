@@ -22,4 +22,9 @@
         WHERE hashname = #{curHashtag}
     </select>
 
+    <!-- hashtag 이름 확인 -->
+    <select id="getHashtagNameByHashtagId" parameterType="Long" resultType="String">
+        SELECT hashname FROM HASHTAG
+        WHERE hashtagid = #{hashtagId}
+    </select>
 </mapper>

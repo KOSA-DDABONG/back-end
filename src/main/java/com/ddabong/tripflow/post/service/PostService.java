@@ -60,4 +60,14 @@ public class PostService implements IPostService {
 
         return reviewListDTOList;
     }
+
+    @Override
+    public Long getMemberIdByPostId(Long postId) {
+        return iPostRepository.getMemberIdByPostId(postId);
+    }
+
+    @Override
+    public String getContentByPostId(Long postId) {
+        return iPostRepository.getContentByPostId(postId);
+    }
 }

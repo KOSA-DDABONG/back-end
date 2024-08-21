@@ -6,6 +6,8 @@ import com.ddabong.tripflow.hashtag.model.HashtagJoin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class HashtagJoinService implements IHashtagJoinService {
 
@@ -20,5 +22,10 @@ public class HashtagJoinService implements IHashtagJoinService {
             hashtagJoin.setHashtagId(item);
             iHashtagJoinRepository.save(hashtagJoin);
         }
+    }
+
+    @Override
+    public List<Long> getHashtagIDsByPostId(Long postId) {
+        return iHashtagJoinRepository.getHashtagIDsByPostId(postId);
     }
 }
