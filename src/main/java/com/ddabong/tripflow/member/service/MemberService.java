@@ -121,6 +121,11 @@ public class MemberService implements IMemberService {
         return iMemberRepository.getNicknameByMemberId(memberId);
     }
 
+    @Override
+    public String getBirthByUserId(String userId) {
+        return iMemberRepository.getBirthByUserId(userId);
+    }
+
 
     @Override
     public Member findByUserId(String userId) {

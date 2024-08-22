@@ -54,4 +54,10 @@
         SELECT nickname FROM MEMBER
         WHERE memberid = #{memberId}
     </select>
+
+    <!-- 유저 생년월일 -->
+    <select id="getBirthByUserId" parameterType="String" resultType="String">
+        SELECT birth FROM MEMBER
+        WHERE userid = #{userId}
+    </select>
 </mapper>
