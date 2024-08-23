@@ -19,7 +19,7 @@ public class HashtagService implements IHashtagService{
         List<Long> hashtagIdList = new ArrayList<>();
 
         if (hashtags == null) { return hashtagIdList; }
-        
+
         for (String ht : hashtags){
             set.add(ht);
         }
