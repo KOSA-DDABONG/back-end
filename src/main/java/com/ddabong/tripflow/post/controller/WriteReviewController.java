@@ -94,18 +94,17 @@ public class WriteReviewController {
                 ImageDTO imageDTO = new ImageDTO();
 
                 String originalFilename = file.getOriginalFilename();
-                String encodedFilename = URLEncoder.encode(originalFilename, StandardCharsets.UTF_8.toString());
                 StringBuffer sb = new StringBuffer();
                 sb.append(UUID.randomUUID());
                 sb.append("-");
-                sb.append(encodedFilename);
+                sb.append(originalFilename);
                 String uploadURL = fileUploadPath + curPostId.toString() + "/" + sb.toString();
 
                 ObjectMetadata metadata = new ObjectMetadata();
                 metadata.setContentLength(file.getSize());
                 metadata.setContentType(file.getContentType());
 
-                String fileUrl= "https://" + bucket + ".s3." + region + ".amazonaws.com/" + originalFilename;
+                String fileUrl= amazonS3Client.getUrl(bucket, uploadURL).toString();
                 amazonS3Client.putObject(bucket,
                         uploadURL,
                         file.getInputStream(),
