@@ -58,6 +58,8 @@ public class WriteReviewController {
                                          @RequestParam("files")List<MultipartFile> multipartFiles){
         WritePostResponseDTO writePostResponseDTO = new WritePostResponseDTO("SAVE FAIL", 500);
         System.out.println("후기 저장 시작....");
+        System.out.println(multipartFiles);
+        System.out.println(postDTOJson);
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             PostDTO postDTO = objectMapper.readValue(postDTOJson, PostDTO.class);
