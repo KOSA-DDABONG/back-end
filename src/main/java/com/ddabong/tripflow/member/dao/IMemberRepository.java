@@ -15,4 +15,6 @@ public interface IMemberRepository {
     Long getMemberIdByUserId(String userId);
 
     String getNicknameByMemberId(Long memberId);
+
+    String getBirthByUserId(String userId);
 }

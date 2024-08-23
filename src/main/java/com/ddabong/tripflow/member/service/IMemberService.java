@@ -19,4 +19,5 @@ public interface IMemberService {
 
     String getNicknameByMemberId(Long curMemberID);
 
+    String getBirthByUserId(String userId);
 }
