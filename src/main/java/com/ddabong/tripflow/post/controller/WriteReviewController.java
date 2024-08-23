@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -91,11 +93,13 @@ public class WriteReviewController {
             for(MultipartFile file : multipartFiles){
                 ImageDTO imageDTO = new ImageDTO();
 
+                String originalFilename = file.getOriginalFilename();
+                String encodedFilename = URLEncoder.encode(originalFilename, StandardCharsets.UTF_8.toString());
                 StringBuffer sb = new StringBuffer();
                 sb.append(UUID.randomUUID());
                 sb.append("-");
-                sb.append(file.getOriginalFilename());
-                String originalFilename = fileUploadPath + curPostId.toString() + "/" + sb.toString();
+                sb.append(encodedFilename);
+                String uploadURL = fileUploadPath + curPostId.toString() + "/" + sb.toString();
 
                 ObjectMetadata metadata = new ObjectMetadata();
                 metadata.setContentLength(file.getSize());
@@ -103,7 +107,7 @@ public class WriteReviewController {
 
                 String fileUrl= "https://" + bucket + ".s3." + region + ".amazonaws.com/" + originalFilename;
                 amazonS3Client.putObject(bucket,
-                        originalFilename,
+                        uploadURL,
                         file.getInputStream(),
                         metadata);
 

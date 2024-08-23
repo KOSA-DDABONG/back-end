@@ -64,6 +64,9 @@ public class ChatbotController {
         String responseBody = response.getBody();
         JsonNode jsonResponse = objectMapper.readTree(responseBody);
 
+        System.out.println("responseBody ----------");
+        System.out.println(responseBody);
+
         // 응답이 JSON 문자열로 감싸진 경우 처리
         if (jsonResponse.has("response")) {
             String responseText = jsonResponse.get("response").asText();
