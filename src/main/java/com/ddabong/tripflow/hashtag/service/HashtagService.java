@@ -19,11 +19,10 @@ public class HashtagService implements IHashtagService{
         List<Long> hashtagIdList = new ArrayList<>();
 
         if (hashtags == null) { return hashtagIdList; }
-        System.out.println("해시태그 set 생성");
+        
         for (String ht : hashtags){
             set.add(ht);
         }
-        System.out.println("해시태그 set");
 
         Iterator<String> iterSet = set.iterator();
         while(iterSet.hasNext()){
