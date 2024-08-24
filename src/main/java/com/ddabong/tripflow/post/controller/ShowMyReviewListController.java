@@ -1,5 +1,6 @@
 package com.ddabong.tripflow.post.controller;
 
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.ddabong.tripflow.image.service.IImageService;
 import com.ddabong.tripflow.image.service.IPostImageService;
 import com.ddabong.tripflow.member.service.GetMemberInfoService;
@@ -37,10 +38,10 @@ public class ShowMyReviewListController {
     private IMemberService memberService;
     @Autowired
     private ITravelService travelService;
+    @Autowired
+    private AmazonS3Client amazonS3Client;
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
-    @Value("${cloud.aws.region.static}")
-    private String region;
     private String postImgRootPath = "postimg/";
     @Transactional
     @GetMapping("/review/list")
@@ -65,8 +66,7 @@ public class ShowMyReviewListController {
                     url.add(curUrl);
                 }
                 if(url.isEmpty()) {
-                    url.add("https://" + bucket + ".s3." + region + ".amazonaws.com/"
-                            + postImgRootPath + "default/default_post_image.jpg");
+                    url.add(String.valueOf(amazonS3Client.getUrl(bucket, postImgRootPath + "default/default_post_image.jpg")));
                 }
                 item.setUrl(url);
                 item.setStartTime(travelDTO.getStartTime());
