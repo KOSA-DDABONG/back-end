@@ -5,6 +5,7 @@ import com.ddabong.tripflow.member.service.GetMemberInfoService;
 import com.ddabong.tripflow.member.service.IMemberService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -60,7 +61,7 @@ public class ChatbotController {
 
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
-            String flaskUrl = "http://localhost:5000/get_user?userAge=" + userAge + "&userToken=" + userToken;
+            String flaskUrl = flaskIP + "get_user?userAge=" + userAge + "&userToken=" + userToken;
             ResponseEntity<String> response = restTemplate.exchange(flaskUrl, HttpMethod.POST, entity, String.class);
 
             // Flask에서 받은 응답을 JSON 형태로 변환
@@ -94,44 +95,55 @@ public class ChatbotController {
 
 
     @PostMapping("/conversation")
-    public ResponseEntity<JsonNode> makeSchedule(@RequestBody Map<String, String> request) throws IOException {
-        String userId = getMemberInfoService.getUserIdByJWT();
-        String userBirth = memberService.getBirthByUserId(userId);
+    public ResponseDTO makeSchedule(@RequestBody String userInput) throws IOException {
+        ResponseDTO responseDTO = new ResponseDTO("Enter Chatting room FAIL", 500);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-        LocalDate birthDate = LocalDate.parse(userBirth, formatter);
-        LocalDate currentDate = LocalDate.now();
-        int age = Period.between(birthDate, currentDate).getYears();
+        try {
+            String jsonString = chatting_state;
+            System.out.println("채팅 스테이트 변경 전 -----");
+            System.out.println(chatting_state);
+            JsonNode jsonNode = objectMapper.readTree(jsonString);
+            ((ObjectNode) jsonNode).put("question", userInput);
+            // 3. 업데이트된 JsonNode를 다시 JSON 문자열로 변환하여 chatting_state를 갱신
+            chatting_state = objectMapper.writeValueAsString(jsonNode);
+            jsonString = chatting_state;
+            System.out.println("채팅 스테이트 변경 후 -----");
+            System.out.println(jsonNode);
 
-        String question = request.get("question");
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+            // HTTP 헤더 설정
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
 
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("question", question);
+            // 요청 엔터티 생성
+            HttpEntity<String> request = new HttpEntity<>(jsonString, headers);
 
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+            // Flask API로 POST 요청 보내기
+            String flaskApiUrl = "http://localhost:5000/making";
+            ResponseEntity<String> response = restTemplate.exchange(flaskApiUrl, HttpMethod.POST, request, String.class);
 
-        String flaskUrl = "http://localhost:5000/making?userAge=" + age;
-        ResponseEntity<String> response = restTemplate.exchange(flaskUrl, HttpMethod.POST, entity, String.class);
+            // Flask에서 받은 응답을 JSON 형태로 변환
+            String responseBody = response.getBody();
+            JsonNode jsonResponse = objectMapper.readTree(responseBody);
 
-        // Flask에서 받은 응답을 JSON 형태로 변환
-        String responseBody = response.getBody();
-        JsonNode jsonResponse = objectMapper.readTree(responseBody);
+            System.out.println("플라스크가 보내준 responseBody ----------");
+            System.out.println(responseBody);
+            chatting_state = responseBody; // 추후 DB테이블 관리
 
-        System.out.println("responseBody ----------");
-        System.out.println(responseBody);
+            // 응답이 JSON 문자열로 감싸진 경우 처리
+            if (jsonResponse.has("response")) {
+                String responseText = jsonResponse.get("response").asText();
+                JsonNode responseJson = objectMapper.readTree(responseText);
+                //return ResponseEntity.ok(responseJson);
 
-        // 응답이 JSON 문자열로 감싸진 경우 처리
-        if (jsonResponse.has("response")) {
-            String responseText = jsonResponse.get("response").asText();
-            JsonNode responseJson = objectMapper.readTree(responseText);
-            return ResponseEntity.ok(responseJson);
+                System.out.println("챗봇 응담 >>>>>>>");
+                System.out.println(responseJson);
+            }
+
+        } catch (Exception e){
+            e.printStackTrace();
         }
-
-        System.out.println("챗봇 응담 >>>>>>>");
-        System.out.println(jsonResponse);
-        return ResponseEntity.ok(jsonResponse);
+        // Flask의 응답 반환
+        return responseDTO;
     }
 
 
