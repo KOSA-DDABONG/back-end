@@ -118,8 +118,10 @@ public class ChatbotController {
             HttpEntity<String> request = new HttpEntity<>(jsonString, headers);
 
             // Flask API로 POST 요청 보내기
+            System.out.println("Flask 요청 시작");
             String flaskApiUrl = "http://localhost:5000/making";
             ResponseEntity<String> response = restTemplate.exchange(flaskApiUrl, HttpMethod.POST, request, String.class);
+            System.out.println("Flask의 응답 : " + response.getBody());
 
             // Flask에서 받은 응답을 JSON 형태로 변환
             String responseBody = response.getBody();
@@ -132,12 +134,13 @@ public class ChatbotController {
             // 응답이 JSON 문자열로 감싸진 경우 처리
             if (jsonResponse.has("response")) {
                 String responseText = jsonResponse.get("response").asText();
-                JsonNode responseJson = objectMapper.readTree(responseText);
+                //JsonNode responseJson = objectMapper.readTree(responseText);
                 //return ResponseEntity.ok(responseJson);
 
                 System.out.println("챗봇 응담 >>>>>>>");
-                System.out.println(responseJson);
+                System.out.println(responseText);
             }
+
 
         } catch (Exception e){
             e.printStackTrace();
