@@ -4,6 +4,8 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.ddabong.tripflow.board.dto.*;
 import com.ddabong.tripflow.board.service.IBoardService;
+import com.ddabong.tripflow.member.service.GetMemberInfoService;
+import com.ddabong.tripflow.member.service.IMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -31,6 +32,8 @@ public class BoardController {//클래스명 BoardController
     //BoardSerivce 에도 동일하게 @RequiredArgsConstructor 어노테이션을 실행해주어야함
     @Autowired
     private IBoardService boardService;
+    @Autowired
+    private GetMemberInfoService getMemberInfoService;
 
     //아래 save는 모두 다른 save이다.
     @GetMapping("/save") //save 주소 입력시
@@ -47,8 +50,19 @@ public class BoardController {//클래스명 BoardController
         return "redirect:/list" ;
     }
 
-    @PostMapping("/list/savecomment")//댓글 저장 기능
-    public ResponseEntity<ResponseDTO_C> saveComment(@RequestBody CommentDTO commentDTO){
+    @PostMapping("/list/{id}/savecomment")//댓글 저장 기능 + 완료
+    public ResponseEntity<ResponseDTO_SaveComment> saveComment(@PathVariable("id") Long id, @RequestPart CommentDTO commentDTO)throws IOException{
+        //postid 입력 및 postid로 memberid 까지 검색
+        commentDTO.setPostid(id);
+        commentDTO.setTravelid(boardService.findTravelid(id));
+        //userid로 memberid 검색 후 입력
+        String ss = commentDTO.getUserid();
+        commentDTO.setMemberid(boardService.findMemberid(ss));
+        // 생성 시간 저장
+        String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:s"));
+        System.out.println(time);
+        commentDTO.setCreatedtime(time);
+
         try{
             System.out.println("commentid: " + commentDTO.getCommentid());
             System.out.println("postid: " + commentDTO.getPostid());
@@ -60,7 +74,7 @@ public class BoardController {//클래스명 BoardController
             System.out.println(e.getMessage());
         }
         boardService.saveCommnet(commentDTO);
-        ResponseDTO_C responseDTO = new ResponseDTO_C("success",200, commentDTO);
+        ResponseDTO_SaveComment responseDTO = new ResponseDTO_SaveComment("success",200, commentDTO);
         return  ResponseEntity.ok(responseDTO);
     }
 
@@ -77,9 +91,11 @@ public class BoardController {//클래스명 BoardController
         //@RequestBody를 사용하면 하나의 class만 받을 수 있다. 따라서 두개를 통합하는 DTO를 만들었다.
         //두개의 DTO 필드를 하나의 class에 저장하여 Post를 받을 때 새로운 DTO롤 또 다시 생성하지 않고 기존의 코드를 재사용
         System.out.println("userid: " + boardDTO.getUserid());
+        //userid를 memberid로 변환
         String ss = boardDTO.getUserid();
         boardDTO.setMemberid(boardService.findMemberid(ss));
         System.out.println("memberid: " + boardDTO.getMemberid());
+        //created time 저장
         String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:s"));
         System.out.println(time);
         boardDTO.setCreatedtime(time);
@@ -181,16 +197,46 @@ public class BoardController {//클래스명 BoardController
 
     @GetMapping("/list/{id}") //위 동작하는 데이터 남겨두고 이미지 작업 진행
     public ResponseEntity<ResponseDTO_Listid> findDetail(@PathVariable("id") Long id){
-        System.out.println("check1");
-        List<BoardDTO> boardDTODetail = boardService.findDetail(id); //postid, content
+
+        //System.out.println("whatis this" + getMemberInfoService.getUserIdByJWT());
+        //System.out.println("check1");
+        //JWT 토큰을 이용해서 userid를 가져옴
+        String userid = getMemberInfoService.getUserIdByJWT();
+        Long memberid = boardService.findMemberid(userid);
+        BoardDTO boardDTO = boardService.findDetail(id); //postid, content
+        //현재 사용자 데이터를 통해 좋아요 누른 여부 확인
+        MemberDTO memberDTO = new MemberDTO();
+        memberDTO.setMemberid(memberid);
+        memberDTO.setPostid(id);
+        System.out.println("findLikeflag " + boardService.findLikeflag(memberDTO));
+        boardDTO.setLikeflag(boardService.findLikeflag(memberDTO));
+        //댓글 해쉬태그 이미지 저장
         List<CommentDTO> commentDTO = boardService.findComment(id);
         List<HashDTO> hashDTO = boardService.findHash(id); //HASH태그 불러오기
-        List<BoardDTO> boardDTOList = new ArrayList<>();
         List<ImageDTO> findiamgeDTO = boardService.findImage(id);
-        boardDTOList.addAll(boardDTODetail);
-        System.out.println("check3");
-        ResponseDTO_Listid responseDTO = new ResponseDTO_Listid("success",200, boardDTOList,hashDTO, commentDTO,findiamgeDTO);
+
+        ResponseDTO_Listid responseDTO = new ResponseDTO_Listid("success",200, boardDTO,hashDTO, commentDTO,findiamgeDTO);
         return  ResponseEntity.ok(responseDTO);
+    }
+
+    @GetMapping("/list/{id}/changelike") //후기 상세페이지에서 좋아요 누르기 // flag = 1 좋아요, flag = 0 좋아요 해제
+    public  ResponseEntity<ResponseDTO_B> postlike(@PathVariable("id") Long id){
+        String userid = getMemberInfoService.getUserIdByJWT();
+        Long memberid = boardService.findMemberid(userid);
+        //System.out.println("userid: " + userid);
+        MemberDTO memberDTO = new MemberDTO();
+        memberDTO.setMemberid(memberid);
+        memberDTO.setPostid(id);
+
+        if(boardService.findLikeflag(memberDTO) == true){//좋아요 없는데 누른경우
+            boardService.deleteLike(memberDTO);
+        }
+        else if(boardService.findLikeflag(memberDTO) == false){//좋아요 있는데 삭제한경우
+            boardService.saveLike(memberDTO);
+        }
+        memberDTO.setLikeflag(boardService.findLikeflag(memberDTO));
+        ResponseDTO_B responseDTOB = new ResponseDTO_B("success", 200, memberDTO);
+        return  ResponseEntity.ok(responseDTOB);
     }
 
     @GetMapping("/update/{id}") // update 시 사용

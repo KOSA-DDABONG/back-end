@@ -10,13 +10,13 @@ import java.util.List;
 public class ResponseDTO_Listid {
     private String message;
     private int status;
-    private List<BoardDTO> Board;
+    private BoardDTO Board;
     private List<CommentDTO> Comment;
     private List<HashDTO> Hash;
     private List<ImageDTO>Image;
 
 
-    public ResponseDTO_Listid(String message, int status, List<BoardDTO> Board, List<HashDTO> Hash,List<CommentDTO> Comment, List<ImageDTO>Image) {
+    public ResponseDTO_Listid(String message, int status, BoardDTO Board, List<HashDTO> Hash,List<CommentDTO> Comment, List<ImageDTO>Image) {
         this.message = message;
         this.status = status;
         this.Board =Board;

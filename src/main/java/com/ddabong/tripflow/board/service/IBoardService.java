@@ -14,7 +14,7 @@ public interface IBoardService {
 
     BoardDTO findById(Long id);
 
-    List<BoardDTO> findDetail(Long id);
+    BoardDTO findDetail(Long id);
 
     void update(BoardDTO boardDTO);
 
@@ -41,8 +41,11 @@ public interface IBoardService {
     void saveHash(HashDTO hashDTO);
     void saveHashJoin(HashDTO hashDTO);
     Long findHashid(String s);
-
-
     Long findLikeCount(Long id);
     Long findCommentCount(Long id);
+    Long findTravelid(Long id);
+    void saveLike(MemberDTO memberDTO);
+    void deleteLike(MemberDTO memberDTO);
+    //Long getMemberIdByUserId(String userIdByJWT);
+    Boolean findLikeflag(MemberDTO memberDTO);
 }

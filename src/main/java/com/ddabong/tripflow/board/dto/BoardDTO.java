@@ -16,6 +16,8 @@ public class BoardDTO {
     private Long id;
     //좋아요 수
     private Long likecount;
+    //현재 접속한 user like 눌렀으면 1, 아니면 0
+    private Boolean likeflag;
     //후기 총수
     private Long comcontentcount;
     //후기 기본키

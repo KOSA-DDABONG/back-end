@@ -3,18 +3,16 @@ package com.ddabong.tripflow.board.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @NoArgsConstructor
-public class ResponseDTO_C {
+public class ResponseDTO_SaveComment {
     private String message;
     private int status;
-    private CommentDTO data;
+    private CommentDTO comment;
 
-    public ResponseDTO_C(String message, int status, CommentDTO data) {
+    public ResponseDTO_SaveComment(String message, int status, CommentDTO comment) {
         this.message = message;
         this.status = status;
-        this.data =data;
+        this.comment =comment;
     }
 }
