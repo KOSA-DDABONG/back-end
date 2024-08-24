@@ -8,4 +8,11 @@
         WHERE postid = #{postId}
     </select>
 
+    <!-- 좋아요 여부 확인하기 -->
+    <select id="checkIsExistByMemberIdAndPostId" parameterType="map" resultType="int">
+        SELECT count(*) FROM DDABONG
+        WHERE postid = #{postId}
+        AND memberid = #{memberId}
+    </select>
+
 </mapper>
