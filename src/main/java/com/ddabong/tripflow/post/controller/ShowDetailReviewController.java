@@ -1,6 +1,7 @@
 package com.ddabong.tripflow.post.controller;
 
 
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.ddabong.tripflow.comment.dto.CommentDTO;
 import com.ddabong.tripflow.comment.dto.CommentInfoDTO;
 import com.ddabong.tripflow.comment.service.ICommentService;
@@ -53,10 +54,10 @@ public class ShowDetailReviewController {
     private ICommentService commentService;
     @Autowired
     private IProfileImageService profileImageService;
+    @Autowired
+    private AmazonS3Client amazonS3Client;
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
-    @Value("${cloud.aws.region.static}")
-    private String region;
     private String postImgRootPath = "postimg/";
     private String profileRootPath = "profile/";
 
@@ -147,8 +148,7 @@ public class ShowDetailReviewController {
             CommentInfoDTO commentInfoDTO = new CommentInfoDTO();
             Long memberId = commentService.getMemberIdByCommentId(commentId);
 
-            String profileImageURL = "https://" + bucket + ".s3." + region + ".amazonaws.com/"
-                    + profileRootPath + "default/default_profile_image.png";
+            String profileImageURL = String.valueOf(amazonS3Client.getUrl(bucket, profileRootPath + "default/default_profile_image.png"));
             int isExist = profileImageService.isExistProfileUrl(memberId);
             if(isExist > 0){
                 Long imageId = profileImageService.getImageIdByMemberId(memberId);
@@ -276,8 +276,7 @@ public class ShowDetailReviewController {
             url.add(imageService.getImageUrlByImageId(imageId));
         }
         if(url.isEmpty()) {
-            url.add("https://" + bucket + ".s3." + region + ".amazonaws.com/"
-                    + postImgRootPath + "default/default_post_image.jpg");
+            url.add(String.valueOf(amazonS3Client.getUrl(bucket, postImgRootPath + "default/default_post_image.jpg")));
         }
 
         return url;

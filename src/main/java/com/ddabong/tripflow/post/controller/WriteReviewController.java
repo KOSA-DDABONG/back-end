@@ -46,11 +46,9 @@ public class WriteReviewController {
     private IPostImageService postImageService;
     @Autowired
     private AmazonS3Client amazonS3Client;
-    private String fileUploadPath = "postimg/";
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
-    @Value("${cloud.aws.region.static}")
-    private String region;
+    private String fileUploadPath = "postimg/";
 
     @Transactional
     @PostMapping("/board/saveReview")
