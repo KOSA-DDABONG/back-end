@@ -26,6 +26,7 @@ public class DetailReviewInfoDTO {
     private List<String> hashtags;
     private int likeCnt;
     private int commentCnt;
+    private Boolean isLike;
 
     private List<CommentInfoDTO> commentInfoDTOs;
 }

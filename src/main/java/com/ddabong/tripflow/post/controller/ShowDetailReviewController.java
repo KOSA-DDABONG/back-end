@@ -10,6 +10,7 @@ import com.ddabong.tripflow.hashtag.service.IHashtagService;
 import com.ddabong.tripflow.image.service.IImageService;
 import com.ddabong.tripflow.image.service.IPostImageService;
 import com.ddabong.tripflow.image.service.IProfileImageService;
+import com.ddabong.tripflow.member.service.GetMemberInfoService;
 import com.ddabong.tripflow.member.service.IMemberService;
 import com.ddabong.tripflow.place.dto.LatAndLon;
 import com.ddabong.tripflow.post.dto.DetailReviewInfoDTO;
@@ -21,14 +22,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.sound.midi.Soundbank;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @ResponseBody
 @RequestMapping("/post")
 public class ShowDetailReviewController {
 
+    @Autowired
+    private GetMemberInfoService getMemberInfoService;
     @Autowired
     private IPostImageService postImageService;
     @Autowired
@@ -62,7 +68,7 @@ public class ShowDetailReviewController {
         DetailReviewInfoDTO detailReviewInfoDTO = new DetailReviewInfoDTO(0L, postId, 0L,
                 null,null,null,null,
                 "닉네임이 없습니다.", "내용이 없습니다.", null, 0, 0,
-                null);
+                false, null);
 
         System.out.println("해당 게시글 조회 중...");
         try{
@@ -87,9 +93,9 @@ public class ShowDetailReviewController {
             detailReviewInfoDTO.setHotel(hotels);
             
             System.out.println("게시글 작성자 불러오는 중.");
-            Long memberId = postService.getMemberIdByPostId(postId);
-            String nickName = memberService.getNicknameByMemberId(memberId);
-            detailReviewInfoDTO.setMemberId(memberId);
+            Long writerMemberId = postService.getMemberIdByPostId(postId);
+            String nickName = memberService.getNicknameByMemberId(writerMemberId);
+            detailReviewInfoDTO.setMemberId(writerMemberId);
             detailReviewInfoDTO.setNickName(nickName);
 
             System.out.println("게시글 내용 불러오는 중.");
@@ -103,6 +109,18 @@ public class ShowDetailReviewController {
             System.out.println("게시글 좋아요수 불러오는 중.");
             int likeCnt = ddabongService.getCountLikeNumByPostId(postId);
             detailReviewInfoDTO.setLikeCnt(likeCnt);
+
+            System.out.println("게시글 좋아요 클릭 여부 확인 중");
+            Long loginUserMemberId = memberService.getMemberIdByUserId(getMemberInfoService.getUserIdByJWT());
+            Map<String, Long> params = new HashMap<>();
+            params.put("memberId", loginUserMemberId);
+            params.put("postId", postId);
+            Boolean isLike = ddabongService.checkIsExistByMemberIdAndPostId(params);
+            if(isLike) {
+                detailReviewInfoDTO.setIsLike(true);
+            } else if (!isLike) {
+                detailReviewInfoDTO.setIsLike(false);
+            }
 
             System.out.println("게시글 전체 댓글 수 불러오는 중.");
             int commentCnt = commentService.getCountCommentNumByPostId(postId);

@@ -10,11 +10,11 @@ import java.util.List;
 public class ResponseDTO_B {
     private String message;
     private int status;
-    private BoardDTO data;
+    private MemberDTO member;
 
-    public ResponseDTO_B(String message, int status, BoardDTO data) {
+    public ResponseDTO_B(String message, int status, MemberDTO member) {
         this.message = message;
         this.status = status;
-        this.data =data;
+        this.member =member;
     }
 }

@@ -32,7 +32,7 @@ public class BoardService implements IBoardService {
         return boardRepository.findById(id);
     }
 
-    public List<BoardDTO> findDetail(Long id){
+    public BoardDTO findDetail(Long id){
         System.out.println("check2");
         return boardRepository.findDetail(id);
     }
@@ -79,4 +79,10 @@ public class BoardService implements IBoardService {
 
     public Long findLikeCount(Long id){return boardRepository.findLikeCount(id);}
     public Long findCommentCount(Long id){return boardRepository.findCommentCount(id);}
+
+    public Long findTravelid(Long id){return boardRepository.findTravelid(id);}
+
+    public void saveLike(MemberDTO memberDTO){boardRepository.saveLike(memberDTO);}
+    public void deleteLike(MemberDTO memberDTO){boardRepository.deleteLike(memberDTO);}
+    public Boolean findLikeflag(MemberDTO memberDTO){return boardRepository.findLikeflag(memberDTO);}
 }

@@ -57,7 +57,6 @@
         limit 3;
     </select>
 
-
     <select id="findDetail" resultType="com.ddabong.tripflow.board.dto.BoardDTO">
         SELECT
         COUNT(d.likeid) AS likecount,
@@ -109,9 +108,9 @@
 <!--    commentid는 알아서 1씩증가하도록 테이블에서 AUTO_INCREMENT를 사용-->
     <insert id="saveComment" parameterType="com.ddabong.tripflow.board.dto.CommentDTO">
         INSERT INTO tripflow.COMMENT
-            (postid, travelid, commentid2, memberid, comcontent)
+            (postid, travelid, commentid2, memberid, comcontent, createdtime)
         VALUES
-            (#{postid},#{travelid},#{commentid2},#{memberid},#{comcontent})
+            (#{postid},#{travelid},#{commentid2},#{memberid},#{comcontent},#{createdtime})
     </insert>
 
     <!--    postid는 알아서 1씩증가하도록 테이블에서 AUTO_INCREMENT를 사용-->
@@ -172,6 +171,31 @@
         SELECT COUNT(*) AS count
         FROM tripflow.COMMENT
         WHERE postid = #{id};
+    </select>
+
+    <select id="findTravelid" parameterType="Long" resultType="Long">
+        select travelid from tripflow.POST
+        where postid = #{id};
+    </select>
+
+    <insert id="saveLike" parameterType="com.ddabong.tripflow.board.dto.MemberDTO">
+        INSERT INTO tripflow.DDABONG(postid, memberid)
+        VALUES (#{postid},#{memberid});
+    </insert>
+
+    <delete id="deleteLike" parameterType="com.ddabong.tripflow.board.dto.MemberDTO">
+        DELETE FROM tripflow.DDABONG WHERE ( postid = #{postid} and memberid = #{memberid} );
+    </delete>
+
+    <select id="findLikeflag" parameterType="com.ddabong.tripflow.board.dto.BoardDTO" resultType="Boolean">
+        SELECT CASE
+            WHEN EXISTS (
+                SELECT 1
+                FROM tripflow.DDABONG
+                WHERE postid = #{postid} and memberid = #{memberid}
+            ) THEN 1
+        ELSE 0
+        END AS result;
     </select>
 
 </mapper>
