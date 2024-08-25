@@ -7,13 +7,13 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class ResponseDTO_BLBL {
+public class ResponseDTO_AllList {
     private String message;
     private int status;
-    private List<BoardDTO> top3;
-    private List<BoardDTO> Recentboard;
+    private List<BoardDTO_View> top3;
+    private List<BoardDTO_View> Recentboard;
 
-    public ResponseDTO_BLBL(String message, int status, List<BoardDTO> top3, List<BoardDTO> Recentboard) {
+    public ResponseDTO_AllList(String message, int status, List<BoardDTO_View> top3, List<BoardDTO_View> Recentboard) {
         this.message = message;
         this.status = status;
         this.top3 =top3;
