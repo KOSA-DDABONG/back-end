@@ -85,4 +85,5 @@ public class BoardService implements IBoardService {
     public void saveLike(MemberDTO memberDTO){boardRepository.saveLike(memberDTO);}
     public void deleteLike(MemberDTO memberDTO){boardRepository.deleteLike(memberDTO);}
     public Boolean findLikeflag(MemberDTO memberDTO){return boardRepository.findLikeflag(memberDTO);}
+    public String findCreatetime(Long id){return boardRepository.findCreatetime(id);}
 }

@@ -5,7 +5,6 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.ddabong.tripflow.board.dto.*;
 import com.ddabong.tripflow.board.service.IBoardService;
 import com.ddabong.tripflow.member.service.GetMemberInfoService;
-import com.ddabong.tripflow.member.service.IMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -126,7 +125,7 @@ public class BoardController {//클래스명 BoardController
             hashDTOList.set(i ,hashDTO_tmp);
         }
 
-
+        String tmp = ".s3.ap-northeast-2.amazonaws.com/";
         List<ImageDTO> imageDTOList = new ArrayList<>();
         for(int i = 0 ; i < files.size() ; i++) { // for문을 사용하여 여러 이미지가 들어와도 저장 가능하도록 설계
             //s3 이미지 업로드
@@ -140,7 +139,8 @@ public class BoardController {//클래스명 BoardController
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(file.getSize());
             metadata.setContentType(file.getContentType());
-            String fileUrl= "https://" + bucket + originalFilename;
+            String fileUrl= "https://" + bucket + tmp + originalFilename;
+            fileUrl = fileUrl.replace(" ", "%20");
             System.out.println(i + "fileUrl: " + fileUrl);
             System.out.println(i + "riginalFilename!: " + originalFilename);
             amazonS3Client.putObject(bucket, originalFilename, file.getInputStream(), metadata); // s3 업로드
@@ -163,23 +163,67 @@ public class BoardController {//클래스명 BoardController
 
     @Transactional
     @GetMapping("/list") // 좋아요 전체 list를 조회 하는 메소드 // 좋아요 상위3개 추출
-    public ResponseEntity<ResponseDTO_BLBL> findAll() { // json 형식으로 데이터를 반환
+    public ResponseEntity<ResponseDTO_AllList> findAll() { // json 형식으로 데이터를 반환
+
+
+        String userid = getMemberInfoService.getUserIdByJWT();
+        Long memberid = boardService.findMemberid(userid);
+
         List<BoardDTO> boardDTOList = boardService.findAll();
         List<BoardDTO> boardDTOListtop = boardService.findTOP();
+        List<BoardDTO_View> boardDTOViews_Top = new ArrayList<>();
+        List<BoardDTO_View> boardDTOViews = new ArrayList<>();
+        // 좋아요 수 상위 TOP3  출력
+        for (int i = 0 ; i < boardDTOListtop.size() ; i++){
+            MemberDTO memberDTO = new MemberDTO();
+            BoardDTO_View boardDTOView = new BoardDTO_View();
+            Long postid = boardDTOListtop.get(i).getPostid();
+            memberDTO.setMemberid(memberid);
+            memberDTO.setPostid(boardDTOListtop.get(i).getPostid());
+            // 게시판 관련 데이터 조회
+            boardDTOView.setComcontentcount(boardService.findCommentCount(boardDTOListtop.get(i).getPostid()));
+            boardDTOView.setPostid(postid);
+            boardDTOView.setLikeflag(boardService.findLikeflag(memberDTO));
+            boardDTOView.setCreatetime(boardService.findCreatetime(boardDTOListtop.get(i).getPostid()));
+            boardDTOView.setLikecount(boardDTOListtop.get(i).getLikecount());
 
-        for (int i = 0 ; i < boardDTOList.size() ; i++){
-            Long postid = boardDTOList.get(i).getPostid();
-            Long likecount = boardService.findLikeCount(postid);
-            Long commentcount = boardService.findCommentCount(postid);
-            boardDTOList.get(i).setComcontentcount(commentcount);
-            boardDTOList.get(i).setLikecount(likecount);
+            //이미지 url 조회
+            List<ImageDTO> findiamgeDTO = boardService.findImage(postid);
+            if(!findiamgeDTO.isEmpty()) {
+                boardDTOView.setImgurl(findiamgeDTO.get(0).getUrl());
+            }
+            boardDTOViews_Top.add(boardDTOView);
         }
+
+        //전체 리스트 출력 마지막으로 저장한 순서대로
+        for (int i = 0 ; i < boardDTOList.size() ; i++){
+            MemberDTO memberDTO = new MemberDTO();
+            BoardDTO_View boardDTOView = new BoardDTO_View();
+            Long postid = boardDTOList.get(i).getPostid();
+            memberDTO.setMemberid(memberid);
+            memberDTO.setPostid(postid);
+
+            boardDTOView.setComcontentcount(boardService.findCommentCount(postid));
+            boardDTOView.setPostid(boardDTOList.get(i).getPostid());
+            boardDTOView.setLikeflag(boardService.findLikeflag(memberDTO));
+            boardDTOView.setCreatetime(boardService.findCreatetime(postid));
+            boardDTOView.setLikecount(boardService.findLikeCount(postid));
+
+            List<ImageDTO> findiamgeDTO = boardService.findImage(postid);
+            if(!findiamgeDTO.isEmpty()) {
+                boardDTOView.setImgurl(findiamgeDTO.get(0).getUrl());
+            }
+            
+            boardDTOViews.add(boardDTOView);
+        }
+
+
 
         System.out.println("boardDTOList:" + boardDTOList);
         System.out.println("boardDTOListtop:" + boardDTOListtop);
 
         // JSON 형식으로 반환할 ResponseDTO 객체 생성
-        ResponseDTO_BLBL responseDTO = new ResponseDTO_BLBL("success", 200,boardDTOListtop,boardDTOList);
+        ResponseDTO_AllList responseDTO = new ResponseDTO_AllList("success", 200,boardDTOViews_Top,boardDTOViews);
         // ResponseEntity를 통해 JSON 응답 반환
         return ResponseEntity.ok(responseDTO);
     }
