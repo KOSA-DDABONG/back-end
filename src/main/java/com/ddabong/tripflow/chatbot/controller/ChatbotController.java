@@ -138,6 +138,7 @@ public class ChatbotController {
 
                 System.out.println("챗봇 응담 >>>>>>>");
                 System.out.println(responseText);
+                chatting_state = responseBody; // 추후 DB테이블 관리
 
                 chatbotDataResponseDTO.setChatbotMessage(responseText);
                 chatbotDataResponseDTO.setTravelSchedule("생성된 일정이 아직 없습니다.");
