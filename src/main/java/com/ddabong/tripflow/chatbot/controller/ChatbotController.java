@@ -232,6 +232,7 @@ public class ChatbotController {
                 System.out.println("생성된 일정 ----------");
                 updateKeyword(jsonResponse, userInput, "제가 추천해드리는 일정이에요! ^^", userStateDTO.getAge(), userStateDTO.getToken());
                 System.out.println(responseBody);
+                saveSchedule(responseBody);
                 //chatting_state = responseBody; // 추후 DB테이블 관리
                 // 임시 일정 정리
 
@@ -248,6 +249,10 @@ public class ChatbotController {
         }
         // Flask의 응답 반환
         return responseDTO;
+    }
+
+    private void saveSchedule(String responseBody) {
+
     }
 
 
