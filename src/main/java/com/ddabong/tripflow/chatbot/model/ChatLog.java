@@ -22,7 +22,7 @@ public class ChatLog {
     private String botResponse;
     private Timestamp createdTime;
 
-    private int days;
+    private Integer days;
     private String transport;
     private String companion;
     private String theme;

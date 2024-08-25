@@ -11,7 +11,7 @@ public class UserStateDTO {
     private String userInput;
     private String botResponse;
 
-    private int days;
+    private Integer days;
     private String transport;
     private String companion;
     private String theme;
