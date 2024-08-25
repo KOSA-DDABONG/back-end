@@ -44,7 +44,7 @@ public class ChatbotController {
 
     private String flaskIP = "http://localhost:5000/";
 
-    private String chatting_state;
+    //private String chatting_state;
 
     private String chattingStartMessage = "안녕하세요!\n저는 당신만의 여행 플래너 TripFlow의 '립플'입니다.\n당신이 생각한 여행일정을 공유해주세요!";
 
@@ -80,11 +80,11 @@ public class ChatbotController {
 
             System.out.println("플라스크가 보내준 responseBody ----------");
             System.out.println(responseBody);
-            chatting_state = responseBody; // 추후 DB테이블 관리
+            //chatting_state = responseBody; // 추후 DB테이블 관리
 
             System.out.println("USER 상태 초기화");
 
-            UserStateDTO userStateDTO = keywordUpdate(jsonResponse, userAge, userToken);
+            UserStateDTO userStateDTO = initKeywords(jsonResponse, "", chattingStartMessage, userAge, userToken);
 
             chatbotDataResponseDTO.setChatbotMessage(chattingStartMessage);
             responseDTO.setMessage("Start Chatting");
@@ -98,41 +98,52 @@ public class ChatbotController {
         return responseDTO;
     }
 
-    private UserStateDTO keywordUpdate(JsonNode jsonResponse, int userAge, Long userToken) throws JsonProcessingException {
-        UserStateDTO userStateDTO = new UserStateDTO("", chattingStartMessage, 0, null, null, null, null, userAge, userToken, 0L);
+    private UserStateDTO initKeywords(JsonNode jsonResponse, String userInput, String chatbotResponse, int userAge, Long userToken) throws JsonProcessingException {
+        UserStateDTO userStateDTO = new UserStateDTO(userInput, chatbotResponse, null, null, null, null, null, userAge, userToken, 0L);
+        System.out.println("keyword 업데이트 시작" + jsonResponse.asText());
         // 응답이 JSON 문자열로 감싸진 경우 처리
+        if (jsonResponse.has("question")) {
+            System.out.println("user input : " + userInput);
+            userStateDTO.setUserInput(userInput);
+        }
+
         if (jsonResponse.has("keywords")) {
-            String responseText = jsonResponse.get("keywords").asText();
-            JsonNode keywordsJson = objectMapper.readTree(responseText);
-            //return ResponseEntity.ok(responseJson);
+            ObjectNode keywordsNode = (ObjectNode) jsonResponse.get("keywords");
+            System.out.println("keywords Json " + keywordsNode.asText());
 
-            if(keywordsJson.has("days")){
-                System.out.println("days 업데이트");
-                userStateDTO.setDays(keywordsJson.get("days").asInt());
-                System.out.println("days : " + userStateDTO.getDays());
+            if(keywordsNode.has("days")){
+                System.out.println("days 업데이트 : " + keywordsNode.get("days").asInt());
+                if(keywordsNode.get("days").asText() != "null") {
+                    userStateDTO.setDays(keywordsNode.get("days").asInt());
+                }
             }
-            if(keywordsJson.has("transport")){
-                System.out.println("transport 업데이트");
-                userStateDTO.setTransport(keywordsJson.get("transport").asText());
-                System.out.println("transport : " + userStateDTO.getTransport());
+            if(keywordsNode.has("transport")){
+                System.out.println("transport 업데이트" + keywordsNode.get("transport").asText());
+                if(keywordsNode.get("transport").asText() != "null"){
+                    userStateDTO.setTransport(keywordsNode.get("transport").asText());
+                }
             }
-            if(keywordsJson.has("companion")){
-                System.out.println("companion 업데이트");
-                userStateDTO.setCompanion(keywordsJson.get("companion").asText());
-                System.out.println("companion : " + userStateDTO.getCompanion());
+            if(keywordsNode.has("companion")){
+                System.out.println("companion 업데이트" + keywordsNode.get("companion").asText());
+                if (keywordsNode.get("companion").asText() != "null"){
+                    userStateDTO.setCompanion(keywordsNode.get("companion").asText());
+                }
             }
-            if(keywordsJson.has("theme")){
-                System.out.println("theme 업데이트");
-                userStateDTO.setTheme(keywordsJson.get("theme").asText());
-                System.out.println("theme : " + userStateDTO.getTheme());
+            if(keywordsNode.has("theme")){
+                System.out.println("theme 업데이트"+ keywordsNode.get("theme").asText());
+                if (keywordsNode.get("theme").asText() != "null"){
+                    userStateDTO.setTheme(keywordsNode.get("theme").asText());
+                }
             }
-            if(keywordsJson.has("food")){
-                System.out.println("food 업데이트");
-                userStateDTO.setFood(keywordsJson.get("food").asText());
-                System.out.println("food : " + userStateDTO.getFood());
+            if(keywordsNode.has("food")){
+                System.out.println("food 업데이트" + keywordsNode.get("food").asText());
+                if (keywordsNode.get("food").asText() != "null"){
+                    userStateDTO.setFood(keywordsNode.get("food").asText());
+                }
             }
 
-            chatLogService.saveState(userStateDTO);
+            chatLogService.initState(userStateDTO);
+            System.out.println("user state DTO : " +userStateDTO);
         }
 
         return userStateDTO;
@@ -146,14 +157,37 @@ public class ChatbotController {
         ChatbotDataResponseDTO chatbotDataResponseDTO = new ChatbotDataResponseDTO("","");
 
         try {
-            String jsonString = chatting_state;
+            System.out.println("유저 상태 불러오는 중");
+            Long memberId = memberService.getMemberIdByUserId(getMemberInfoService.getUserIdByJWT());
+            System.out.println("회원 ID: " + memberId);
+            UserStateDTO userStateDTO = chatLogService.setUserState(memberId);
+            /*
+            String jsonString = "{\"question\": null, " +
+                    "\"keywords\": {\"days\": null, \"transport\": null, \"companion\": null, \"theme\": null, \"food\": null}, " +
+                    "\"foods_context\": [], \"playing_context\": [], \"hotel_context\": [], \"scheduler\": \"\", \"explain\": \"\", " +
+                    "\"second_sentence\": \"\", \"user_age\": \"0\", \"user_token\": \"0\", \"is_valid\": 0}";
+             */
+            String jsonString = "{\"question\": " + null + ", " +
+                    "\"keywords\": {\"days\": " + null + ", \"transport\": " + null + ", \"companion\": " + null + ", \"theme\": " + null + ", \"food\": " + null + "}, " +
+                    "\"foods_context\": [], \"playing_context\": [], \"hotel_context\": [], \"scheduler\": \"\", \"explain\": \"\", " +
+                    "\"second_sentence\": \"\", \"user_age\": \"0\", \"user_token\": \"0\", \"is_valid\": 0}";
+
             System.out.println("채팅 스테이트 변경 전 -----");
-            System.out.println(chatting_state);
+            userStateDTO.setUserInput(userInput);
             JsonNode jsonNode = objectMapper.readTree(jsonString);
             ((ObjectNode) jsonNode).put("question", userInput);
+            // keywords 객체를 추출
+            ObjectNode keywordsNode = (ObjectNode) jsonNode.get("keywords");
+            keywordsNode.put("days", userStateDTO.getDays());
+            keywordsNode.put("transport", userStateDTO.getTransport());
+            keywordsNode.put("companion", userStateDTO.getCompanion());
+            keywordsNode.put("theme", userStateDTO.getTheme());
+            keywordsNode.put("food", userStateDTO.getFood());
+            // 수정된 keywords 객체를 jsonNode에 다시 설정 (이 단계는 선택사항, 이미 참조로 수정됨)
+            ((ObjectNode) jsonNode).set("keywords", keywordsNode);
+
             // 3. 업데이트된 JsonNode를 다시 JSON 문자열로 변환하여 chatting_state를 갱신
-            chatting_state = objectMapper.writeValueAsString(jsonNode);
-            jsonString = chatting_state;
+            jsonString = objectMapper.writeValueAsString(jsonNode);
             System.out.println("채팅 스테이트 변경 후 -----");
             System.out.println(jsonNode); // {"question":"4일 정도 여행계획이 있고, 부모님과 자차로 이동할거야. 주로 관광지와 먹거리를 먹으러 돌아다닐거고, 따로 가리는 음식은 없어.","keywords":{"days":null,"transport":null,"companion":null,"theme":null,"food":null},"foods_context":[],"playing_context":[],"hotel_context":[],"scheduler":"","explain":"","second_sentence":"","user_age":"27","user_token":"3","is_valid":0}
 
@@ -180,10 +214,14 @@ public class ChatbotController {
                 String responseText = jsonResponse.get("response").asText();
                 //JsonNode responseJson = objectMapper.readTree(responseText);
                 //return ResponseEntity.ok(responseJson);
-
                 System.out.println("챗봇 응담 >>>>>>>");
                 System.out.println(responseText);
-                chatting_state = responseBody; // 추후 DB테이블 관리
+
+                updateKeyword(jsonResponse, userInput, responseText, userStateDTO.getAge(), userStateDTO.getToken());
+
+
+
+                //chatting_state = responseBody; // 추후 DB테이블 관리
 
                 chatbotDataResponseDTO.setChatbotMessage(responseText);
                 chatbotDataResponseDTO.setTravelSchedule("생성된 일정이 아직 없습니다.");
@@ -192,8 +230,10 @@ public class ChatbotController {
                 responseDTO.setData(chatbotDataResponseDTO);
             } else {
                 System.out.println("생성된 일정 ----------");
+                updateKeyword(jsonResponse, userInput, "제가 추천해드리는 일정이에요! ^^", userStateDTO.getAge(), userStateDTO.getToken());
                 System.out.println(responseBody);
-                chatting_state = responseBody; // 추후 DB테이블 관리
+                //chatting_state = responseBody; // 추후 DB테이블 관리
+                // 임시 일정 정리
 
                 chatbotDataResponseDTO.setChatbotMessage("생성된 일정이 마음에 드시나요?");
                 chatbotDataResponseDTO.setTravelSchedule(responseBody);
@@ -210,6 +250,57 @@ public class ChatbotController {
         return responseDTO;
     }
 
+
+    private UserStateDTO updateKeyword(JsonNode jsonResponse, String userInput, String chatbotResponse, int userAge, Long userToken) throws JsonProcessingException {
+        UserStateDTO userStateDTO = new UserStateDTO(userInput, chatbotResponse, null, null, null, null, null, userAge, userToken, 0L);
+        System.out.println("keyword 업데이트 시작" + jsonResponse.asText());
+        // 응답이 JSON 문자열로 감싸진 경우 처리
+        if (jsonResponse.has("question")) {
+            System.out.println("user input : " + userInput);
+            userStateDTO.setUserInput(userInput);
+        }
+
+        if (jsonResponse.has("keywords")) {
+            ObjectNode keywordsNode = (ObjectNode) jsonResponse.get("keywords");
+            System.out.println("keywords Json " + keywordsNode.asText());
+
+            if(keywordsNode.has("days")){
+                System.out.println("days 업데이트 : " + keywordsNode.get("days").asInt());
+                if(keywordsNode.get("days").asText() != "null") {
+                    userStateDTO.setDays(keywordsNode.get("days").asInt());
+                }
+            }
+            if(keywordsNode.has("transport")){
+                System.out.println("transport 업데이트" + keywordsNode.get("transport").asText());
+                if(keywordsNode.get("transport").asText() != "null"){
+                    userStateDTO.setTransport(keywordsNode.get("transport").asText());
+                }
+            }
+            if(keywordsNode.has("companion")){
+                System.out.println("companion 업데이트" + keywordsNode.get("companion").asText());
+                if (keywordsNode.get("companion").asText() != "null"){
+                    userStateDTO.setCompanion(keywordsNode.get("companion").asText());
+                }
+            }
+            if(keywordsNode.has("theme")){
+                System.out.println("theme 업데이트"+ keywordsNode.get("theme").asText());
+                if (keywordsNode.get("theme").asText() != "null"){
+                    userStateDTO.setTheme(keywordsNode.get("theme").asText());
+                }
+            }
+            if(keywordsNode.has("food")){
+                System.out.println("food 업데이트" + keywordsNode.get("food").asText());
+                if (keywordsNode.get("food").asText() != "null"){
+                    userStateDTO.setFood(keywordsNode.get("food").asText());
+                }
+            }
+
+            chatLogService.updateState(userStateDTO);
+            System.out.println("user state DTO : " +userStateDTO);
+        }
+
+        return userStateDTO;
+    }
 
 
     @PostMapping("/userResponse")

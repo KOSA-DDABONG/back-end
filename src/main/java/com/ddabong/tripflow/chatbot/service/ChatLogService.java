@@ -4,6 +4,7 @@ import com.ddabong.tripflow.chatbot.dao.IChatLogRepository;
 import com.ddabong.tripflow.chatbot.dto.UserStateDTO;
 import com.ddabong.tripflow.chatbot.model.ChatLog;
 import com.ddabong.tripflow.chatbot.model.ChatLogMapping;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,7 @@ public class ChatLogService implements IChatLogService {
     }
 
     @Override
-    public void saveState(UserStateDTO userStateDTO) {
+    public void initState(UserStateDTO userStateDTO) {
         ChatLog chatLog = new ChatLog();
         ChatLogMapping chatLogMapping = new ChatLogMapping();
 
@@ -43,7 +44,7 @@ public class ChatLogService implements IChatLogService {
         chatLog.setToken(userStateDTO.getToken());
         chatLog.setPastChatId(userStateDTO.getPastChatId());
 
-        iChatLogRepository.saveState(chatLog);
+        iChatLogRepository.initState(chatLog);
         Long curChatLogId = chatLog.getChatLogId();
         System.out.println("저장된 ID : " + curChatLogId);
 
@@ -52,6 +53,81 @@ public class ChatLogService implements IChatLogService {
         chatLogMapping.setStartChatId(curChatLogId);
         chatLogMapping.setLastChatId(curChatLogId);
         chatLogMapping.setCreatedTime(Timestamp.valueOf(now.format(dateTimeFormatter)));
+        chatLogMapping.setLastModifiedTime(Timestamp.valueOf(now.format(dateTimeFormatter)));
         iChatLogRepository.initLastChatMapping(chatLogMapping);
+    }
+
+    @Override
+    public UserStateDTO setUserState(Long memberId) {
+        UserStateDTO userStateDTO = new UserStateDTO("", "", null,null,null,null,null,0,0L,0L);
+        ChatLog chatLog = iChatLogRepository.setUserState(memberId);
+
+        System.out.println("chat log 조회 : " + chatLog);
+
+
+        if (chatLog != null) {
+            if(chatLog.getDays() != null){
+                userStateDTO.setDays(chatLog.getDays());
+            }
+            if(chatLog.getTransport() != null){
+                userStateDTO.setTransport(chatLog.getTransport());
+            }
+            if(chatLog.getCompanion() != null){
+                userStateDTO.setCompanion(chatLog.getCompanion());
+            }
+            if(chatLog.getTheme() != null){
+                userStateDTO.setTheme(chatLog.getTheme());
+            }
+            if(chatLog.getFood() != null){
+                userStateDTO.setFood(chatLog.getFood());
+            }
+            userStateDTO.setAge(chatLog.getAge());
+            userStateDTO.setToken(chatLog.getToken());
+            userStateDTO.setPastChatId(chatLog.getChatLogId()); // 이전 채팅 id 저장
+        } else {
+            // chatLog가 null일 경우 기본값을 설정하거나 적절한 처리를 수행합니다.
+            System.out.println("chatLog is null");
+        }
+
+        return userStateDTO;
+    }
+
+    @Override
+    public void updateState(UserStateDTO userStateDTO) {
+        ChatLog chatLog = new ChatLog();
+        //ChatLogMapping chatLogMapping = new ChatLogMapping();
+        ChatLogMapping chatLogMapping = new ChatLogMapping();
+
+        chatLog.setUserInput(userStateDTO.getUserInput());
+        chatLog.setBotResponse(userStateDTO.getBotResponse());
+
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        chatLog.setCreatedTime(Timestamp.valueOf(now.format(dateTimeFormatter)));
+
+        chatLog.setDays(userStateDTO.getDays());
+        chatLog.setTransport(userStateDTO.getTransport());
+        chatLog.setCompanion(userStateDTO.getCompanion());
+        chatLog.setTheme(userStateDTO.getTheme());
+        chatLog.setFood(userStateDTO.getFood());
+
+        chatLog.setAge(userStateDTO.getAge());
+        chatLog.setToken(userStateDTO.getToken());
+
+        Long pastChatId = iChatLogRepository.findPastChatIdByMemberId(userStateDTO.getToken());
+        Long chatMappingId = iChatLogRepository.findChatLogMappingIdByMemberId(userStateDTO.getToken());
+        chatLog.setPastChatId(pastChatId);
+
+        iChatLogRepository.updateState(chatLog);
+        Long curChatLogId = chatLog.getChatLogId();
+        System.out.println("저장된 ID : " + curChatLogId);
+
+        System.out.println("채팅로그 매핑");
+        chatLogMapping.setChatLogMapId(chatMappingId);
+        chatLogMapping.setLastChatId(curChatLogId);
+        chatLogMapping.setLastModifiedTime(Timestamp.valueOf(now.format(dateTimeFormatter)));
+        iChatLogRepository.updateLastChatMapping(chatLogMapping);
+
+
     }
 }

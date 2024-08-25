@@ -21,4 +21,5 @@ public class ChatLogMapping {
     private Long startChatId;
     private Long lastChatId;
     private Timestamp createdTime;
+    private Timestamp lastModifiedTime;
 }

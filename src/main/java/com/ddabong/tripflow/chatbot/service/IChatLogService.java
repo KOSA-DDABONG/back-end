@@ -6,5 +6,9 @@ import com.ddabong.tripflow.chatbot.model.ChatLog;
 public interface IChatLogService {
     void save(ChatLog chatLog);
 
-    void saveState(UserStateDTO userStateDTO);
+    void initState(UserStateDTO userStateDTO);
+
+    UserStateDTO setUserState(Long memberId);
+
+    void updateState(UserStateDTO userStateDTO);
 }

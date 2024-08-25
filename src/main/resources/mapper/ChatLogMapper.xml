@@ -3,7 +3,19 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ddabong.tripflow.chatbot.dao.IChatLogRepository">
     <!-- 챗봇 응답 저장 -->
-    <insert id="saveState" parameterType="com.ddabong.tripflow.chatbot.model.ChatLog" useGeneratedKeys="true" keyProperty="chatLogId">
+    <insert id="initState" parameterType="com.ddabong.tripflow.chatbot.model.ChatLog" useGeneratedKeys="true" keyProperty="chatLogId">
+        INSERT INTO CHATLOG
+            (chatlogid, userinput, botresponse, createdtime,
+            days, transport, companion, theme, food,
+            age, token, pastchatid)
+        VALUES
+            (#{chatLogId}, #{userInput}, #{botResponse}, #{createdTime},
+            #{days}, #{transport}, #{companion}, #{theme}, #{food},
+            #{age}, #{token}, #{pastChatId})
+
+    </insert>
+
+    <insert id="updateState" parameterType="com.ddabong.tripflow.chatbot.model.ChatLog" useGeneratedKeys="true" keyProperty="chatLogId">
         INSERT INTO CHATLOG
             (chatlogid, userinput, botresponse, createdtime,
             days, transport, companion, theme, food,
@@ -18,8 +30,65 @@
     <!-- 마지막 챗봇 대화 기록 매핑 -->
     <insert id="initLastChatMapping" parameterType="com.ddabong.tripflow.chatbot.model.ChatLogMapping">
         INSERT INTO CHATLOGMAPPING
-            (chatlogmapid, memberid, startchatid, lastchatid, createdtime)
+            (chatlogmapid, memberid, startchatid, lastchatid, createdtime, lastmodifiedtime)
         VALUES
-            (#{chatLogMapId}, #{memberId}, #{startChatId}, #{lastChatId}, #{createdTime})
+            (#{chatLogMapId}, #{memberId}, #{startChatId}, #{lastChatId}, #{createdTime}, #{lastModifiedTime})
     </insert>
+
+    <!-- ChatLog에 대한 ResultMap 정의 -->
+    <resultMap id="ChatLogResultMap" type="com.ddabong.tripflow.chatbot.model.ChatLog">
+        <id property="chatLogId" column="chatlogid"/>
+        <result property="userInput" column="userinput"/>
+        <result property="botResponse" column="botresponse"/>
+        <result property="createdTime" column="createdtime"/>
+        <result property="days" column="days"/>
+        <result property="transport" column="transport"/>
+        <result property="companion" column="companion"/>
+        <result property="theme" column="theme"/>
+        <result property="food" column="food"/>
+        <result property="age" column="age"/>
+        <result property="token" column="token"/>
+        <result property="pastChatId" column="pastchatid"/>
+    </resultMap>
+
+    <!-- 유저 상태 불러오기 쿼리 -->
+    <select id="setUserState" parameterType="Long" resultMap="ChatLogResultMap">
+        SELECT c.*
+        FROM CHATLOGMAPPING cm
+        JOIN CHATLOG c ON cm.lastchatid = c.chatlogid
+        WHERE cm.memberid = #{memberId}
+        ORDER BY cm.lastmodifiedtime DESC
+        LIMIT 1
+    </select>
+
+    <!-- 마지막 대화 ID 가져오기 -->
+    <select id="findPastChatIdByMemberId" parameterType="Long">
+        SELECT lastchatid FROM CHATLOGMAPPING
+        WHERE memberid = #{memberId}
+        ORDER BY lastmodifiedtime DESC
+        LIMIT 1
+    </select>
+
+    <!-- 시작 대화 ID 가져오기 -->
+    <select id="findStartChatIdByMemberId" parameterType="Long">
+        SELECT startchatid FROM CHATLOGMAPPING
+        WHERE memberid = #{memberId}
+        ORDER BY lastmodifiedtime DESC
+        LIMIT 1
+    </select>
+
+    <!-- 시작 대화 ID 가져오기 -->
+    <select id="findChatLogMappingIdByMemberId" parameterType="Long">
+        SELECT chatlogmapid FROM CHATLOGMAPPING
+        WHERE memberid = #{memberId}
+        ORDER BY lastmodifiedtime DESC
+        LIMIT 1
+    </select>
+
+    <!-- 마지막 대화 매핑 업데이트 -->
+    <update id="updateLastChatMapping" parameterType="com.ddabong.tripflow.chatbot.model.ChatLogMapping">
+        UPDATE CHATLOGMAPPING
+        SET lastchatid = #{lastChatId}, lastmodifiedtime = #{lastModifiedTime}
+        WHERE chatlogmapid = #{chatLogMapId}
+    </update>
 </mapper>

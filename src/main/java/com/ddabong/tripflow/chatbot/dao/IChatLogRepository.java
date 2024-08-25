@@ -8,7 +8,19 @@ import org.apache.ibatis.annotations.Mapper;
 public interface IChatLogRepository {
     void save(ChatLog chatLog);
 
-    void saveState(ChatLog chatLog);
+    void initState(ChatLog chatLog);
 
     void initLastChatMapping(ChatLogMapping chatLogMapping);
+
+    ChatLog setUserState(Long memberId);
+
+    void updateState(ChatLog chatLog);
+
+    Long findPastChatIdByMemberId(Long memberId);
+
+    Long findStartChatIdByMemberId(Long memberId);
+
+    void updateLastChatMapping(ChatLogMapping chatLogMapping);
+
+    Long findChatLogMappingIdByMemberId(Long memberId);
 }
