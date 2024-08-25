@@ -11,4 +11,5 @@ import lombok.Setter;
 public class ResponseDTO {
     private String message;
     private int status;
+    private ChatbotDataResponseDTO data;
 }

@@ -1,5 +1,6 @@
 package com.ddabong.tripflow.chatbot.controller;
 
+import com.ddabong.tripflow.chatbot.dto.ChatbotDataResponseDTO;
 import com.ddabong.tripflow.chatbot.dto.ResponseDTO;
 import com.ddabong.tripflow.member.service.GetMemberInfoService;
 import com.ddabong.tripflow.member.service.IMemberService;
@@ -42,7 +43,7 @@ public class ChatbotController {
 
     @GetMapping("/start")
     public ResponseDTO chatBotStart() {
-        ResponseDTO responseDTO = new ResponseDTO("Enter Chatting room FAIL", 500);
+        ResponseDTO responseDTO = new ResponseDTO("Enter Chatting room FAIL", 500, null);
 
         System.out.println("채팅 준비 ----------------");
         try {
@@ -96,7 +97,8 @@ public class ChatbotController {
 
     @PostMapping("/conversation")
     public ResponseDTO makeSchedule(@RequestBody String userInput) throws IOException {
-        ResponseDTO responseDTO = new ResponseDTO("Enter Chatting room FAIL", 500);
+        ResponseDTO responseDTO = new ResponseDTO("Enter Chatting room FAIL", 500, null);
+        ChatbotDataResponseDTO chatbotDataResponseDTO = new ChatbotDataResponseDTO("","");
 
         try {
             String jsonString = chatting_state;
@@ -108,7 +110,7 @@ public class ChatbotController {
             chatting_state = objectMapper.writeValueAsString(jsonNode);
             jsonString = chatting_state;
             System.out.println("채팅 스테이트 변경 후 -----");
-            System.out.println(jsonNode);
+            System.out.println(jsonNode); // {"question":"4일 정도 여행계획이 있고, 부모님과 자차로 이동할거야. 주로 관광지와 먹거리를 먹으러 돌아다닐거고, 따로 가리는 음식은 없어.","keywords":{"days":null,"transport":null,"companion":null,"theme":null,"food":null},"foods_context":[],"playing_context":[],"hotel_context":[],"scheduler":"","explain":"","second_sentence":"","user_age":"27","user_token":"3","is_valid":0}
 
             // HTTP 헤더 설정
             HttpHeaders headers = new HttpHeaders();
@@ -127,9 +129,6 @@ public class ChatbotController {
             String responseBody = response.getBody();
             JsonNode jsonResponse = objectMapper.readTree(responseBody);
 
-            System.out.println("플라스크가 보내준 responseBody ----------");
-            System.out.println(responseBody);
-            chatting_state = responseBody; // 추후 DB테이블 관리
 
             // 응답이 JSON 문자열로 감싸진 경우 처리
             if (jsonResponse.has("response")) {
@@ -139,6 +138,22 @@ public class ChatbotController {
 
                 System.out.println("챗봇 응담 >>>>>>>");
                 System.out.println(responseText);
+
+                chatbotDataResponseDTO.setChatbotMessage(responseText);
+                chatbotDataResponseDTO.setTravelSchedule("생성된 일정이 아직 없습니다.");
+                responseDTO.setStatus(200);
+                responseDTO.setMessage("Please Request Next User Input");
+                responseDTO.setData(chatbotDataResponseDTO);
+            } else {
+                System.out.println("생성된 일정 ----------");
+                System.out.println(responseBody);
+                chatting_state = responseBody; // 추후 DB테이블 관리
+
+                chatbotDataResponseDTO.setChatbotMessage("생성된 일정이 마음에 드시나요?");
+                chatbotDataResponseDTO.setTravelSchedule(responseBody);
+                responseDTO.setStatus(200);
+                responseDTO.setMessage("Please Request IsValid Input");
+                responseDTO.setData(chatbotDataResponseDTO);
             }
 
 
