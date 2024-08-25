@@ -213,7 +213,7 @@ public class BoardController {//클래스명 BoardController
             if(!findiamgeDTO.isEmpty()) {
                 boardDTOView.setImgurl(findiamgeDTO.get(0).getUrl());
             }
-            
+
             boardDTOViews.add(boardDTOView);
         }
 
@@ -227,6 +227,48 @@ public class BoardController {//클래스명 BoardController
         // ResponseEntity를 통해 JSON 응답 반환
         return ResponseEntity.ok(responseDTO);
     }
+
+    @GetMapping("/mylist") // 좋아요 전체 list를 조회 하는 메소드 // 좋아요 상위3개 추출
+    public ResponseEntity<ResponseDTO_AllList> findMyList() { // json 형식으로 데이터를 반환
+
+        String userid = getMemberInfoService.getUserIdByJWT();
+        Long memberid = boardService.findMemberid(userid);
+
+        List<BoardDTO> boardDTOList = boardService.findAll();
+        List<BoardDTO_View> boardDTOViews = new ArrayList<>();
+        List<BoardDTO_View> boardDTOViewstmp = new ArrayList<>();
+        //전체 리스트 출력을 postid가 높은 순서대로(최신순)
+        for (int i = 0 ; i < boardDTOList.size() ; i++){
+            MemberDTO memberDTO = new MemberDTO();
+            BoardDTO_View boardDTOView = new BoardDTO_View();
+            Long postid = boardDTOList.get(i).getPostid();
+            memberDTO.setMemberid(memberid);
+            memberDTO.setPostid(postid);
+            if(boardService.findLikeflag(memberDTO)) {
+                boardDTOView.setComcontentcount(boardService.findCommentCount(postid));
+                boardDTOView.setPostid(boardDTOList.get(i).getPostid());
+                boardDTOView.setLikeflag(boardService.findLikeflag(memberDTO));
+                boardDTOView.setCreatetime(boardService.findCreatetime(postid));
+                boardDTOView.setLikecount(boardService.findLikeCount(postid));
+
+                List<ImageDTO> findiamgeDTO = boardService.findImage(postid);
+                if (!findiamgeDTO.isEmpty()) {
+                    boardDTOView.setImgurl(findiamgeDTO.get(0).getUrl());
+                }
+                boardDTOViews.add(boardDTOView);
+            }
+        }
+
+        System.out.println("boardDTOList:" + boardDTOList);
+
+        // JSON 형식으로 반환할 ResponseDTO 객체 생성
+        ResponseDTO_AllList responseDTO = new ResponseDTO_AllList("success", 200, boardDTOViews,boardDTOViewstmp);
+        // ResponseEntity를 통해 JSON 응답 반환
+        return ResponseEntity.ok(responseDTO);
+    }
+
+
+
 
     @GetMapping("/{id}") // 조회할 때마다 조회수가 증가하도록 하는 메소드 //사용 안할 예정
     public ResponseEntity<BoardDTO> findById(@PathVariable("id") Long id) {
