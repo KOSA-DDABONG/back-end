@@ -3,8 +3,23 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ddabong.tripflow.chatbot.dao.IChatLogRepository">
     <!-- 챗봇 응답 저장 -->
-    <insert id="save" parameterType="com.ddabong.tripflow.chatbot.model.ChatLog">
+    <insert id="saveState" parameterType="com.ddabong.tripflow.chatbot.model.ChatLog" useGeneratedKeys="true" keyProperty="chatLogId">
         INSERT INTO CHATLOG
+            (chatlogid, userinput, botresponse, createdtime,
+            days, transport, companion, theme, food,
+            age, token, pastchatid)
+        VALUES
+            (#{chatLogId}, #{userInput}, #{botResponse}, #{createdTime},
+            #{days}, #{transport}, #{companion}, #{theme}, #{food},
+            #{age}, #{token}, #{pastChatId})
 
+    </insert>
+
+    <!-- 마지막 챗봇 대화 기록 매핑 -->
+    <insert id="initLastChatMapping" parameterType="com.ddabong.tripflow.chatbot.model.ChatLogMapping">
+        INSERT INTO CHATLOGMAPPING
+            (chatlogmapid, memberid, startchatid, lastchatid, createdtime)
+        VALUES
+            (#{chatLogMapId}, #{memberId}, #{startChatId}, #{lastChatId}, #{createdTime})
     </insert>
 </mapper>
