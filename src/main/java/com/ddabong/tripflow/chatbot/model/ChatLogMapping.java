@@ -8,27 +8,17 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @Entity
-public class ChatLog {
+public class ChatLogMapping {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long chatLogId;
+    private Long chatLogMapId;
 
-    private String userInput;
-    private String botResponse;
+    private Long memberId;
+    private Long startChatId;
+    private Long lastChatId;
     private Timestamp createdTime;
-
-    private int days;
-    private String transport;
-    private String companion;
-    private String theme;
-    private String food;
-
-    private int age;
-    private Long token;
-    private Long pastChatId;
 }
