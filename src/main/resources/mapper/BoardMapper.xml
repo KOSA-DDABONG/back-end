@@ -198,4 +198,9 @@
         END AS result;
     </select>
 
+    <select id="findCreatetime" parameterType="Long" resultType="String">
+        select createdtime from tripflow.POST
+        where postid = #{id}
+    </select>
+
 </mapper>
