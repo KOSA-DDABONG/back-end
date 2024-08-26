@@ -20,4 +20,5 @@ public class UserStateDTO {
     private int age;
     private Long token;
     private Long pastChatId;
+    private String startTime;
 }

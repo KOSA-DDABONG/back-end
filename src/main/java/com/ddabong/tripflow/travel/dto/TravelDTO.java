@@ -13,4 +13,5 @@ public class TravelDTO {
     private Timestamp createdTime;
     private String startTime;
     private String endTime;
+    private Long chatLogId;
 }

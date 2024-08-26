@@ -43,6 +43,7 @@ public class ChatLogService implements IChatLogService {
         chatLog.setAge(userStateDTO.getAge());
         chatLog.setToken(userStateDTO.getToken());
         chatLog.setPastChatId(userStateDTO.getPastChatId());
+        chatLog.setStartTime(userStateDTO.getStartTime());
 
         iChatLogRepository.initState(chatLog);
         Long curChatLogId = chatLog.getChatLogId();
@@ -59,7 +60,7 @@ public class ChatLogService implements IChatLogService {
 
     @Override
     public UserStateDTO setUserState(Long memberId) {
-        UserStateDTO userStateDTO = new UserStateDTO("", "", null,null,null,null,null,0,0L,0L);
+        UserStateDTO userStateDTO = new UserStateDTO("", "", null,null,null,null,null,0,0L,0L, null);
         ChatLog chatLog = iChatLogRepository.setUserState(memberId);
 
         System.out.println("chat log 조회 : " + chatLog);
@@ -84,6 +85,7 @@ public class ChatLogService implements IChatLogService {
             userStateDTO.setAge(chatLog.getAge());
             userStateDTO.setToken(chatLog.getToken());
             userStateDTO.setPastChatId(chatLog.getChatLogId()); // 이전 채팅 id 저장
+            userStateDTO.setStartTime(chatLog.getStartTime());
         } else {
             // chatLog가 null일 경우 기본값을 설정하거나 적절한 처리를 수행합니다.
             System.out.println("chatLog is null");
@@ -117,6 +119,10 @@ public class ChatLogService implements IChatLogService {
         Long pastChatId = iChatLogRepository.findPastChatIdByMemberId(userStateDTO.getToken());
         Long chatMappingId = iChatLogRepository.findChatLogMappingIdByMemberId(userStateDTO.getToken());
         chatLog.setPastChatId(pastChatId);
+        String startTime = iChatLogRepository.getStartTimeByPastChatId(pastChatId);
+        System.out.println("pastChatId : " + pastChatId);
+        System.out.println("start time : " + startTime);
+        chatLog.setStartTime(startTime);
 
         iChatLogRepository.updateState(chatLog);
         Long curChatLogId = chatLog.getChatLogId();

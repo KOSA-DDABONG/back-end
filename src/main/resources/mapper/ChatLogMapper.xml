@@ -7,11 +7,11 @@
         INSERT INTO CHATLOG
             (chatlogid, userinput, botresponse, createdtime,
             days, transport, companion, theme, food,
-            age, token, pastchatid)
+            age, token, pastchatid, starttime)
         VALUES
             (#{chatLogId}, #{userInput}, #{botResponse}, #{createdTime},
             #{days}, #{transport}, #{companion}, #{theme}, #{food},
-            #{age}, #{token}, #{pastChatId})
+            #{age}, #{token}, #{pastChatId}, #{startTime})
 
     </insert>
 
@@ -19,11 +19,11 @@
         INSERT INTO CHATLOG
             (chatlogid, userinput, botresponse, createdtime,
             days, transport, companion, theme, food,
-            age, token, pastchatid)
+            age, token, pastchatid, starttime)
         VALUES
             (#{chatLogId}, #{userInput}, #{botResponse}, #{createdTime},
             #{days}, #{transport}, #{companion}, #{theme}, #{food},
-            #{age}, #{token}, #{pastChatId})
+            #{age}, #{token}, #{pastChatId}, #{startTime})
 
     </insert>
 
@@ -91,4 +91,10 @@
         SET lastchatid = #{lastChatId}, lastmodifiedtime = #{lastModifiedTime}
         WHERE chatlogmapid = #{chatLogMapId}
     </update>
+
+    <!-- 이전 채팅 로그 상태에서 시작날짜 가져오기 -->
+    <select id="getStartTimeByPastChatId" parameterType="Long" resultType="String">
+        SELECT starttime FROM CHATLOG
+        WHERE chatlogid = #{pastChatId}
+    </select>
 </mapper>
