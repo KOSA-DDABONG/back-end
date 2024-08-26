@@ -21,4 +21,12 @@ public class UserStateDTO {
     private Long token;
     private Long pastChatId;
     private String startTime;
+
+    private String scheduler;
+    private String foodsContext;
+    private String playingContext;
+    private String hotelContext;
+    private String explain;
+    private String secondSentence;
+    private int isValid;
 }

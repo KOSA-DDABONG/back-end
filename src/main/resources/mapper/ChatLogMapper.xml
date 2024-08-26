@@ -7,11 +7,13 @@
         INSERT INTO CHATLOG
             (chatlogid, userinput, botresponse, createdtime,
             days, transport, companion, theme, food,
-            age, token, pastchatid, starttime)
+            age, token, pastchatid, starttime,
+            scheduler, foods_context, playing_context, hotel_context, explain, second_sentence, is_valid)
         VALUES
             (#{chatLogId}, #{userInput}, #{botResponse}, #{createdTime},
             #{days}, #{transport}, #{companion}, #{theme}, #{food},
-            #{age}, #{token}, #{pastChatId}, #{startTime})
+            #{age}, #{token}, #{pastChatId}, #{startTime},
+            #{scheduler}, #{foodsContext}, #{playingContext}, #{hotelContext}, #{explain}, #{secondSentence}, #{is_valid})
 
     </insert>
 
@@ -19,11 +21,13 @@
         INSERT INTO CHATLOG
             (chatlogid, userinput, botresponse, createdtime,
             days, transport, companion, theme, food,
-            age, token, pastchatid, starttime)
+            age, token, pastchatid, starttime,
+            scheduler, foods_context, playing_context, hotel_context, explain, second_sentence, is_valid)
         VALUES
             (#{chatLogId}, #{userInput}, #{botResponse}, #{createdTime},
             #{days}, #{transport}, #{companion}, #{theme}, #{food},
-            #{age}, #{token}, #{pastChatId}, #{startTime})
+            #{age}, #{token}, #{pastChatId}, #{startTime},
+        #{scheduler}, #{foodsContext}, #{playingContext}, #{hotelContext}, #{explain}, #{secondSentence}, #{is_valid})
 
     </insert>
 
