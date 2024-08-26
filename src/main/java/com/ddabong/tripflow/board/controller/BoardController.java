@@ -342,10 +342,29 @@ public class BoardController {//클래스명 BoardController
         return ResponseEntity.ok(dto);
     }
 
-    @GetMapping("/delete/{id}")
+    @GetMapping("/list/{id}/delete")//post 게시물 삭제// id = postid
     public ResponseEntity<String> delete(@PathVariable("id") Long id) {
-        boardService.delete(id);
-        // 삭제 성공 메시지를 JSON 형식으로 반환
-        return ResponseEntity.ok("삭제 완료");
+        String userid = getMemberInfoService.getUserIdByJWT();
+        Long memberid = boardService.findMemberid(userid);
+        Long travelid = boardService.findTravelid(id);
+
+        //게시글 작성자인 경우
+        System.out.println(memberid);
+        System.out.println("작성자 "+ boardService.findMemberidInPost(id));
+        if ( memberid == boardService.findMemberidInPost(id)) {
+            DeletePostDTO deletePostDTO = new DeletePostDTO();
+            deletePostDTO.setMemberid(memberid);
+            deletePostDTO.setTravelid(travelid);
+            deletePostDTO.setPostid(id);
+            boardService.deletePostImage(deletePostDTO);
+            boardService.deleteHashtagJoin(deletePostDTO);
+            boardService.deleteComment(deletePostDTO);
+            boardService.deletePost(deletePostDTO);
+            // 삭제 성공 메시지를 JSON 형식으로 반환
+            return ResponseEntity.ok(id + " 번 계시물 삭제 완료");
+        }
+        else{
+            return ResponseEntity.ok(id + " 번 계시물 작성자가 아닙니다.");
+        }
     }
 }
