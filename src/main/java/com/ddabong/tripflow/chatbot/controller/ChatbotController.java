@@ -50,7 +50,7 @@ public class ChatbotController {
     private String chattingStartMessage = "안녕하세요!\n저는 당신만의 여행 플래너 TripFlow의 '립플'입니다.\n당신이 생각한 여행일정을 공유해주세요!";
 
     @Transactional
-    @GetMapping("/start")
+    @PostMapping("/start")
     public ResponseDTO chatBotStart(@RequestBody String startTime) {
         ResponseDTO responseDTO = new ResponseDTO("Enter Chatting room FAIL", 500, null);
         ChatbotDataResponseDTO chatbotDataResponseDTO = new ChatbotDataResponseDTO("","");
@@ -272,6 +272,11 @@ public class ChatbotController {
             System.out.println(dayNum + "일차------");
             System.out.println(value);
 
+            Map<String, Object> valueMap = objectMapper.convertValue(value, Map.class);
+
+            for(Map.Entry<String, Object> schedule : valueMap.entrySet()){
+                System.out.println("KEY:" + schedule.getKey() + " VAL:" + schedule.getValue());
+            }
         }
 
     }
