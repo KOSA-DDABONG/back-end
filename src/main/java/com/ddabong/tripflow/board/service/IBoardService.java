@@ -72,5 +72,7 @@ public interface IBoardService {
     Long findMemberidInPost(Long id);
     void updatePost(BoardDTO boardDTO);
 
+    void deleteImage(Long id);
+
 
 }

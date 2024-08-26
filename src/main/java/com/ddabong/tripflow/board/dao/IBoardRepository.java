@@ -46,4 +46,5 @@ public interface IBoardRepository {
     void deleteComment(DeletePostDTO deletePostDTO);
     Long findMemberidInPost(Long id);
     void updatePost(BoardDTO boardDTO);
+    void deleteImage(Long id);
 }
