@@ -156,7 +156,7 @@ public class BoardController {//클래스명 BoardController
             postImageDTO.setImageid(imageid); // id를 postimagedto에 저장
             boardService.savePostImage(postImageDTO);// imageid, postid, travelid아이디를 사용해서 저장
         }
-        // new를 사용하여 새로운 인스턴스를 생성. new를 사용하면 JVM 메모리 공간에 할당되고 이것을 인스턴스라 한다.
+
         ResponseDTO_SavePost responseDTO = new ResponseDTO_SavePost("success",200,boardDTO,imageDTOList,hashDTOList);
         return ResponseEntity.ok(responseDTO);
     }
@@ -306,17 +306,17 @@ public class BoardController {//클래스명 BoardController
     }
     @PostMapping("/list/{id}/update") // 데이터 수정
     public ResponseEntity<ResponseDTO_SavePost> update(@PathVariable("id") Long id,
-                                                     @RequestPart BoardDTO boardDTO,
-                                                     @RequestPart List<HashDTO> hashDTOList) {
+                                                       @RequestPart BoardDTO boardDTO,
+                                                       @RequestPart (required = false)List<MultipartFile> files,
+                                                       @RequestPart List<HashDTO> hashDTOList) throws IOException {
 
         Long memberid = boardService.findMemberid(boardDTO.getUserid());
         Long travelid = boardService.findTravelid(id);
-
         DeletePostDTO deletePostDTO = new DeletePostDTO();
         deletePostDTO.setMemberid(memberid);
         deletePostDTO.setTravelid(travelid);
         deletePostDTO.setPostid(id);
-
+        List<ImageDTO> imageDTOList = new ArrayList<>();
         if ( memberid == boardService.findMemberidInPost(id)) {
             boardDTO.setPostid(id);
             boardService.updatePost(boardDTO);
@@ -333,12 +333,46 @@ public class BoardController {//클래스명 BoardController
                 boardService.saveHashJoin(hashDTO_tmp);
                 hashDTOList.set(i, hashDTO_tmp);
             }
-            List<ImageDTO> imageDTO = new ArrayList<>();
-            ResponseDTO_SavePost responseDTO = new ResponseDTO_SavePost("success",200,boardDTO,imageDTO,hashDTOList);
+
+            if(!files.isEmpty()) { //이미지가 한개 이상 들어온 경우
+                boardService.deleteImage(id);//기존에 저장된 이미지를 다 지우고
+                //새로운 이미지를 저장
+                PostImageDTO postImageDTO = boardService.findPostid(); //현재 저장될 postid를 미리 저장하여 postimage 저장 할때 사용
+                String tmp = ".s3.ap-northeast-2.amazonaws.com/";
+                for (int i = 0; i < files.size(); i++) { // for문을 사용하여 여러 이미지가 들어와도 저장 가능하도록 설계
+                    //s3 이미지 업로드
+                    MultipartFile file = files.get(i); // 이미지 리스트에서 한개만 추출
+                    StringBuffer sb = new StringBuffer();
+                    sb.append(UUID.randomUUID());
+                    sb.append("-");
+                    sb.append(file.getOriginalFilename());
+                    String originalFilename = postFileUploadPath + sb.toString();
+
+                    ObjectMetadata metadata = new ObjectMetadata();
+                    metadata.setContentLength(file.getSize());
+                    metadata.setContentType(file.getContentType());
+                    String fileUrl = "https://" + bucket + tmp + originalFilename;
+                    fileUrl = fileUrl.replace(" ", "%20");
+                    System.out.println(i + "fileUrl: " + fileUrl);
+                    System.out.println(i + "riginalFilename!: " + originalFilename);
+                    amazonS3Client.putObject(bucket, originalFilename, file.getInputStream(), metadata); // s3 업로드
+
+                    //sql 이미지 데이터 입력
+                    ImageDTO saveImagetmp = new ImageDTO();
+                    saveImagetmp.setFilename(originalFilename);
+                    saveImagetmp.setUrl(fileUrl);
+                    saveImagetmp.setImagetype(3L); //후기 사진이므로3으로 설정
+                    imageDTOList.add(saveImagetmp); //이미지 데이터 Response확인용
+                    boardService.saveImage(saveImagetmp); //단일 이미지 데이터 저장
+                    Long imageid = boardService.findImageid(); // 저장된 이미지 id 추출
+                    postImageDTO.setImageid(imageid); // id를 postimagedto에 저장
+                    boardService.savePostImage(postImageDTO);// imageid, postid, travelid아이디를 사용해서 저장
+                }
+            }
+            ResponseDTO_SavePost responseDTO = new ResponseDTO_SavePost("success",200,boardDTO,imageDTOList,hashDTOList);
             return ResponseEntity.ok(responseDTO);
         }
-        List<ImageDTO> imageDTO = new ArrayList<>();
-        ResponseDTO_SavePost responseDTO = new ResponseDTO_SavePost("Fail 게시글 작성자가 아닙니다.",200,boardDTO,imageDTO,hashDTOList);
+        ResponseDTO_SavePost responseDTO = new ResponseDTO_SavePost("Fail 게시글 작성자가 아닙니다.",200,boardDTO,imageDTOList,hashDTOList);
         return ResponseEntity.ok(responseDTO);
     }
 

@@ -68,7 +68,7 @@
         (SELECT COUNT(*) FROM tripflow.COMMENT c WHERE c.postid = p.postid) AS comcontentcount
         FROM
         tripflow.POST p
-        JOIN
+        LEFT JOIN
         tripflow.DDABONG d ON p.postid = d.postid
         WHERE
         p.postid = #{id}
@@ -217,6 +217,10 @@
 
     <delete id="deletePost" parameterType="com.ddabong.tripflow.board.dto.DeletePostDTO">
         delete from tripflow.POST where travelid = #{travelid} and postid = #{postid};
+    </delete>
+
+    <delete id="deleteImage" parameterType="Long">
+        delete from tripflow.POST_IMAGE where postid = #{id};
     </delete>
 
 <!--    게시물 수정 구간   -->
