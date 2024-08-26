@@ -219,4 +219,9 @@
         delete from tripflow.POST where travelid = #{travelid} and postid = #{postid};
     </delete>
 
+<!--    게시물 수정 구간   -->
+    <update id="updatePost" parameterType="com.ddabong.tripflow.board.dto.BoardDTO">
+        UPDATE tripflow.POST SET content = #{content} WHERE (postid = #{postid});
+    </update>
+
 </mapper>

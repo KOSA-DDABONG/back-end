@@ -70,6 +70,7 @@ public interface IBoardService {
     void deleteComment(DeletePostDTO deletePostDTO);
     void deletePost(DeletePostDTO deletePostDTO);
     Long findMemberidInPost(Long id);
+    void updatePost(BoardDTO boardDTO);
 
 
 }
