@@ -395,16 +395,6 @@ public class BoardController {//클래스명 BoardController
         ResponseDTO_B responseDTOB = new ResponseDTO_B("success", 200, memberDTO);
         return  ResponseEntity.ok(responseDTOB);
     }
-//
-//    @GetMapping("/update/{id}") // update 시 사용
-//    // URL에서 "id"라는 변수를 가져온다.
-//    public ResponseEntity<BoardDTO> update(@PathVariable("id") Long id) {
-//        BoardDTO boardDTO = boardService.findById(id);
-//        System.out.println("boardDTO = " + boardDTO);
-//        // BoardDTO 객체를 JSON 형식으로 반환
-//        return ResponseEntity.ok(boardDTO);
-//    }
-
 
     @GetMapping("/list/{id}/delete")//post 게시물 삭제// id = postid
     public ResponseEntity<ResponseDTO> delete(@PathVariable("id") Long id) {
@@ -417,17 +407,20 @@ public class BoardController {//클래스명 BoardController
         System.out.println("작성자 "+ boardService.findMemberidInPost(id));
         if(boardService.findMemberidInPost(id) == null) {
             String s = id + " 번 게시글이 존재하지 않습니다.";
-            ResponseDTO responseDTO = new ResponseDTO("success", 200, s);
+            ResponseDTO responseDTO = new ResponseDTO("success", 400, s);
             return ResponseEntity.ok(responseDTO);
         }
         if ( memberid == boardService.findMemberidInPost(id)) {
             DeletePostDTO deletePostDTO = new DeletePostDTO();
+
+            System.out.println("travelid"+travelid);
+
             deletePostDTO.setMemberid(memberid);
             deletePostDTO.setTravelid(travelid);
             deletePostDTO.setPostid(id);
+            boardService.deleteComment(deletePostDTO);
             boardService.deletePostImage(deletePostDTO);
             boardService.deleteHashtagJoin(deletePostDTO);
-            boardService.deleteComment(deletePostDTO);
             boardService.deletePost(deletePostDTO);
             // 삭제 성공 메시지를 JSON 형식으로 반환
             String s = id + " 번 게시물 삭제 완료";
@@ -436,7 +429,7 @@ public class BoardController {//클래스명 BoardController
         }
         else{
             String s = id + " 번 게시물 작성자가 아닙니다.";
-            ResponseDTO responseDTO = new ResponseDTO("success", 200, s);
+            ResponseDTO responseDTO = new ResponseDTO("success", 403, s);
             return ResponseEntity.ok(responseDTO);
         }
     }
