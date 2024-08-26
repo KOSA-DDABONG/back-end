@@ -45,4 +45,5 @@ public interface IBoardRepository {
     void deleteHashtagJoin(DeletePostDTO deletePostDTO);
     void deleteComment(DeletePostDTO deletePostDTO);
     Long findMemberidInPost(Long id);
+    void updatePost(BoardDTO boardDTO);
 }

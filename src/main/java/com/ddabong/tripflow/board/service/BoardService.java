@@ -91,4 +91,5 @@ public class BoardService implements IBoardService {
     public void deleteComment(DeletePostDTO deletePostDTO){boardRepository.deleteComment(deletePostDTO);}
     public void deletePost(DeletePostDTO deletePostDTO){boardRepository.deletePost(deletePostDTO);}
     public Long findMemberidInPost(Long id){return  boardRepository.findMemberidInPost(id);}
+    public void updatePost(BoardDTO boardDTO){boardRepository.updatePost(boardDTO);}
 }

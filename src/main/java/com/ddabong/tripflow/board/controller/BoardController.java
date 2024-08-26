@@ -299,10 +299,47 @@ public class BoardController {//클래스명 BoardController
         //댓글 해쉬태그 이미지 저장
         List<CommentDTO> commentDTO = boardService.findComment(id);
         List<HashDTO> hashDTO = boardService.findHash(id); //HASH태그 불러오기
-        List<ImageDTO> findiamgeDTO = boardService.findImage(id);
+        List<ImageDTO> findimageDTO = boardService.findImage(id);
 
-        ResponseDTO_Listid responseDTO = new ResponseDTO_Listid("success",200, boardDTO,hashDTO, commentDTO,findiamgeDTO);
+        ResponseDTO_Listid responseDTO = new ResponseDTO_Listid("success",200, boardDTO,hashDTO, commentDTO,findimageDTO);
         return  ResponseEntity.ok(responseDTO);
+    }
+    @PostMapping("/list/{id}/update") // 데이터 수정
+    public ResponseEntity<ResponseDTO_SavePost> update(@PathVariable("id") Long id,
+                                                     @RequestPart BoardDTO boardDTO,
+                                                     @RequestPart List<HashDTO> hashDTOList) {
+
+        Long memberid = boardService.findMemberid(boardDTO.getUserid());
+        Long travelid = boardService.findTravelid(id);
+
+        DeletePostDTO deletePostDTO = new DeletePostDTO();
+        deletePostDTO.setMemberid(memberid);
+        deletePostDTO.setTravelid(travelid);
+        deletePostDTO.setPostid(id);
+
+        if ( memberid == boardService.findMemberidInPost(id)) {
+            boardDTO.setPostid(id);
+            boardService.updatePost(boardDTO);
+            boardService.deleteHashtagJoin(deletePostDTO);
+
+            for (int i = 0; i < hashDTOList.size(); i++) {
+                HashDTO hashDTO_tmp = new HashDTO();
+                hashDTO_tmp = hashDTOList.get(i);
+                boardService.saveHash(hashDTO_tmp);
+                Long hashid = boardService.findHashid(hashDTO_tmp.getHashname());
+                hashDTO_tmp.setHashtagid(hashid);
+                hashDTO_tmp.setPostid(id);
+                hashDTO_tmp.setTravelid(travelid);
+                boardService.saveHashJoin(hashDTO_tmp);
+                hashDTOList.set(i, hashDTO_tmp);
+            }
+            List<ImageDTO> imageDTO = new ArrayList<>();
+            ResponseDTO_SavePost responseDTO = new ResponseDTO_SavePost("success",200,boardDTO,imageDTO,hashDTOList);
+            return ResponseEntity.ok(responseDTO);
+        }
+        List<ImageDTO> imageDTO = new ArrayList<>();
+        ResponseDTO_SavePost responseDTO = new ResponseDTO_SavePost("Fail 게시글 작성자가 아닙니다.",200,boardDTO,imageDTO,hashDTOList);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @GetMapping("/list/{id}/changelike") //후기 상세페이지에서 좋아요 누르기 // flag = 1 좋아요, flag = 0 좋아요 해제
@@ -324,26 +361,19 @@ public class BoardController {//클래스명 BoardController
         ResponseDTO_B responseDTOB = new ResponseDTO_B("success", 200, memberDTO);
         return  ResponseEntity.ok(responseDTOB);
     }
+//
+//    @GetMapping("/update/{id}") // update 시 사용
+//    // URL에서 "id"라는 변수를 가져온다.
+//    public ResponseEntity<BoardDTO> update(@PathVariable("id") Long id) {
+//        BoardDTO boardDTO = boardService.findById(id);
+//        System.out.println("boardDTO = " + boardDTO);
+//        // BoardDTO 객체를 JSON 형식으로 반환
+//        return ResponseEntity.ok(boardDTO);
+//    }
 
-    @GetMapping("/update/{id}") // update 시 사용
-    // URL에서 "id"라는 변수를 가져온다.
-    public ResponseEntity<BoardDTO> update(@PathVariable("id") Long id) {
-        BoardDTO boardDTO = boardService.findById(id);
-        System.out.println("boardDTO = " + boardDTO);
-        // BoardDTO 객체를 JSON 형식으로 반환
-        return ResponseEntity.ok(boardDTO);
-    }
-
-    @PostMapping("/update/{id}") // 데이터를 저장할 때 사용
-    public ResponseEntity<BoardDTO> update(@RequestBody BoardDTO boardDTO) {
-        boardService.update(boardDTO);
-        BoardDTO dto = boardService.findById(boardDTO.getId());
-        // 업데이트된 BoardDTO 객체를 JSON 형식으로 반환
-        return ResponseEntity.ok(dto);
-    }
 
     @GetMapping("/list/{id}/delete")//post 게시물 삭제// id = postid
-    public ResponseEntity<String> delete(@PathVariable("id") Long id) {
+    public ResponseEntity<ResponseDTO> delete(@PathVariable("id") Long id) {
         String userid = getMemberInfoService.getUserIdByJWT();
         Long memberid = boardService.findMemberid(userid);
         Long travelid = boardService.findTravelid(id);
@@ -351,6 +381,11 @@ public class BoardController {//클래스명 BoardController
         //게시글 작성자인 경우
         System.out.println(memberid);
         System.out.println("작성자 "+ boardService.findMemberidInPost(id));
+        if(boardService.findMemberidInPost(id) == null) {
+            String s = id + " 번 게시글이 존재하지 않습니다.";
+            ResponseDTO responseDTO = new ResponseDTO("success", 200, s);
+            return ResponseEntity.ok(responseDTO);
+        }
         if ( memberid == boardService.findMemberidInPost(id)) {
             DeletePostDTO deletePostDTO = new DeletePostDTO();
             deletePostDTO.setMemberid(memberid);
@@ -361,10 +396,14 @@ public class BoardController {//클래스명 BoardController
             boardService.deleteComment(deletePostDTO);
             boardService.deletePost(deletePostDTO);
             // 삭제 성공 메시지를 JSON 형식으로 반환
-            return ResponseEntity.ok(id + " 번 계시물 삭제 완료");
+            String s = id + " 번 게시물 삭제 완료";
+            ResponseDTO responseDTO = new ResponseDTO("success", 200, s);
+            return ResponseEntity.ok(responseDTO);
         }
         else{
-            return ResponseEntity.ok(id + " 번 계시물 작성자가 아닙니다.");
+            String s = id + " 번 게시물 작성자가 아닙니다.";
+            ResponseDTO responseDTO = new ResponseDTO("success", 200, s);
+            return ResponseEntity.ok(responseDTO);
         }
     }
 }
