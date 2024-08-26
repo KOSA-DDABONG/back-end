@@ -11,4 +11,6 @@ public interface IChatLogService {
     UserStateDTO setUserState(Long memberId);
 
     void updateState(UserStateDTO userStateDTO);
+
+    Long getChatLogId(Long memberId);
 }

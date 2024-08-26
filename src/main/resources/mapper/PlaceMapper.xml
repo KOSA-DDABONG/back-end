@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ddabong.tripflow.place.dao.IPlaceRepository">
+    <!-- 관광 place id 조회 -->
+    <select id="getPlaceIdByTourPlaceName" parameterType="String" resultType="Long">
+        SELECT placeid FROM PLACE
+        WHERE placename = #{name}
+        AND placetype = 0
+        Limit 1
+    </select>
+
+    <!-- 숙박 place id 조회 -->
+    <select id="getPlaceIdByHotelPlaceName" parameterType="String" resultType="Long">
+        SELECT placeid FROM PLACE
+        WHERE placename = #{name}
+        AND placetype = 1
+        Limit 1
+    </select>
+
+    <!-- 식당 place id 조회 -->
+    <select id="getPlaceIdByRestaurantPlaceName" parameterType="String" resultType="Long">
+        SELECT placeid FROM PLACE
+        WHERE placename = #{name}
+        AND placetype = 2
+        Limit 1
+    </select>
+
+    <!-- 여행일정 장소 저장 -->
+    <insert id="saveTravelPlace" parameterType="com.ddabong.tripflow.travel.model.TravelPlaceJoin">
+        INSERT INTO TRAVEL_PLACE_JOIN
+            (travelplacejoinid, placeid, travelid, daynum, sequence)
+        VALUES
+            (#{travelPlaceJoinId}, #{placeId}, #{travelId}, #{dayNum}, #{sequence})
+    </insert>
+</mapper>

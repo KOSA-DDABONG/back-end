@@ -97,4 +97,5 @@
         SELECT starttime FROM CHATLOG
         WHERE chatlogid = #{pastChatId}
     </select>
+
 </mapper>

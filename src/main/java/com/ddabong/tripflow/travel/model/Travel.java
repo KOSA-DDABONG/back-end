@@ -27,5 +27,5 @@ public class Travel {
     private String startTime;
     private String endTime;
 
-    private Long chatlogid;
+    private Long chatLogId;
 }

@@ -136,4 +136,9 @@ public class ChatLogService implements IChatLogService {
 
 
     }
+
+    @Override
+    public Long getChatLogId(Long memberId) {
+        return iChatLogRepository.findChatLogMappingIdByMemberId(memberId);
+    }
 }

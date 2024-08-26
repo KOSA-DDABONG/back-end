@@ -6,7 +6,12 @@ import com.ddabong.tripflow.chatbot.dto.UserStateDTO;
 import com.ddabong.tripflow.chatbot.service.IChatLogService;
 import com.ddabong.tripflow.member.service.GetMemberInfoService;
 import com.ddabong.tripflow.member.service.IMemberService;
+import com.ddabong.tripflow.place.model.Place;
+import com.ddabong.tripflow.place.service.IPlaceService;
 import com.ddabong.tripflow.travel.dto.TravelDTO;
+import com.ddabong.tripflow.travel.dto.TravelPlaceJoinDTO;
+import com.ddabong.tripflow.travel.dto.TravelSequenceSaveFormDTO;
+import com.ddabong.tripflow.travel.service.ITravelService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,6 +23,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.support.SimpleTriggerContext;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -25,8 +31,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/chat")
@@ -42,6 +47,10 @@ public class ChatbotController {
     private IMemberService memberService;
     @Autowired
     private IChatLogService chatLogService;
+    @Autowired
+    private ITravelService travelService;
+    @Autowired
+    private IPlaceService placeService;
 
     private String flaskIP = "http://localhost:5000/";
 
@@ -162,22 +171,17 @@ public class ChatbotController {
             Long memberId = memberService.getMemberIdByUserId(getMemberInfoService.getUserIdByJWT());
             System.out.println("회원 ID: " + memberId);
             UserStateDTO userStateDTO = chatLogService.setUserState(memberId);
-            /*
-            String jsonString = "{\"question\": null, " +
-                    "\"keywords\": {\"days\": null, \"transport\": null, \"companion\": null, \"theme\": null, \"food\": null}, " +
-                    "\"foods_context\": [], \"playing_context\": [], \"hotel_context\": [], \"scheduler\": \"\", \"explain\": \"\", " +
-                    "\"second_sentence\": \"\", \"user_age\": \"0\", \"user_token\": \"0\", \"is_valid\": 0}";
-             */
+
             String jsonString = "{\"question\": " + null + ", " +
                     "\"keywords\": {\"days\": " + null + ", \"transport\": " + null + ", \"companion\": " + null + ", \"theme\": " + null + ", \"food\": " + null + "}, " +
                     "\"foods_context\": [], \"playing_context\": [], \"hotel_context\": [], \"scheduler\": \"\", \"explain\": \"\", " +
                     "\"second_sentence\": \"\", \"user_age\": \"0\", \"user_token\": \"0\", \"is_valid\": 0}";
 
-            System.out.println("채팅 스테이트 변경 전 -----");
             userStateDTO.setUserInput(userInput);
             JsonNode jsonNode = objectMapper.readTree(jsonString);
             ((ObjectNode) jsonNode).put("question", userInput);
             // keywords 객체를 추출
+            System.out.println("키워드 객체 추출 중.... ");
             ObjectNode keywordsNode = (ObjectNode) jsonNode.get("keywords");
             keywordsNode.put("days", userStateDTO.getDays());
             keywordsNode.put("transport", userStateDTO.getTransport());
@@ -189,7 +193,7 @@ public class ChatbotController {
 
             // 3. 업데이트된 JsonNode를 다시 JSON 문자열로 변환하여 chatting_state를 갱신
             jsonString = objectMapper.writeValueAsString(jsonNode);
-            System.out.println("채팅 스테이트 변경 후 -----");
+            System.out.println("채팅 스테이트 업데이트 -----");
             System.out.println(jsonNode); // {"question":"4일 정도 여행계획이 있고, 부모님과 자차로 이동할거야. 주로 관광지와 먹거리를 먹으러 돌아다닐거고, 따로 가리는 음식은 없어.","keywords":{"days":null,"transport":null,"companion":null,"theme":null,"food":null},"foods_context":[],"playing_context":[],"hotel_context":[],"scheduler":"","explain":"","second_sentence":"","user_age":"27","user_token":"3","is_valid":0}
 
             // HTTP 헤더 설정
@@ -220,10 +224,6 @@ public class ChatbotController {
 
                 updateKeyword(jsonResponse, userInput, responseText, userStateDTO.getAge(), userStateDTO.getToken());
 
-
-
-                //chatting_state = responseBody; // 추후 DB테이블 관리
-
                 chatbotDataResponseDTO.setChatbotMessage(responseText);
                 chatbotDataResponseDTO.setTravelSchedule("생성된 일정이 아직 없습니다.");
                 responseDTO.setStatus(200);
@@ -233,9 +233,8 @@ public class ChatbotController {
                 System.out.println("생성된 일정 ----------");
                 updateKeyword(jsonResponse, userInput, "제가 추천해드리는 일정이에요! ^^", userStateDTO.getAge(), userStateDTO.getToken());
                 System.out.println(responseBody);
-                saveSchedule(responseBody, userStateDTO.getStartTime());
-                //chatting_state = responseBody; // 추후 DB테이블 관리
-                // 임시 일정 정리
+                // 저장
+                //saveSchedule(responseBody, userStateDTO.getStartTime(), userStateDTO.getToken());
 
                 chatbotDataResponseDTO.setChatbotMessage("생성된 일정이 마음에 드시나요?");
                 chatbotDataResponseDTO.setTravelSchedule(responseBody);
@@ -252,7 +251,7 @@ public class ChatbotController {
         return responseDTO;
     }
 
-    private void saveSchedule(String responseBody, String startTime) throws JsonProcessingException {
+    private void saveSchedule(String responseBody, String startTime, Long memberId) throws JsonProcessingException {
         JsonNode jsonResponse = objectMapper.readTree(responseBody);
 
         // JsonNode를 Map으로 변환
@@ -263,22 +262,142 @@ public class ChatbotController {
             date = jsonMap.size();
         }
 
+        System.out.println("여행 일정 저장");
+        Long chatLogId = chatLogService.getChatLogId(memberId);
+        Long curTravelId = saveTravelSchedule(memberId, startTime, date, chatLogId);
+
+        System.out.println("일정 정리");
+        List<TravelSequenceSaveFormDTO> travelSequences = new ArrayList<>();
         for(Map.Entry<String, Object> day : jsonMap.entrySet()){
             String key = day.getKey();
             String strDay = extractNumber(key);
             int dayNum = Integer.valueOf(strDay);
+            int sequenceCnt = 1;
 
             Object value = day.getValue();
             System.out.println(dayNum + "일차------");
             System.out.println(value);
 
-            Map<String, Object> valueMap = objectMapper.convertValue(value, Map.class);
+            Map<?, ?> scheduleMap = (Map<?, ?>) day.getValue();
 
-            for(Map.Entry<String, Object> schedule : valueMap.entrySet()){
+            for(Map.Entry<?, ?> schedule : scheduleMap.entrySet()){
                 System.out.println("KEY:" + schedule.getKey() + " VAL:" + schedule.getValue());
             }
+
+            System.out.println("관광지 : " + scheduleMap.get("tourist_spots"));
+            List<?> places = (List<?>) scheduleMap.get("tourist_spots");
+            for(Object item : places){
+                List<String> it = new ArrayList<>();
+                it = (List<String>) item;
+                String name = String.valueOf(it.get(0));
+                //String strLatitude = it.get(1);
+                //String strLongitude = it.get(2);
+
+                //Double latitude = Double.parseDouble(strLatitude);
+                //Double longitude = Double.parseDouble(strLongitude);
+
+                saveTourPlace(name, sequenceCnt, curTravelId, dayNum);
+                sequenceCnt += 1;
+
+            }
+
+            List<String> rit = new ArrayList<>();
+            System.out.println("아침 : " + scheduleMap.get("breakfast"));
+            rit = (List<String>) scheduleMap.get("breakfast");
+            String breakFastName = String.valueOf(rit.get(0));
+            //String strbreakFastLatitude = rit.get(1);
+            //String strbreakFastLongitude = rit.get(2);
+            //Double breakFastLatitude = Double.parseDouble(strbreakFastLatitude);
+            //Double breakFastLongitude = Double.parseDouble(strbreakFastLongitude);
+
+            saveRestaurantPlace(breakFastName, sequenceCnt, curTravelId, dayNum);
+            sequenceCnt += 1;
+
+
+            System.out.println("점심 : " + scheduleMap.get("lunch"));
+            rit.clear();
+            rit = (List<String>) scheduleMap.get("lunch");
+            String lunchName = String.valueOf(rit.get(0));
+            //String strLunchLatitude = rit.get(1);
+            //String strLunchLongitude = rit.get(2);
+            //Double lunchLatitude = Double.parseDouble(strLunchLatitude);
+            //Double lunchLongitude = Double.parseDouble(strLunchLongitude);
+
+            saveRestaurantPlace(lunchName, sequenceCnt, curTravelId, dayNum);
+            sequenceCnt += 1;
+
+            System.out.println("저녁 : " + scheduleMap.get("dinner"));
+            rit.clear();
+            rit = (List<String>) scheduleMap.get("dinner");
+            String dinnerName = String.valueOf(rit.get(0));
+            //String strDinnerLatitude = rit.get(1);
+            //String strDinnerLongitude = rit.get(2);
+            //Double dinnerLatitude = Double.parseDouble(strDinnerLatitude);
+            //Double dinnerLongitude = Double.parseDouble(strDinnerLongitude);
+
+            saveRestaurantPlace(dinnerName, sequenceCnt, curTravelId, dayNum);
+            sequenceCnt += 1;
+
+            if(scheduleMap.get("hotel") != null){
+                System.out.println("숙소 : " + scheduleMap.get("hotel"));
+                rit.clear();
+                rit = (List<String>) scheduleMap.get("hotel");
+                String hotelName = rit.get(0);
+                //String strHotelLatitude = rit.get(1);
+                //String strHotelLongitude = rit.get(2);
+                //Double hotelLatitude = Double.parseDouble(strHotelLatitude);
+                //Double hotelLongitude = Double.parseDouble(strHotelLongitude);
+
+                saveHotelPlace(hotelName, sequenceCnt, curTravelId, dayNum);
+                sequenceCnt += 1;
+            }
+
         }
 
+    }
+
+    private void saveTourPlace(String name, int sequenceCnt, Long travelId, int dayNum) {
+        Long placeId = placeService.getPlaceIdByTourPlaceName(name);
+
+        TravelPlaceJoinDTO travelPlaceJoinDTO = new TravelPlaceJoinDTO();
+        travelPlaceJoinDTO.setPlaceId(placeId);
+        travelPlaceJoinDTO.setTravelId(travelId);
+        travelPlaceJoinDTO.setDayNum(dayNum);
+        travelPlaceJoinDTO.setSequence(sequenceCnt);
+        System.out.println("여행 장소 JOIN : " + travelPlaceJoinDTO);
+        System.out.println("장소 id : " + placeId + " 장소 이름 : " + name);
+
+        placeService.saveTravelPlace(travelPlaceJoinDTO);
+    }
+    private void saveHotelPlace(String name, int sequenceCnt, Long travelId, int dayNum) {
+        Long placeId = placeService.getPlaceIdByHotelPlaceName(name);
+
+        TravelPlaceJoinDTO travelPlaceJoinDTO = new TravelPlaceJoinDTO();
+        travelPlaceJoinDTO.setPlaceId(placeId);
+        travelPlaceJoinDTO.setTravelId(travelId);
+        travelPlaceJoinDTO.setDayNum(dayNum);
+        travelPlaceJoinDTO.setSequence(sequenceCnt);
+        System.out.println("여행 장소 JOIN : " + travelPlaceJoinDTO);
+        System.out.println("장소 id : " + placeId + " 장소 이름 : " + name);
+
+        placeService.saveTravelPlace(travelPlaceJoinDTO);
+    }
+    private void saveRestaurantPlace(String name, int sequenceCnt, Long travelId, int dayNum) {
+        Long placeId = placeService.getPlaceIdByRestaurantPlaceName(name);
+
+        TravelPlaceJoinDTO travelPlaceJoinDTO = new TravelPlaceJoinDTO();
+        travelPlaceJoinDTO.setPlaceId(placeId);
+        travelPlaceJoinDTO.setTravelId(travelId);
+        travelPlaceJoinDTO.setDayNum(dayNum);
+        travelPlaceJoinDTO.setSequence(sequenceCnt);
+        System.out.println("여행 장소 JOIN : " + travelPlaceJoinDTO);
+        System.out.println("장소 id : " + placeId + " 장소 이름 : " + name);
+
+        placeService.saveTravelPlace(travelPlaceJoinDTO);
+    }
+
+    private Long saveTravelSchedule(Long memberId, String startTime, int date, Long chatLogId) {
+        return travelService.saveTravelSchedule(memberId, startTime, date, chatLogId);
     }
 
     private String extractNumber(String key) {
