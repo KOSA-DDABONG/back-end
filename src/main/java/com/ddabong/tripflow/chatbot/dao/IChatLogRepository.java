@@ -23,4 +23,6 @@ public interface IChatLogRepository {
     void updateLastChatMapping(ChatLogMapping chatLogMapping);
 
     Long findChatLogMappingIdByMemberId(Long memberId);
+
+    String getStartTimeByPastChatId(Long pastChatId);
 }

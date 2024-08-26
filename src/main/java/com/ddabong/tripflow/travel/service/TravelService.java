@@ -21,6 +21,7 @@ public class TravelService implements ITravelService{
         travelDTO.setCreatedTime(travel.getCreatedTime());
         travelDTO.setStartTime(travel.getStartTime());
         travelDTO.setEndTime(travel.getEndTime());
+        travelDTO.setChatLogId(travel.getChatlogid());
 
         return travelDTO;
     }

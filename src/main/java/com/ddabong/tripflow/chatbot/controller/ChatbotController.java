@@ -6,6 +6,7 @@ import com.ddabong.tripflow.chatbot.dto.UserStateDTO;
 import com.ddabong.tripflow.chatbot.service.IChatLogService;
 import com.ddabong.tripflow.member.service.GetMemberInfoService;
 import com.ddabong.tripflow.member.service.IMemberService;
+import com.ddabong.tripflow.travel.dto.TravelDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,7 +51,7 @@ public class ChatbotController {
 
     @Transactional
     @GetMapping("/start")
-    public ResponseDTO chatBotStart() {
+    public ResponseDTO chatBotStart(@RequestBody String startTime) {
         ResponseDTO responseDTO = new ResponseDTO("Enter Chatting room FAIL", 500, null);
         ChatbotDataResponseDTO chatbotDataResponseDTO = new ChatbotDataResponseDTO("","");
 
@@ -84,7 +85,7 @@ public class ChatbotController {
 
             System.out.println("USER 상태 초기화");
 
-            UserStateDTO userStateDTO = initKeywords(jsonResponse, "", chattingStartMessage, userAge, userToken);
+            UserStateDTO userStateDTO = initKeywords(jsonResponse, "", chattingStartMessage, userAge, userToken, startTime);
 
             chatbotDataResponseDTO.setChatbotMessage(chattingStartMessage);
             responseDTO.setMessage("Start Chatting");
@@ -98,8 +99,8 @@ public class ChatbotController {
         return responseDTO;
     }
 
-    private UserStateDTO initKeywords(JsonNode jsonResponse, String userInput, String chatbotResponse, int userAge, Long userToken) throws JsonProcessingException {
-        UserStateDTO userStateDTO = new UserStateDTO(userInput, chatbotResponse, null, null, null, null, null, userAge, userToken, 0L);
+    private UserStateDTO initKeywords(JsonNode jsonResponse, String userInput, String chatbotResponse, int userAge, Long userToken, String startTime) throws JsonProcessingException {
+        UserStateDTO userStateDTO = new UserStateDTO(userInput, chatbotResponse, null, null, null, null, null, userAge, userToken, 0L, startTime);
         System.out.println("keyword 업데이트 시작" + jsonResponse.asText());
         // 응답이 JSON 문자열로 감싸진 경우 처리
         if (jsonResponse.has("question")) {
@@ -232,7 +233,7 @@ public class ChatbotController {
                 System.out.println("생성된 일정 ----------");
                 updateKeyword(jsonResponse, userInput, "제가 추천해드리는 일정이에요! ^^", userStateDTO.getAge(), userStateDTO.getToken());
                 System.out.println(responseBody);
-                saveSchedule(responseBody);
+                saveSchedule(responseBody, userStateDTO.getStartTime());
                 //chatting_state = responseBody; // 추후 DB테이블 관리
                 // 임시 일정 정리
 
@@ -251,13 +252,37 @@ public class ChatbotController {
         return responseDTO;
     }
 
-    private void saveSchedule(String responseBody) {
+    private void saveSchedule(String responseBody, String startTime) throws JsonProcessingException {
+        JsonNode jsonResponse = objectMapper.readTree(responseBody);
 
+        // JsonNode를 Map으로 변환
+        Map<String, Object> jsonMap = objectMapper.convertValue(jsonResponse, Map.class);
+
+        int date = 0;
+        if(!jsonMap.isEmpty()){
+            date = jsonMap.size();
+        }
+
+        for(Map.Entry<String, Object> day : jsonMap.entrySet()){
+            String key = day.getKey();
+            String strDay = extractNumber(key);
+            int dayNum = Integer.valueOf(strDay);
+
+            Object value = day.getValue();
+            System.out.println(dayNum + "일차------");
+            System.out.println(value);
+
+        }
+
+    }
+
+    private String extractNumber(String key) {
+        return key.replaceAll("\\D+", "");
     }
 
 
     private UserStateDTO updateKeyword(JsonNode jsonResponse, String userInput, String chatbotResponse, int userAge, Long userToken) throws JsonProcessingException {
-        UserStateDTO userStateDTO = new UserStateDTO(userInput, chatbotResponse, null, null, null, null, null, userAge, userToken, 0L);
+        UserStateDTO userStateDTO = new UserStateDTO(userInput, chatbotResponse, null, null, null, null, null, userAge, userToken, 0L, null);
         System.out.println("keyword 업데이트 시작" + jsonResponse.asText());
         // 응답이 JSON 문자열로 감싸진 경우 처리
         if (jsonResponse.has("question")) {
@@ -301,7 +326,7 @@ public class ChatbotController {
             }
 
             chatLogService.updateState(userStateDTO);
-            System.out.println("user state DTO : " +userStateDTO);
+            System.out.println("user state DTO : " + userStateDTO);
         }
 
         return userStateDTO;
