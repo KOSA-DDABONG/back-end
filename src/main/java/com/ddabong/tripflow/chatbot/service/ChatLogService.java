@@ -126,7 +126,6 @@ public class ChatLogService implements IChatLogService {
     @Override
     public void updateState(UserStateDTO userStateDTO) {
         ChatLog chatLog = new ChatLog();
-        //ChatLogMapping chatLogMapping = new ChatLogMapping();
         ChatLogMapping chatLogMapping = new ChatLogMapping();
 
         chatLog.setUserInput(userStateDTO.getUserInput());
@@ -152,6 +151,14 @@ public class ChatLogService implements IChatLogService {
         System.out.println("pastChatId : " + pastChatId);
         System.out.println("start time : " + startTime);
         chatLog.setStartTime(startTime);
+
+        chatLog.setScheduler(userStateDTO.getScheduler());
+        chatLog.setFoodsContext(userStateDTO.getFoodsContext());
+        chatLog.setPlayingContext(userStateDTO.getPlayingContext());
+        chatLog.setHotelContext(userStateDTO.getHotelContext());
+        chatLog.setExplain(userStateDTO.getExplain());
+        chatLog.setSecondSentence(userStateDTO.getSecondSentence());
+        chatLog.setIsValid(userStateDTO.getIsValid());
 
         iChatLogRepository.updateState(chatLog);
         Long curChatLogId = chatLog.getChatLogId();

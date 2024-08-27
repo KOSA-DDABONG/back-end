@@ -27,8 +27,7 @@
             (#{chatLogId}, #{userInput}, #{botResponse}, #{createdTime},
             #{days}, #{transport}, #{companion}, #{theme}, #{food},
             #{age}, #{token}, #{pastChatId}, #{startTime},
-        #{scheduler}, #{foodsContext}, #{playingContext}, #{hotelContext}, #{explain}, #{secondSentence}, #{isValid})
-
+            #{scheduler}, #{foodsContext}, #{playingContext}, #{hotelContext}, #{explain}, #{secondSentence}, #{isValid})
     </insert>
 
     <!-- 마지막 챗봇 대화 기록 매핑 -->
