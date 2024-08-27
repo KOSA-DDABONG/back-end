@@ -61,8 +61,8 @@ public class ChatbotController {
     @Transactional
     @PostMapping("/start")
     public ResponseDTO chatBotStart(@RequestBody String startTime) {
-        ResponseDTO responseDTO = new ResponseDTO("Enter Chatting room FAIL", 500, null);
         ChatbotDataResponseDTO chatbotDataResponseDTO = new ChatbotDataResponseDTO("","");
+        ResponseDTO responseDTO = new ResponseDTO("Enter Chatting room FAIL", 500, chatbotDataResponseDTO);
 
         System.out.println("채팅 준비 ----------------");
         try {
@@ -222,43 +222,13 @@ public class ChatbotController {
             String responseBody = response.getBody();
             JsonNode jsonResponse = objectMapper.readTree(responseBody);
 
-
-            /*
-            // 응답이 JSON 문자열로 감싸진 경우 처리
-            if (jsonResponse.has("question")) {
-                String responseText = jsonResponse.get("response").asText();
-                //JsonNode responseJson = objectMapper.readTree(responseText);
-                //return ResponseEntity.ok(responseJson);
-                System.out.println("챗봇 응담 >>>>>>>");
-                System.out.println(responseText);
-
-                updateKeyword(jsonResponse, userInput, responseText, userStateDTO.getAge(), userStateDTO.getToken());
-
-                chatbotDataResponseDTO.setChatbotMessage(responseText);
-                chatbotDataResponseDTO.setTravelSchedule("생성된 일정이 아직 없습니다.");
-                responseDTO.setStatus(200);
-                responseDTO.setMessage("Please Request Next User Input");
-                responseDTO.setData(chatbotDataResponseDTO);
-            } else {
-                System.out.println("생성된 일정 ----------");
-                updateKeyword(jsonResponse, userInput, "제가 추천해드리는 일정이에요! ^^", userStateDTO.getAge(), userStateDTO.getToken());
-                System.out.println(responseBody);
-                // 저장
-                //saveSchedule(responseBody, userStateDTO.getStartTime(), userStateDTO.getToken());
-
-                chatbotDataResponseDTO.setChatbotMessage("생성된 일정이 마음에 드시나요?");
-                chatbotDataResponseDTO.setTravelSchedule(responseBody);
-                responseDTO.setStatus(200);
-                responseDTO.setMessage("Please Request IsValid Input");
-                responseDTO.setData(chatbotDataResponseDTO);
-            }
-             */
             if (jsonResponse.has("response")){
                 System.out.println("생성된 일정 ----------");
                 updateKeyword(jsonResponse, userInput, "제가 추천해드리는 일정이에요! ^^", userStateDTO.getAge(), userStateDTO.getToken());
                 System.out.println(responseBody);
                 // 저장
                 //saveSchedule(responseBody, userStateDTO.getStartTime(), userStateDTO.getToken());
+
 
                 chatbotDataResponseDTO.setChatbotMessage("생성된 일정이 마음에 드시나요?");
                 chatbotDataResponseDTO.setTravelSchedule(responseBody);
@@ -291,8 +261,8 @@ public class ChatbotController {
     }
     @PostMapping("/userResponse")
     public ResponseDTO validateSchedule(@RequestBody String userInput) throws IOException {
-        ResponseDTO responseDTO = new ResponseDTO("Loading...", 500, null);
         ChatbotDataResponseDTO chatbotDataResponseDTO = new ChatbotDataResponseDTO("","");
+        ResponseDTO responseDTO = new ResponseDTO("Loading...", 500, chatbotDataResponseDTO);
 
         try {
             System.out.println("사용자 만족도 서버에 전송 중...");
@@ -520,93 +490,105 @@ public class ChatbotController {
     private UserStateDTO updateKeyword(JsonNode jsonResponse, String userInput, String chatbotResponse, int userAge, Long userToken) throws JsonProcessingException {
         UserStateDTO userStateDTO = new UserStateDTO(userInput, chatbotResponse, null, null, null, null, null,
                 userAge, userToken, 0L, null,null,null,null,null,null,null,0);
-        System.out.println("keyword 업데이트 시작" + jsonResponse.asText());
+        System.out.println("keyword 업데이트 시작" + jsonResponse.toString());
         // 응답이 JSON 문자열로 감싸진 경우 처리
-        if (jsonResponse.has("question")) {
+        if (jsonResponse.has("question")) {//
             System.out.println("user input : " + userInput);
             userStateDTO.setUserInput(userInput);
         }
 
-        if (jsonResponse.has("keywords")) {
+        if (jsonResponse.has("keywords")) {//
             ObjectNode keywordsNode = (ObjectNode) jsonResponse.get("keywords");
             System.out.println("keywords Json " + keywordsNode.asText());
 
-            if(keywordsNode.has("days")){
-                System.out.println("days 업데이트 : " + keywordsNode.get("days").asInt());
+            if(keywordsNode.has("days")){//
+                System.out.println("days : " + keywordsNode.get("days").asInt());
                 if(keywordsNode.get("days").asText() != "null") {
+                    System.out.println("업데이트");
                     userStateDTO.setDays(keywordsNode.get("days").asInt());
                 }
             }
-            if(keywordsNode.has("transport")){
+            if(keywordsNode.has("transport")){//
                 System.out.println("transport 업데이트" + keywordsNode.get("transport").asText());
                 if(keywordsNode.get("transport").asText() != "null"){
+                    System.out.println("업데이트");
                     userStateDTO.setTransport(keywordsNode.get("transport").asText());
                 }
             }
-            if(keywordsNode.has("companion")){
+            if(keywordsNode.has("companion")){//
                 System.out.println("companion 업데이트" + keywordsNode.get("companion").asText());
                 if (keywordsNode.get("companion").asText() != "null"){
+                    System.out.println("업데이트");
                     userStateDTO.setCompanion(keywordsNode.get("companion").asText());
                 }
             }
-            if(keywordsNode.has("theme")){
+            if(keywordsNode.has("theme")){//
                 System.out.println("theme 업데이트"+ keywordsNode.get("theme").asText());
                 if (keywordsNode.get("theme").asText() != "null"){
+                    System.out.println("업데이트");
                     userStateDTO.setTheme(keywordsNode.get("theme").asText());
                 }
             }
-            if(keywordsNode.has("food")){
+            if(keywordsNode.has("food")){//
                 System.out.println("food 업데이트" + keywordsNode.get("food").asText());
                 if (keywordsNode.get("food").asText() != "null"){
+                    System.out.println("업데이트");
                     userStateDTO.setFood(keywordsNode.get("food").asText());
                 }
             }
-            if(keywordsNode.has("scheduler")){
-                System.out.println("scheduler 업데이트" + keywordsNode.get("scheduler").asText());
-                if (keywordsNode.get("scheduler").asText() != ""){
-                    userStateDTO.setFood(keywordsNode.get("scheduler").asText());
-                }
-            }
-            if(keywordsNode.has("foods_context")){
-                System.out.println("foods_context 업데이트" + keywordsNode.get("foods_context").asText());
-                if (keywordsNode.get("foods_context").asText() != "[]"){
-                    userStateDTO.setFood(keywordsNode.get("foods_context").asText());
-                }
-            }
-            if(keywordsNode.has("playing_context")){
-                System.out.println("playing_context 업데이트" + keywordsNode.get("playing_context").asText());
-                if (keywordsNode.get("playing_context").asText() != "[]"){
-                    userStateDTO.setFood(keywordsNode.get("playing_context").asText());
-                }
-            }
-            if(keywordsNode.has("hotel_context")){
-                System.out.println("hotel_context 업데이트" + keywordsNode.get("hotel_context").asText());
-                if (keywordsNode.get("hotel_context").asText() != "[]"){
-                    userStateDTO.setFood(keywordsNode.get("hotel_context").asText());
-                }
-            }
-            if(keywordsNode.has("explain")){
-                System.out.println("explain 업데이트" + keywordsNode.get("explain").asText());
-                if (keywordsNode.get("explain").asText() != ""){
-                    userStateDTO.setFood(keywordsNode.get("explain").asText());
-                }
-            }
-            if(keywordsNode.has("second_sentence")){
-                System.out.println("second_sentence 업데이트" + keywordsNode.get("second_sentence").asText());
-                if (keywordsNode.get("second_sentence").asText() != ""){
-                    userStateDTO.setFood(keywordsNode.get("second_sentence").asText());
-                }
-            }
-            if(keywordsNode.has("isValid")){
-                System.out.println("isValid 업데이트" + keywordsNode.get("isValid").asText());
-                if (keywordsNode.get("isValid").asText() != "0"){
-                    userStateDTO.setFood(keywordsNode.get("isValid").asText());
-                }
-            }
-
-            chatLogService.updateState(userStateDTO);
-            System.out.println("user state DTO : " + userStateDTO);
         }
+        if(jsonResponse.has("scheduler")){
+            System.out.println("scheduler 업데이트" + jsonResponse.get("scheduler").asText());
+            if (jsonResponse.get("scheduler").asText() != ""){
+                System.out.println("업데이트");
+                userStateDTO.setScheduler(jsonResponse.get("scheduler").asText());
+            }
+        }
+        if(jsonResponse.has("foods_context")){
+            System.out.println("foods_context 업데이트" + jsonResponse.get("foods_context").asText());
+            if (jsonResponse.get("foods_context").asText() != "null"){
+                System.out.println("업데이트");
+                userStateDTO.setFoodsContext(jsonResponse.get("foods_context").asText());
+            }
+        }
+        if(jsonResponse.has("playing_context")){
+            System.out.println("playing_context 업데이트" + jsonResponse.get("playing_context").asText());
+            if (jsonResponse.get("playing_context").asText() != "null"){
+                System.out.println("업데이트");
+                userStateDTO.setPlayingContext(jsonResponse.get("playing_context").asText());
+            }
+        }
+        if(jsonResponse.has("hotel_context")){
+            System.out.println("hotel_context 업데이트" + jsonResponse.get("hotel_context").asText());
+            if (jsonResponse.get("hotel_context").asText() != "null"){
+                System.out.println("업데이트");
+                userStateDTO.setHotelContext(jsonResponse.get("hotel_context").asText());
+            }
+        }
+        if(jsonResponse.has("explain")){
+            System.out.println("explain 업데이트" + jsonResponse.get("explain").asText());
+            if (jsonResponse.get("explain").asText() != ""){
+                System.out.println("업데이트");
+                userStateDTO.setExplain(jsonResponse.get("explain").asText());
+            }
+        }
+        if(jsonResponse.has("second_sentence")){
+            System.out.println("second_sentence 업데이트" + jsonResponse.get("second_sentence").asText());
+            if (jsonResponse.get("second_sentence").asText() != "null"){
+                System.out.println("업데이트");
+                userStateDTO.setSecondSentence(jsonResponse.get("second_sentence").asText());
+            }
+        }
+        if(jsonResponse.has("isValid")){
+            System.out.println("isValid 업데이트" + jsonResponse.get("isValid").asText());
+            if (jsonResponse.get("isValid").asText() != "0"){
+                System.out.println("업데이트");
+                userStateDTO.setIsValid(jsonResponse.get("isValid").asInt());
+            }
+        }
+
+        chatLogService.updateState(userStateDTO);
+        System.out.println("user state DTO : " + userStateDTO);
 
         return userStateDTO;
     }
