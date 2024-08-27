@@ -323,10 +323,11 @@ public class ChatbotController {
             JsonNode jsonResponse = objectMapper.readTree(responseBody);
 
             if(jsonResponse.get("is_valid").asText()=="1"){
-                System.out.println("일정이 저장되었습니다.");
-                JsonNode scheduleJson = jsonResponse.get("scheduler");
+                //JsonNode scheduleJson = jsonResponse.get("scheduler");
+                //System.out.println("일정이 저장되었습니다." + scheduleJson.toString());
                 // 저장
-                saveSchedule(scheduleJson, userStateDTO.getStartTime(), userStateDTO.getToken());
+                //saveSchedule(scheduleJson, userStateDTO.getStartTime(), userStateDTO.getToken());
+                saveSchedule(response.getBody(), userStateDTO.getStartTime(), userStateDTO.getToken());
             }
 
 
@@ -336,15 +337,80 @@ public class ChatbotController {
 
         return responseDTO;
     }
-    private void saveSchedule(JsonNode responseBody, String startTime, Long memberId) throws JsonProcessingException {
-        //JsonNode jsonResponse = objectMapper.readTree(responseBody);
-        if(responseBody != null && !responseBody.isEmpty()){
+    private void saveSchedule(String response, String startTime, Long memberId) throws JsonProcessingException {
+        JsonNode jsonResponse = objectMapper.readTree(response);
+        JsonNode scheduleJson = jsonResponse.get("schedule");
+        try {
+            //JsonNode jsonResponse = objectMapper.readTree(responseBody);
+            System.out.println("---일정 저장 시작---");
+            System.out.println("---일정 저장 시작2---");
+            // 날짜 수 계산
+            int date = scheduleJson.size();
+            System.out.println("날짜 수: " + date);
+
+            System.out.println("여행 일정 저장");
+            Long chatLogId = chatLogService.getChatLogId(memberId);
+            Long curTravelId = saveTravelSchedule(memberId, startTime, date, chatLogId);
+
+            System.out.println("일정 정리");
+            int dayNum = 1;
+            for (Iterator<String> it = scheduleJson.fieldNames(); it.hasNext(); dayNum++) {
+                String dayKey = it.next();
+                JsonNode dayNode = scheduleJson.get(dayKey);
+                System.out.println(dayNum + "일차------");
+                System.out.println(dayNode);
+
+                int sequenceCnt = 1;
+
+                // 관광지 처리
+                JsonNode touristSpotsNode = dayNode.get("tourist_spots");
+                if (touristSpotsNode != null && touristSpotsNode.isArray()) {
+                    for (JsonNode spot : touristSpotsNode) {
+                        String name = spot.get(0).asText();
+                        saveTourPlace(name, sequenceCnt, curTravelId, dayNum);
+                        sequenceCnt++;
+                    }
+                }
+
+                // 아침 식사 처리
+                JsonNode breakfastNode = dayNode.get("breakfast");
+                if (breakfastNode != null && breakfastNode.isArray()) {
+                    String breakFastName = breakfastNode.get(0).asText();
+                    saveRestaurantPlace(breakFastName, sequenceCnt, curTravelId, dayNum);
+                    sequenceCnt++;
+                }
+
+                // 점심 식사 처리
+                JsonNode lunchNode = dayNode.get("lunch");
+                if (lunchNode != null && lunchNode.isArray()) {
+                    String lunchName = lunchNode.get(0).asText();
+                    saveRestaurantPlace(lunchName, sequenceCnt, curTravelId, dayNum);
+                    sequenceCnt++;
+                }
+
+                // 저녁 식사 처리
+                JsonNode dinnerNode = dayNode.get("dinner");
+                if (dinnerNode != null && dinnerNode.isArray()) {
+                    String dinnerName = dinnerNode.get(0).asText();
+                    saveRestaurantPlace(dinnerName, sequenceCnt, curTravelId, dayNum);
+                    sequenceCnt++;
+                }
+
+                // 숙소 처리
+                JsonNode hotelNode = dayNode.get("hotel");
+                if (hotelNode != null && hotelNode.isArray()) {
+                    String hotelName = hotelNode.get(0).asText();
+                    saveHotelPlace(hotelName, sequenceCnt, curTravelId, dayNum);
+                    sequenceCnt++;
+                }
+            }
+            /*
             // JsonNode를 Map으로 변환
             //Map<String, Object> jsonMap = objectMapper.convertValue(jsonResponse, Map.class);
             Map<String, Object> jsonMap = objectMapper.convertValue(responseBody, Map.class);
 
             int date = 0;
-            if(!jsonMap.isEmpty()){
+            if (!jsonMap.isEmpty()) {
                 date = jsonMap.size();
             }
 
@@ -354,7 +420,7 @@ public class ChatbotController {
 
             System.out.println("일정 정리");
             List<TravelSequenceSaveFormDTO> travelSequences = new ArrayList<>();
-            for(Map.Entry<String, Object> day : jsonMap.entrySet()) {
+            for (Map.Entry<String, Object> day : jsonMap.entrySet()) {
                 String key = day.getKey();
                 String strDay = extractNumber(key);
                 int dayNum = Integer.valueOf(strDay);
@@ -437,10 +503,12 @@ public class ChatbotController {
                     saveHotelPlace(hotelName, sequenceCnt, curTravelId, dayNum);
                     sequenceCnt += 1;
                 }
-            }
 
+
+            }*/
+        }catch (Exception e){
+            e.printStackTrace();
         }
-
     }
     private void saveTourPlace(String name, int sequenceCnt, Long travelId, int dayNum) {
         Long placeId = placeService.getPlaceIdByTourPlaceName(name);
