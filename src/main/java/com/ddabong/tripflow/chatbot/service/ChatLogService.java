@@ -45,6 +45,14 @@ public class ChatLogService implements IChatLogService {
         chatLog.setPastChatId(userStateDTO.getPastChatId());
         chatLog.setStartTime(userStateDTO.getStartTime());
 
+        chatLog.setScheduler(userStateDTO.getScheduler());
+        chatLog.setFoodsContext(userStateDTO.getFoodsContext());
+        chatLog.setPlayingContext(userStateDTO.getPlayingContext());
+        chatLog.setHotelContext(userStateDTO.getHotelContext());
+        chatLog.setExplain(userStateDTO.getExplain());
+        chatLog.setSecondSentence(userStateDTO.getSecondSentence());
+        chatLog.setIsValid(userStateDTO.getIsValid());
+
         iChatLogRepository.initState(chatLog);
         Long curChatLogId = chatLog.getChatLogId();
         System.out.println("저장된 ID : " + curChatLogId);

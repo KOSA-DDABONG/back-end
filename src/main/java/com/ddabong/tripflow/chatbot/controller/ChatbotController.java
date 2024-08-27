@@ -163,7 +163,7 @@ public class ChatbotController {
     public ResponseDTO makeSchedule(@RequestBody String userInput) throws IOException {
         ResponseDTO responseDTO = new ResponseDTO("Chat has END.", 500, null);
         ChatbotDataResponseDTO chatbotDataResponseDTO = new ChatbotDataResponseDTO("","");
-
+        System.out.println("========[ 대화 시작 ]=========");
         try {
             System.out.println("유저 상태 불러오는 중");
             Long memberId = memberService.getMemberIdByUserId(getMemberInfoService.getUserIdByJWT());

@@ -8,12 +8,12 @@
             (chatlogid, userinput, botresponse, createdtime,
             days, transport, companion, theme, food,
             age, token, pastchatid, starttime,
-            scheduler, foods_context, playing_context, hotel_context, explain, second_sentence, is_valid)
+            scheduler, foods_context, playing_context, hotel_context, `explain`, second_sentence, is_valid)
         VALUES
             (#{chatLogId}, #{userInput}, #{botResponse}, #{createdTime},
             #{days}, #{transport}, #{companion}, #{theme}, #{food},
             #{age}, #{token}, #{pastChatId}, #{startTime},
-            #{scheduler}, #{foodsContext}, #{playingContext}, #{hotelContext}, #{explain}, #{secondSentence}, #{is_valid})
+            #{scheduler}, #{foodsContext}, #{playingContext}, #{hotelContext}, #{explain}, #{secondSentence}, #{isValid})
 
     </insert>
 
@@ -22,12 +22,12 @@
             (chatlogid, userinput, botresponse, createdtime,
             days, transport, companion, theme, food,
             age, token, pastchatid, starttime,
-            scheduler, foods_context, playing_context, hotel_context, explain, second_sentence, is_valid)
+            scheduler, foods_context, playing_context, hotel_context, `explain`, second_sentence, is_valid)
         VALUES
             (#{chatLogId}, #{userInput}, #{botResponse}, #{createdTime},
             #{days}, #{transport}, #{companion}, #{theme}, #{food},
             #{age}, #{token}, #{pastChatId}, #{startTime},
-        #{scheduler}, #{foodsContext}, #{playingContext}, #{hotelContext}, #{explain}, #{secondSentence}, #{is_valid})
+        #{scheduler}, #{foodsContext}, #{playingContext}, #{hotelContext}, #{explain}, #{secondSentence}, #{isValid})
 
     </insert>
 
