@@ -156,7 +156,7 @@ public class BoardController {//클래스명 BoardController
             postImageDTO.setImageid(imageid); // id를 postimagedto에 저장
             boardService.savePostImage(postImageDTO);// imageid, postid, travelid아이디를 사용해서 저장
         }
-        // new를 사용하여 새로운 인스턴스를 생성. new를 사용하면 JVM 메모리 공간에 할당되고 이것을 인스턴스라 한다.
+
         ResponseDTO_SavePost responseDTO = new ResponseDTO_SavePost("success",200,boardDTO,imageDTOList,hashDTOList);
         return ResponseEntity.ok(responseDTO);
     }
@@ -299,10 +299,81 @@ public class BoardController {//클래스명 BoardController
         //댓글 해쉬태그 이미지 저장
         List<CommentDTO> commentDTO = boardService.findComment(id);
         List<HashDTO> hashDTO = boardService.findHash(id); //HASH태그 불러오기
-        List<ImageDTO> findiamgeDTO = boardService.findImage(id);
+        List<ImageDTO> findimageDTO = boardService.findImage(id);
 
-        ResponseDTO_Listid responseDTO = new ResponseDTO_Listid("success",200, boardDTO,hashDTO, commentDTO,findiamgeDTO);
+        ResponseDTO_Listid responseDTO = new ResponseDTO_Listid("success",200, boardDTO,hashDTO, commentDTO,findimageDTO);
         return  ResponseEntity.ok(responseDTO);
+    }
+    @PostMapping("/list/{id}/update") // 데이터 수정
+    public ResponseEntity<ResponseDTO_SavePost> update(@PathVariable("id") Long id,
+                                                       @RequestPart BoardDTO boardDTO,
+                                                       @RequestPart (required = false)List<MultipartFile> files,
+                                                       @RequestPart List<HashDTO> hashDTOList) throws IOException {
+
+        Long memberid = boardService.findMemberid(boardDTO.getUserid());
+        Long travelid = boardService.findTravelid(id);
+        DeletePostDTO deletePostDTO = new DeletePostDTO();
+        deletePostDTO.setMemberid(memberid);
+        deletePostDTO.setTravelid(travelid);
+        deletePostDTO.setPostid(id);
+        List<ImageDTO> imageDTOList = new ArrayList<>();
+        if ( memberid == boardService.findMemberidInPost(id)) {
+            boardDTO.setPostid(id);
+            boardService.updatePost(boardDTO);
+            boardService.deleteHashtagJoin(deletePostDTO);
+
+            for (int i = 0; i < hashDTOList.size(); i++) {
+                HashDTO hashDTO_tmp = new HashDTO();
+                hashDTO_tmp = hashDTOList.get(i);
+                boardService.saveHash(hashDTO_tmp);
+                Long hashid = boardService.findHashid(hashDTO_tmp.getHashname());
+                hashDTO_tmp.setHashtagid(hashid);
+                hashDTO_tmp.setPostid(id);
+                hashDTO_tmp.setTravelid(travelid);
+                boardService.saveHashJoin(hashDTO_tmp);
+                hashDTOList.set(i, hashDTO_tmp);
+            }
+
+            if(!files.isEmpty()) { //이미지가 한개 이상 들어온 경우
+                boardService.deleteImage(id);//기존에 저장된 이미지를 다 지우고
+                //새로운 이미지를 저장
+                PostImageDTO postImageDTO = boardService.findPostid(); //현재 저장될 postid를 미리 저장하여 postimage 저장 할때 사용
+                String tmp = ".s3.ap-northeast-2.amazonaws.com/";
+                for (int i = 0; i < files.size(); i++) { // for문을 사용하여 여러 이미지가 들어와도 저장 가능하도록 설계
+                    //s3 이미지 업로드
+                    MultipartFile file = files.get(i); // 이미지 리스트에서 한개만 추출
+                    StringBuffer sb = new StringBuffer();
+                    sb.append(UUID.randomUUID());
+                    sb.append("-");
+                    sb.append(file.getOriginalFilename());
+                    String originalFilename = postFileUploadPath + sb.toString();
+
+                    ObjectMetadata metadata = new ObjectMetadata();
+                    metadata.setContentLength(file.getSize());
+                    metadata.setContentType(file.getContentType());
+                    String fileUrl = "https://" + bucket + tmp + originalFilename;
+                    fileUrl = fileUrl.replace(" ", "%20");
+                    System.out.println(i + "fileUrl: " + fileUrl);
+                    System.out.println(i + "riginalFilename!: " + originalFilename);
+                    amazonS3Client.putObject(bucket, originalFilename, file.getInputStream(), metadata); // s3 업로드
+
+                    //sql 이미지 데이터 입력
+                    ImageDTO saveImagetmp = new ImageDTO();
+                    saveImagetmp.setFilename(originalFilename);
+                    saveImagetmp.setUrl(fileUrl);
+                    saveImagetmp.setImagetype(3L); //후기 사진이므로3으로 설정
+                    imageDTOList.add(saveImagetmp); //이미지 데이터 Response확인용
+                    boardService.saveImage(saveImagetmp); //단일 이미지 데이터 저장
+                    Long imageid = boardService.findImageid(); // 저장된 이미지 id 추출
+                    postImageDTO.setImageid(imageid); // id를 postimagedto에 저장
+                    boardService.savePostImage(postImageDTO);// imageid, postid, travelid아이디를 사용해서 저장
+                }
+            }
+            ResponseDTO_SavePost responseDTO = new ResponseDTO_SavePost("success",200,boardDTO,imageDTOList,hashDTOList);
+            return ResponseEntity.ok(responseDTO);
+        }
+        ResponseDTO_SavePost responseDTO = new ResponseDTO_SavePost("Fail 게시글 작성자가 아닙니다.",200,boardDTO,imageDTOList,hashDTOList);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @GetMapping("/list/{id}/changelike") //후기 상세페이지에서 좋아요 누르기 // flag = 1 좋아요, flag = 0 좋아요 해제
@@ -325,27 +396,41 @@ public class BoardController {//클래스명 BoardController
         return  ResponseEntity.ok(responseDTOB);
     }
 
-    @GetMapping("/update/{id}") // update 시 사용
-    // URL에서 "id"라는 변수를 가져온다.
-    public ResponseEntity<BoardDTO> update(@PathVariable("id") Long id) {
-        BoardDTO boardDTO = boardService.findById(id);
-        System.out.println("boardDTO = " + boardDTO);
-        // BoardDTO 객체를 JSON 형식으로 반환
-        return ResponseEntity.ok(boardDTO);
-    }
+    @GetMapping("/list/{id}/delete")//post 게시물 삭제// id = postid
+    public ResponseEntity<ResponseDTO> delete(@PathVariable("id") Long id) {
+        String userid = getMemberInfoService.getUserIdByJWT();
+        Long memberid = boardService.findMemberid(userid);
+        Long travelid = boardService.findTravelid(id);
 
-    @PostMapping("/update/{id}") // 데이터를 저장할 때 사용
-    public ResponseEntity<BoardDTO> update(@RequestBody BoardDTO boardDTO) {
-        boardService.update(boardDTO);
-        BoardDTO dto = boardService.findById(boardDTO.getId());
-        // 업데이트된 BoardDTO 객체를 JSON 형식으로 반환
-        return ResponseEntity.ok(dto);
-    }
+        //게시글 작성자인 경우
+        System.out.println(memberid);
+        System.out.println("작성자 "+ boardService.findMemberidInPost(id));
+        if(boardService.findMemberidInPost(id) == null) {
+            String s = id + " 번 게시글이 존재하지 않습니다.";
+            ResponseDTO responseDTO = new ResponseDTO("success", 400, s);
+            return ResponseEntity.ok(responseDTO);
+        }
+        if ( memberid == boardService.findMemberidInPost(id)) {
+            DeletePostDTO deletePostDTO = new DeletePostDTO();
 
-    @GetMapping("/delete/{id}")
-    public ResponseEntity<String> delete(@PathVariable("id") Long id) {
-        boardService.delete(id);
-        // 삭제 성공 메시지를 JSON 형식으로 반환
-        return ResponseEntity.ok("삭제 완료");
+            System.out.println("travelid"+travelid);
+
+            deletePostDTO.setMemberid(memberid);
+            deletePostDTO.setTravelid(travelid);
+            deletePostDTO.setPostid(id);
+            boardService.deleteComment(deletePostDTO);
+            boardService.deletePostImage(deletePostDTO);
+            boardService.deleteHashtagJoin(deletePostDTO);
+            boardService.deletePost(deletePostDTO);
+            // 삭제 성공 메시지를 JSON 형식으로 반환
+            String s = id + " 번 게시물 삭제 완료";
+            ResponseDTO responseDTO = new ResponseDTO("success", 200, s);
+            return ResponseEntity.ok(responseDTO);
+        }
+        else{
+            String s = id + " 번 게시물 작성자가 아닙니다.";
+            ResponseDTO responseDTO = new ResponseDTO("success", 403, s);
+            return ResponseEntity.ok(responseDTO);
+        }
     }
 }

@@ -68,7 +68,7 @@
         (SELECT COUNT(*) FROM tripflow.COMMENT c WHERE c.postid = p.postid) AS comcontentcount
         FROM
         tripflow.POST p
-        JOIN
+        LEFT JOIN
         tripflow.DDABONG d ON p.postid = d.postid
         WHERE
         p.postid = #{id}
@@ -100,10 +100,6 @@
         ON h.hashtagid = hj.hashtagid
         WHERE hj.postid = #{id};
     </select>
-
-    <delete id="delete" parameterType="long">
-        delete from board_table where id=#{id}
-    </delete>
 
 <!--    commentid는 알아서 1씩증가하도록 테이블에서 AUTO_INCREMENT를 사용-->
     <insert id="saveComment" parameterType="com.ddabong.tripflow.board.dto.CommentDTO">
@@ -202,5 +198,34 @@
         select createdtime from tripflow.POST
         where postid = #{id}
     </select>
+
+
+<!--    게시물 삭제를 위한 mapper 구간 -->
+
+    <select id="findMemberidInPost" parameterType="Long">
+        select memberid from tripflow.POST where postid = #{id};
+    </select>
+    <delete id="deletePostImage" parameterType="com.ddabong.tripflow.board.dto.DeletePostDTO">
+        delete from tripflow.POST_IMAGE where travelid = #{travelid} and postid = #{postid};
+    </delete>
+    <delete id="deleteHashtagJoin" parameterType="com.ddabong.tripflow.board.dto.DeletePostDTO">
+        delete from tripflow.HASHTAG_JOIN where travelid = #{travelid} and postid = #{postid};
+    </delete>
+    <delete id="deleteComment" parameterType="com.ddabong.tripflow.board.dto.DeletePostDTO">
+        delete from tripflow.COMMENT where travelid = #{travelid} and postid = #{postid};
+    </delete>
+
+    <delete id="deletePost" parameterType="com.ddabong.tripflow.board.dto.DeletePostDTO">
+        delete from tripflow.POST where travelid = #{travelid} and postid = #{postid};
+    </delete>
+
+    <delete id="deleteImage" parameterType="Long">
+        delete from tripflow.POST_IMAGE where postid = #{id};
+    </delete>
+
+<!--    게시물 수정 구간   -->
+    <update id="updatePost" parameterType="com.ddabong.tripflow.board.dto.BoardDTO">
+        UPDATE tripflow.POST SET content = #{content} WHERE (postid = #{postid});
+    </update>
 
 </mapper>

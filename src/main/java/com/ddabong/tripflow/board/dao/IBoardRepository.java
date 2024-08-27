@@ -39,5 +39,12 @@ public interface IBoardRepository {
     Boolean findLikeflag(MemberDTO memberDTO);
     //Long getMemberIdByUserId(String userId);
     String findCreatetime(Long id);
+    void deletePost(DeletePostDTO deletePostDTO);
 
+    void deletePostImage(DeletePostDTO deletePostDTO);
+    void deleteHashtagJoin(DeletePostDTO deletePostDTO);
+    void deleteComment(DeletePostDTO deletePostDTO);
+    Long findMemberidInPost(Long id);
+    void updatePost(BoardDTO boardDTO);
+    void deleteImage(Long id);
 }
