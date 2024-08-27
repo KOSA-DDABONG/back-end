@@ -223,6 +223,7 @@ public class ChatbotController {
             JsonNode jsonResponse = objectMapper.readTree(responseBody);
 
 
+            /*
             // 응답이 JSON 문자열로 감싸진 경우 처리
             if (jsonResponse.has("question")) {
                 String responseText = jsonResponse.get("response").asText();
@@ -239,6 +240,35 @@ public class ChatbotController {
                 responseDTO.setMessage("Please Request Next User Input");
                 responseDTO.setData(chatbotDataResponseDTO);
             } else {
+                System.out.println("생성된 일정 ----------");
+                updateKeyword(jsonResponse, userInput, "제가 추천해드리는 일정이에요! ^^", userStateDTO.getAge(), userStateDTO.getToken());
+                System.out.println(responseBody);
+                // 저장
+                //saveSchedule(responseBody, userStateDTO.getStartTime(), userStateDTO.getToken());
+
+                chatbotDataResponseDTO.setChatbotMessage("생성된 일정이 마음에 드시나요?");
+                chatbotDataResponseDTO.setTravelSchedule(responseBody);
+                responseDTO.setStatus(200);
+                responseDTO.setMessage("Please Request IsValid Input");
+                responseDTO.setData(chatbotDataResponseDTO);
+            }
+             */
+            if (jsonResponse.get("scheduler") == null || jsonResponse.get("scheduler").asText() == "null"){
+                String responseText = jsonResponse.get("response").asText();
+                //JsonNode responseJson = objectMapper.readTree(responseText);
+                //return ResponseEntity.ok(responseJson);
+                System.out.println("챗봇 응담 >>>>>>>");
+                System.out.println(responseText);
+
+                updateKeyword(jsonResponse, userInput, responseText, userStateDTO.getAge(), userStateDTO.getToken());
+
+                chatbotDataResponseDTO.setChatbotMessage(responseText);
+                chatbotDataResponseDTO.setTravelSchedule("생성된 일정이 아직 없습니다.");
+                responseDTO.setStatus(200);
+                responseDTO.setMessage("Please Request Next User Input");
+                responseDTO.setData(chatbotDataResponseDTO);
+            }
+            else{
                 System.out.println("생성된 일정 ----------");
                 updateKeyword(jsonResponse, userInput, "제가 추천해드리는 일정이에요! ^^", userStateDTO.getAge(), userStateDTO.getToken());
                 System.out.println(responseBody);
@@ -322,7 +352,7 @@ public class ChatbotController {
             String responseBody = response.getBody();
             JsonNode jsonResponse = objectMapper.readTree(responseBody);
 
-            if(jsonResponse.has("message")){
+            if(jsonResponse.get("is_valid").asText()=="1"){
                 System.out.println("일정이 저장되었습니다.");
                 JsonNode scheduleJson = jsonResponse.get("scheduler");
                 // 저장
