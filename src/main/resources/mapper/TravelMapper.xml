@@ -8,4 +8,11 @@
         WHERE travelid = #{travelId}
     </select>
 
+    <!-- 여행 일정 저장 -->
+    <insert id="saveTravelSchedule" parameterType="com.ddabong.tripflow.travel.model.Travel" useGeneratedKeys="true" keyProperty="travelId">
+        INSERT INTO TRAVEL
+        (travelid, memberid, createdtime, starttime, endtime, chatlogid)
+        VALUES
+        (#{travelId}, #{memberId}, #{createdTime}, #{startTime}, #{endTime}, #{chatLogId})
+    </insert>
 </mapper>

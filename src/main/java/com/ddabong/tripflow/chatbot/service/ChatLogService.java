@@ -45,6 +45,14 @@ public class ChatLogService implements IChatLogService {
         chatLog.setPastChatId(userStateDTO.getPastChatId());
         chatLog.setStartTime(userStateDTO.getStartTime());
 
+        chatLog.setScheduler(userStateDTO.getScheduler());
+        chatLog.setFoodsContext(userStateDTO.getFoodsContext());
+        chatLog.setPlayingContext(userStateDTO.getPlayingContext());
+        chatLog.setHotelContext(userStateDTO.getHotelContext());
+        chatLog.setExplain(userStateDTO.getExplain());
+        chatLog.setSecondSentence(userStateDTO.getSecondSentence());
+        chatLog.setIsValid(userStateDTO.getIsValid());
+
         iChatLogRepository.initState(chatLog);
         Long curChatLogId = chatLog.getChatLogId();
         System.out.println("저장된 ID : " + curChatLogId);
@@ -60,10 +68,13 @@ public class ChatLogService implements IChatLogService {
 
     @Override
     public UserStateDTO setUserState(Long memberId) {
-        UserStateDTO userStateDTO = new UserStateDTO("", "", null,null,null,null,null,0,0L,0L, null);
+        UserStateDTO userStateDTO = new UserStateDTO("", "", null,null,null,null,null,
+                0,0L,0L, null,
+                null,null,null,null,null,null,0);
         ChatLog chatLog = iChatLogRepository.setUserState(memberId);
 
         System.out.println("chat log 조회 : " + chatLog);
+        System.out.println("chat_log id : " + chatLog.getChatLogId());
 
 
         if (chatLog != null) {
@@ -86,6 +97,24 @@ public class ChatLogService implements IChatLogService {
             userStateDTO.setToken(chatLog.getToken());
             userStateDTO.setPastChatId(chatLog.getChatLogId()); // 이전 채팅 id 저장
             userStateDTO.setStartTime(chatLog.getStartTime());
+            if(chatLog.getScheduler() != null){
+                userStateDTO.setScheduler(chatLog.getScheduler());
+            }
+            if(chatLog.getFoodsContext() != null){
+                userStateDTO.setFoodsContext(chatLog.getFoodsContext());
+            }
+            if(chatLog.getPlayingContext() != null){
+                userStateDTO.setPlayingContext(chatLog.getPlayingContext());
+            }
+            if(chatLog.getHotelContext() != null){
+                userStateDTO.setHotelContext(chatLog.getHotelContext());
+            }
+            if(chatLog.getExplain() != null){
+                userStateDTO.setExplain(chatLog.getExplain());
+            }
+            if(chatLog.getSecondSentence() != null){
+                userStateDTO.setSecondSentence(chatLog.getSecondSentence());
+            }
         } else {
             // chatLog가 null일 경우 기본값을 설정하거나 적절한 처리를 수행합니다.
             System.out.println("chatLog is null");
@@ -135,5 +164,10 @@ public class ChatLogService implements IChatLogService {
         iChatLogRepository.updateLastChatMapping(chatLogMapping);
 
 
+    }
+
+    @Override
+    public Long getChatLogId(Long memberId) {
+        return iChatLogRepository.findChatLogMappingIdByMemberId(memberId);
     }
 }
