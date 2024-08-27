@@ -253,7 +253,20 @@ public class ChatbotController {
                 responseDTO.setData(chatbotDataResponseDTO);
             }
              */
-            if (jsonResponse.get("scheduler") == null || jsonResponse.get("scheduler").asText() == "null"){
+            if (jsonResponse.has("response")){
+                System.out.println("생성된 일정 ----------");
+                updateKeyword(jsonResponse, userInput, "제가 추천해드리는 일정이에요! ^^", userStateDTO.getAge(), userStateDTO.getToken());
+                System.out.println(responseBody);
+                // 저장
+                //saveSchedule(responseBody, userStateDTO.getStartTime(), userStateDTO.getToken());
+
+                chatbotDataResponseDTO.setChatbotMessage("생성된 일정이 마음에 드시나요?");
+                chatbotDataResponseDTO.setTravelSchedule(responseBody);
+                responseDTO.setStatus(200);
+                responseDTO.setMessage("Please Request IsValid Input");
+                responseDTO.setData(chatbotDataResponseDTO);
+            }
+            else{
                 String responseText = jsonResponse.get("response").asText();
                 //JsonNode responseJson = objectMapper.readTree(responseText);
                 //return ResponseEntity.ok(responseJson);
@@ -266,19 +279,6 @@ public class ChatbotController {
                 chatbotDataResponseDTO.setTravelSchedule("생성된 일정이 아직 없습니다.");
                 responseDTO.setStatus(200);
                 responseDTO.setMessage("Please Request Next User Input");
-                responseDTO.setData(chatbotDataResponseDTO);
-            }
-            else{
-                System.out.println("생성된 일정 ----------");
-                updateKeyword(jsonResponse, userInput, "제가 추천해드리는 일정이에요! ^^", userStateDTO.getAge(), userStateDTO.getToken());
-                System.out.println(responseBody);
-                // 저장
-                //saveSchedule(responseBody, userStateDTO.getStartTime(), userStateDTO.getToken());
-
-                chatbotDataResponseDTO.setChatbotMessage("생성된 일정이 마음에 드시나요?");
-                chatbotDataResponseDTO.setTravelSchedule(responseBody);
-                responseDTO.setStatus(200);
-                responseDTO.setMessage("Please Request IsValid Input");
                 responseDTO.setData(chatbotDataResponseDTO);
             }
 
