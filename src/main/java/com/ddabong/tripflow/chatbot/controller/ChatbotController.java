@@ -358,7 +358,13 @@ public class ChatbotController {
                 if(jsonResponse.has("response")){
                     System.out.println("일정 저장");
                     //System.out.println(jsonResponse.get("response"));
-                    saveSchedule(response.getBody(), userStateDTO.getStartTime(), userStateDTO.getToken());
+                    //saveSchedule(response.getBody(), userStateDTO.getStartTime(), userStateDTO.getToken());
+
+
+                    chatbotDataResponseDTO.setChatbotMessage("미정 : GOOD or OTHER");
+                    chatbotDataResponseDTO.setTravelSchedule(responseBody);
+                    responseDTO.setMessage("GOOD or OTHER");
+                    responseDTO.setStatus(200);
                 }
             }
 
@@ -413,6 +419,15 @@ public class ChatbotController {
                 // 관광지 처리
                 JsonNode touristSpotsNode = dayNode.get("tourist_spots");
                 if (touristSpotsNode != null && touristSpotsNode.isArray()) {
+                    System.out.println("관광 장소 저장 시작");
+                    for (JsonNode spot : touristSpotsNode) {
+                        String name = spot.get(0).asText();
+                        saveTourPlace(name, sequenceCnt, curTravelId, dayNum);
+                        sequenceCnt++;
+                    }
+                }
+                else{
+                    System.out.println("관광 장소 저장 실패");
                     for (JsonNode spot : touristSpotsNode) {
                         String name = spot.get(0).asText();
                         saveTourPlace(name, sequenceCnt, curTravelId, dayNum);
@@ -452,108 +467,7 @@ public class ChatbotController {
                     sequenceCnt++;
                 }
             }
-            /*
-            // JsonNode를 Map으로 변환
-            //Map<String, Object> jsonMap = objectMapper.convertValue(jsonResponse, Map.class);
-            Map<String, Object> jsonMap = objectMapper.convertValue(responseBody, Map.class);
-
-            int date = 0;
-            if (!jsonMap.isEmpty()) {
-                date = jsonMap.size();
-            }
-
-            System.out.println("여행 일정 저장");
-            Long chatLogId = chatLogService.getChatLogId(memberId);
-            Long curTravelId = saveTravelSchedule(memberId, startTime, date, chatLogId);
-
-            System.out.println("일정 정리");
-            List<TravelSequenceSaveFormDTO> travelSequences = new ArrayList<>();
-            for (Map.Entry<String, Object> day : jsonMap.entrySet()) {
-                String key = day.getKey();
-                String strDay = extractNumber(key);
-                int dayNum = Integer.valueOf(strDay);
-                int sequenceCnt = 1;
-
-                Object value = day.getValue();
-                System.out.println(dayNum + "일차------");
-                System.out.println(value);
-
-                Map<?, ?> scheduleMap = (Map<?, ?>) day.getValue();
-
-                for (Map.Entry<?, ?> schedule : scheduleMap.entrySet()) {
-                    System.out.println("KEY:" + schedule.getKey() + " VAL:" + schedule.getValue());
-                }
-
-                System.out.println("관광지 : " + scheduleMap.get("tourist_spots"));
-                List<?> places = (List<?>) scheduleMap.get("tourist_spots");
-                for (Object item : places) {
-                    List<String> it = new ArrayList<>();
-                    it = (List<String>) item;
-                    String name = String.valueOf(it.get(0));
-                    //String strLatitude = it.get(1);
-                    //String strLongitude = it.get(2);
-
-                    //Double latitude = Double.parseDouble(strLatitude);
-                    //Double longitude = Double.parseDouble(strLongitude);
-
-                    saveTourPlace(name, sequenceCnt, curTravelId, dayNum);
-                    sequenceCnt += 1;
-
-                }
-
-                List<String> rit = new ArrayList<>();
-                System.out.println("아침 : " + scheduleMap.get("breakfast"));
-                rit = (List<String>) scheduleMap.get("breakfast");
-                String breakFastName = String.valueOf(rit.get(0));
-                //String strbreakFastLatitude = rit.get(1);
-                //String strbreakFastLongitude = rit.get(2);
-                //Double breakFastLatitude = Double.parseDouble(strbreakFastLatitude);
-                //Double breakFastLongitude = Double.parseDouble(strbreakFastLongitude);
-
-                saveRestaurantPlace(breakFastName, sequenceCnt, curTravelId, dayNum);
-                sequenceCnt += 1;
-
-
-                System.out.println("점심 : " + scheduleMap.get("lunch"));
-                rit.clear();
-                rit = (List<String>) scheduleMap.get("lunch");
-                String lunchName = String.valueOf(rit.get(0));
-                //String strLunchLatitude = rit.get(1);
-                //String strLunchLongitude = rit.get(2);
-                //Double lunchLatitude = Double.parseDouble(strLunchLatitude);
-                //Double lunchLongitude = Double.parseDouble(strLunchLongitude);
-
-                saveRestaurantPlace(lunchName, sequenceCnt, curTravelId, dayNum);
-                sequenceCnt += 1;
-
-                System.out.println("저녁 : " + scheduleMap.get("dinner"));
-                rit.clear();
-                rit = (List<String>) scheduleMap.get("dinner");
-                String dinnerName = String.valueOf(rit.get(0));
-                //String strDinnerLatitude = rit.get(1);
-                //String strDinnerLongitude = rit.get(2);
-                //Double dinnerLatitude = Double.parseDouble(strDinnerLatitude);
-                //Double dinnerLongitude = Double.parseDouble(strDinnerLongitude);
-
-                saveRestaurantPlace(dinnerName, sequenceCnt, curTravelId, dayNum);
-                sequenceCnt += 1;
-
-                if (scheduleMap.get("hotel") != null) {
-                    System.out.println("숙소 : " + scheduleMap.get("hotel"));
-                    rit.clear();
-                    rit = (List<String>) scheduleMap.get("hotel");
-                    String hotelName = rit.get(0);
-                    //String strHotelLatitude = rit.get(1);
-                    //String strHotelLongitude = rit.get(2);
-                    //Double hotelLatitude = Double.parseDouble(strHotelLatitude);
-                    //Double hotelLongitude = Double.parseDouble(strHotelLongitude);
-
-                    saveHotelPlace(hotelName, sequenceCnt, curTravelId, dayNum);
-                    sequenceCnt += 1;
-                }
-
-
-            }*/
+            
         }catch (Exception e){
             e.printStackTrace();
         }
