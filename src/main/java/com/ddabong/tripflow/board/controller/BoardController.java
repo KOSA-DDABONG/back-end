@@ -40,12 +40,10 @@ public class BoardController {//클래스명 BoardController
         return "save"; //return 할 화면의 이름
     }
 
-    @PostMapping("/save") //데이터를 저장하는 메소드
-    // save.html 에서 action="/save" method="post" 로 정의 되어 있기 때문
-    public String save(BoardDTO boardDTO) { //BoardDTO(class명,자료형) boardDTO(변수명), 마치 int num 과 같은 느낌
-        //위 save와 다른 이유는 파라미터가 다르기 때문! 위는 파라미터가 공란이다.
-        System.out.println("boardDTO = " + boardDTO);
-        boardService.save(boardDTO); //이 데이터를 Service, repository mapper를 사용해서 DB로 넘겨야한다.
+    @PostMapping("/save")
+    public String save(BoardDTO boardDTO) {
+        System.out.println(boardDTO);
+        boardService.save(boardDTO);
         return "redirect:/list" ;
     }
 
@@ -83,23 +81,21 @@ public class BoardController {//클래스명 BoardController
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    @PostMapping("/savepost")//게시물 저장 기능 + 이미 추가 기능 + 이미지S3 업로드 기능까지 구현
-    public ResponseEntity<ResponseDTO_SavePost> savePost(@RequestPart BoardDTO boardDTO,
-                                                         @RequestPart List<HashDTO> hashDTOList,
-                                                         @RequestPart (required = false)List<MultipartFile> files) throws IOException {
-        //@RequestBody를 사용하면 하나의 class만 받을 수 있다. 따라서 두개를 통합하는 DTO를 만들었다.
-        //두개의 DTO 필드를 하나의 class에 저장하여 Post를 받을 때 새로운 DTO롤 또 다시 생성하지 않고 기존의 코드를 재사용
-        System.out.println("userid: " + boardDTO.getUserid());
-        //userid를 memberid로 변환
+    @Transactional
+    @PostMapping("/savepost")
+    public ResponseEntity<ResponseDTO_SavePost> savePost(
+            @RequestPart BoardDTO boardDTO,
+            @RequestPart List<HashDTO> hashDTOList,
+            @RequestPart (required = false)List<MultipartFile> files) throws IOException {
+
+
         String ss = boardDTO.getUserid();
         boardDTO.setMemberid(boardService.findMemberid(ss));
         System.out.println("memberid: " + boardDTO.getMemberid());
-        //created time 저장
         String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:s"));
         System.out.println(time);
         boardDTO.setCreatedtime(time);
         try{
-            //System.out.println("Postid: " + boardDTO.getPostid());
             System.out.println("travelid: " + boardDTO.getTravelid());
             System.out.println("content: " + boardDTO.getContent());
             System.out.println("memberid: " + boardDTO.getMemberid());
@@ -110,7 +106,6 @@ public class BoardController {//클래스명 BoardController
         boardService.savePost(boardDTO);
         PostImageDTO postImageDTO =  boardService.findPostid(); //현재 저장될 postid를 미리 저장하여 postimage 저장 할때 사용
 
-        //ObjectMetadata metadata = new ObjectMetadata();
         System.out.println("hashDTO길이: " + hashDTOList.size());
         for(int i = 0 ; i < hashDTOList.size() ; i++){
             HashDTO hashDTO_tmp = new HashDTO();
@@ -127,9 +122,9 @@ public class BoardController {//클래스명 BoardController
 
         String tmp = ".s3.ap-northeast-2.amazonaws.com/";
         List<ImageDTO> imageDTOList = new ArrayList<>();
-        for(int i = 0 ; i < files.size() ; i++) { // for문을 사용하여 여러 이미지가 들어와도 저장 가능하도록 설계
-            //s3 이미지 업로드
-            MultipartFile file = files.get(i); // 이미지 리스트에서 한개만 추출
+        for(int i = 0 ; i < files.size() ; i++) {
+
+            MultipartFile file = files.get(i);
             StringBuffer sb = new StringBuffer();
             sb.append(UUID.randomUUID());
             sb.append("-");
@@ -228,15 +223,16 @@ public class BoardController {//클래스명 BoardController
         return ResponseEntity.ok(responseDTO);
     }
 
-    @GetMapping("/mylist") // 좋아요 전체 list를 조회 하는 메소드 // 좋아요 상위3개 추출
-    public ResponseEntity<ResponseDTO_AllList> findMyList() { // json 형식으로 데이터를 반환
-
+    @GetMapping("/mylist")
+    public ResponseEntity<ResponseDTO_AllList> findMyList() {
         String userid = getMemberInfoService.getUserIdByJWT();
         Long memberid = boardService.findMemberid(userid);
-
         List<BoardDTO> boardDTOList = boardService.findAll();
         List<BoardDTO_View> boardDTOViews = new ArrayList<>();
         List<BoardDTO_View> boardDTOViewstmp = new ArrayList<>();
+
+
+
         //전체 리스트 출력을 postid가 높은 순서대로(최신순)
         for (int i = 0 ; i < boardDTOList.size() ; i++){
             MemberDTO memberDTO = new MemberDTO();
@@ -281,8 +277,9 @@ public class BoardController {//클래스명 BoardController
         return ResponseEntity.ok(boardDTO);
     }
 
-    @GetMapping("/list/{id}") //위 동작하는 데이터 남겨두고 이미지 작업 진행
-    public ResponseEntity<ResponseDTO_Listid> findDetail(@PathVariable("id") Long id){
+    @GetMapping("/list/{id}")
+    public ResponseEntity<ResponseDTO_Listid> findDetail(
+            @PathVariable("id") Long id){
 
         //System.out.println("whatis this" + getMemberInfoService.getUserIdByJWT());
         //System.out.println("check1");
@@ -290,7 +287,6 @@ public class BoardController {//클래스명 BoardController
         String userid = getMemberInfoService.getUserIdByJWT();
         Long memberid = boardService.findMemberid(userid);
         BoardDTO boardDTO = boardService.findDetail(id); //postid, content
-        //현재 사용자 데이터를 통해 좋아요 누른 여부 확인
         MemberDTO memberDTO = new MemberDTO();
         memberDTO.setMemberid(memberid);
         memberDTO.setPostid(id);
@@ -301,14 +297,16 @@ public class BoardController {//클래스명 BoardController
         List<HashDTO> hashDTO = boardService.findHash(id); //HASH태그 불러오기
         List<ImageDTO> findimageDTO = boardService.findImage(id);
 
-        ResponseDTO_Listid responseDTO = new ResponseDTO_Listid("success",200, boardDTO,hashDTO, commentDTO,findimageDTO);
+        ResponseDTO_Listid responseDTO = new ResponseDTO_Listid(
+                "success",200, boardDTO,hashDTO, commentDTO,findimageDTO);
         return  ResponseEntity.ok(responseDTO);
     }
     @PostMapping("/list/{id}/update") // 데이터 수정
-    public ResponseEntity<ResponseDTO_SavePost> update(@PathVariable("id") Long id,
-                                                       @RequestPart BoardDTO boardDTO,
-                                                       @RequestPart (required = false)List<MultipartFile> files,
-                                                       @RequestPart List<HashDTO> hashDTOList) throws IOException {
+    public ResponseEntity<ResponseDTO_SavePost> update(
+            @PathVariable("id") Long id,
+            @RequestPart BoardDTO boardDTO,
+            @RequestPart (required = false)List<MultipartFile> files,
+            @RequestPart List<HashDTO> hashDTOList) throws IOException {
 
         Long memberid = boardService.findMemberid(boardDTO.getUserid());
         Long travelid = boardService.findTravelid(id);
@@ -346,9 +344,9 @@ public class BoardController {//클래스명 BoardController
                     sb.append(UUID.randomUUID());
                     sb.append("-");
                     sb.append(file.getOriginalFilename());
-                    String originalFilename = postFileUploadPath + sb.toString();
 
                     ObjectMetadata metadata = new ObjectMetadata();
+                    String originalFilename = postFileUploadPath + sb.toString();
                     metadata.setContentLength(file.getSize());
                     metadata.setContentType(file.getContentType());
                     String fileUrl = "https://" + bucket + tmp + originalFilename;
@@ -384,18 +382,31 @@ public class BoardController {//클래스명 BoardController
         MemberDTO memberDTO = new MemberDTO();
         memberDTO.setMemberid(memberid);
         memberDTO.setPostid(id);
+        String member_birth = boardService.findBirth(memberid);
+        String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:s"));
+        String current_year = time.substring(0,4);
+        System.out.println("current_year" + current_year);
+        Long age = Long.parseLong(current_year) - Long.parseLong(member_birth.substring(0,4));
+        Long travelid = boardService.findTravelid(id);
+        Long placeId = boardService.findPlaceId(travelid);
+        RecommendPlaceDTO recommendPlaceDTO = new RecommendPlaceDTO();
+        System.out.println("travelid: " + travelid);
 
-        if(boardService.findLikeflag(memberDTO) == true){//좋아요 없는데 누른경우
+        recommendPlaceDTO.setAge(age);
+        recommendPlaceDTO.setPlaceid(travelid);
+
+        if(boardService.findLikeflag(memberDTO)){//좋아요 있어 삭제
             boardService.deleteLike(memberDTO);
+            boardService.increaseRecommend(recommendPlaceDTO);
         }
-        else if(boardService.findLikeflag(memberDTO) == false){//좋아요 있는데 삭제한경우
+        else if(!boardService.findLikeflag(memberDTO)){//좋아요 없어 증가
             boardService.saveLike(memberDTO);
+            boardService.increaseRecommend(recommendPlaceDTO);
         }
         memberDTO.setLikeflag(boardService.findLikeflag(memberDTO));
         ResponseDTO_B responseDTOB = new ResponseDTO_B("success", 200, memberDTO);
         return  ResponseEntity.ok(responseDTOB);
     }
-
     @GetMapping("/list/{id}/delete")//post 게시물 삭제// id = postid
     public ResponseEntity<ResponseDTO> delete(@PathVariable("id") Long id) {
         String userid = getMemberInfoService.getUserIdByJWT();
@@ -422,7 +433,7 @@ public class BoardController {//클래스명 BoardController
             boardService.deletePostImage(deletePostDTO);
             boardService.deleteHashtagJoin(deletePostDTO);
             boardService.deletePost(deletePostDTO);
-            // 삭제 성공 메시지를 JSON 형식으로 반환
+
             String s = id + " 번 게시물 삭제 완료";
             ResponseDTO responseDTO = new ResponseDTO("success", 200, s);
             return ResponseEntity.ok(responseDTO);

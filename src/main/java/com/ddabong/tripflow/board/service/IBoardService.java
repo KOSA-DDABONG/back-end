@@ -74,5 +74,10 @@ public interface IBoardService {
 
     void deleteImage(Long id);
 
+    String findBirth(Long id);
+    void increaseRecommend(RecommendPlaceDTO recommendPlaceDTO);
+    void decreaseRecommend(RecommendPlaceDTO recommendPlaceDTO);
+    Long findPlaceId(Long id);
+
 
 }
