@@ -175,6 +175,7 @@ public class ChatbotController {
                     "\"foods_context\": [], \"playing_context\": [], \"hotel_context\": [], \"scheduler\": \"\", \"explain\": \"\", " +
                     "\"second_sentence\": \"\", \"user_age\": \"0\", \"user_token\": \"0\", \"is_valid\": 0}";
 
+            System.out.println("사용자 만족도 내용 : " + userInput);
             userStateDTO.setUserInput(userInput);
             JsonNode jsonNode = objectMapper.readTree(jsonString);
             ((ObjectNode) jsonNode).put("question", userInput);
@@ -269,13 +270,35 @@ public class ChatbotController {
             Long memberId = memberService.getMemberIdByUserId(getMemberInfoService.getUserIdByJWT());
             System.out.println("회원 ID: " + memberId);
             UserStateDTO userStateDTO = chatLogService.setUserState(memberId);
+            System.out.println("사용자 입력 " + userStateDTO.getUserInput());
+            System.out.println("봇 응답 " + userStateDTO.getBotResponse());
+            System.out.println("일정 날짜 " + userStateDTO.getDays());
+            System.out.println("대중교통 " + userStateDTO.getTransport());
+            System.out.println("동행자 " + userStateDTO.getCompanion());
+            System.out.println("테마 " + userStateDTO.getTheme());
+            System.out.println("식당 " + userStateDTO.getFood());
+            System.out.println("나이 " + userStateDTO.getAge());
+            System.out.println("유저 토큰 " + userStateDTO.getToken());
+            System.out.println("마지막 채팅 id " + userStateDTO.getPastChatId());
+            System.out.println("시작날짜 " + userStateDTO.getStartTime());
+            System.out.println("일정 " + userStateDTO.getScheduler());
+
+            System.out.println("식당 목록 " + userStateDTO.getFoodsContext());//
+            System.out.println("관광 목록 " + userStateDTO.getPlayingContext());//
+            System.out.println("숙박 목록 " + userStateDTO.getHotelContext());//
+
+            System.out.println("설명 " + userStateDTO.getExplain());
+            System.out.println("만족도 " + userStateDTO.getSecondSentence());
+            System.out.println("is Valid " + userStateDTO.getIsValid());
 
             String jsonString = "{\"question\": " + null + ", " +
                     "\"keywords\": {\"days\": " + null + ", \"transport\": " + null + ", \"companion\": " + null + ", \"theme\": " + null + ", \"food\": " + null + "}, " +
                     "\"foods_context\": [], \"playing_context\": [], \"hotel_context\": [], \"scheduler\": \"\", \"explain\": \"\", " +
                     "\"second_sentence\": \"\", \"user_age\": \"0\", \"user_token\": \"0\", \"is_valid\": 0}";
 
-            userStateDTO.setUserInput(userInput);
+            System.out.println("사용자 만족도 내용 : " + userInput);
+            userStateDTO.setSecondSentence(userInput);
+            System.out.println("Second sentence 세팅결과 : " + userStateDTO.getSecondSentence());
             JsonNode jsonNode = objectMapper.readTree(jsonString);
             ((ObjectNode) jsonNode).put("second_sentence", userInput);
             // keywords 객체를 추출
@@ -321,14 +344,38 @@ public class ChatbotController {
             // Flask에서 받은 응답을 JSON 형태로 변환
             String responseBody = response.getBody();
             JsonNode jsonResponse = objectMapper.readTree(responseBody);
+            JsonNode repBodyJson = jsonResponse.get("response");
 
-            if(jsonResponse.get("is_valid").asText()=="1"){
-                //JsonNode scheduleJson = jsonResponse.get("scheduler");
-                //System.out.println("일정이 저장되었습니다." + scheduleJson.toString());
-                // 저장
-                //saveSchedule(scheduleJson, userStateDTO.getStartTime(), userStateDTO.getToken());
-                saveSchedule(response.getBody(), userStateDTO.getStartTime(), userStateDTO.getToken());
+            if(jsonResponse.has("is_valid")){
+                if(jsonResponse.get("is_valid").asInt() == 0){
+                    System.out.println("AGAIN");
+                    updateKeyword(jsonResponse, userInput, responseBody, userStateDTO.getAge(), userStateDTO.getToken());
+
+                    responseDTO.setMessage("AGAIN");
+                    responseDTO.setStatus(200);
+                }
+            }else{
+                if(jsonResponse.has("response")){
+                    System.out.println("일정 저장");
+                    //System.out.println(jsonResponse.get("response"));
+                    saveSchedule(response.getBody(), userStateDTO.getStartTime(), userStateDTO.getToken());
+                }
             }
+
+            /*
+            if(jsonResponse.has("response")){
+                JsonNode scheduleResponseJson = jsonResponse.get("response");
+                System.out.println("스케쥴 응답 : " + scheduleResponseJson.toString());
+                if(scheduleResponseJson.has("1")){
+                    //JsonNode scheduleJson = jsonResponse.get("scheduler");
+                    //System.out.println("일정이 저장되었습니다." + scheduleJson.toString());
+                    // 저장
+                    //saveSchedule(scheduleJson, userStateDTO.getStartTime(), userStateDTO.getToken());
+                    saveSchedule(response.getBody(), userStateDTO.getStartTime(), userStateDTO.getToken());
+                }
+            }
+
+             */
 
 
         } catch (Exception e){
@@ -339,13 +386,14 @@ public class ChatbotController {
     }
     private void saveSchedule(String response, String startTime, Long memberId) throws JsonProcessingException {
         JsonNode jsonResponse = objectMapper.readTree(response);
-        JsonNode scheduleJson = jsonResponse.get("schedule");
+        System.out.println("다음 일정을 저장하겠습니다.");
+        System.out.println(response);
         try {
             //JsonNode jsonResponse = objectMapper.readTree(responseBody);
             System.out.println("---일정 저장 시작---");
             System.out.println("---일정 저장 시작2---");
             // 날짜 수 계산
-            int date = scheduleJson.size();
+            int date = jsonResponse.size();
             System.out.println("날짜 수: " + date);
 
             System.out.println("여행 일정 저장");
@@ -354,11 +402,11 @@ public class ChatbotController {
 
             System.out.println("일정 정리");
             int dayNum = 1;
-            for (Iterator<String> it = scheduleJson.fieldNames(); it.hasNext(); dayNum++) {
+            for (Iterator<String> it = jsonResponse.fieldNames(); it.hasNext(); dayNum++) {
                 String dayKey = it.next();
-                JsonNode dayNode = scheduleJson.get(dayKey);
+                JsonNode dayNode = jsonResponse.get(dayKey);
                 System.out.println(dayNum + "일차------");
-                System.out.println(dayNode);
+                System.out.println(dayNode.toString());
 
                 int sequenceCnt = 1;
 
@@ -616,35 +664,35 @@ public class ChatbotController {
             System.out.println("foods_context 업데이트" + jsonResponse.get("foods_context").asText());
             if (jsonResponse.get("foods_context").asText() != "null"){
                 System.out.println("업데이트");
-                userStateDTO.setFoodsContext(jsonResponse.get("foods_context").asText());
+                userStateDTO.setFoodsContext(jsonResponse.get("foods_context").toString());
             }
         }
         if(jsonResponse.has("playing_context")){
             System.out.println("playing_context 업데이트" + jsonResponse.get("playing_context").asText());
             if (jsonResponse.get("playing_context").asText() != "null"){
                 System.out.println("업데이트");
-                userStateDTO.setPlayingContext(jsonResponse.get("playing_context").asText());
+                userStateDTO.setPlayingContext(jsonResponse.get("playing_context").toString());
             }
         }
         if(jsonResponse.has("hotel_context")){
             System.out.println("hotel_context 업데이트" + jsonResponse.get("hotel_context").asText());
             if (jsonResponse.get("hotel_context").asText() != "null"){
                 System.out.println("업데이트");
-                userStateDTO.setHotelContext(jsonResponse.get("hotel_context").asText());
+                userStateDTO.setHotelContext(jsonResponse.get("hotel_context").toString());
             }
         }
         if(jsonResponse.has("explain")){
             System.out.println("explain 업데이트" + jsonResponse.get("explain").asText());
             if (jsonResponse.get("explain").asText() != ""){
                 System.out.println("업데이트");
-                userStateDTO.setExplain(jsonResponse.get("explain").asText());
+                userStateDTO.setExplain(jsonResponse.get("explain").toString());
             }
         }
         if(jsonResponse.has("second_sentence")){
             System.out.println("second_sentence 업데이트" + jsonResponse.get("second_sentence").asText());
             if (jsonResponse.get("second_sentence").asText() != "null"){
                 System.out.println("업데이트");
-                userStateDTO.setSecondSentence(jsonResponse.get("second_sentence").asText());
+                userStateDTO.setSecondSentence(jsonResponse.get("second_sentence").toString());
             }
         }
         if(jsonResponse.has("isValid")){
