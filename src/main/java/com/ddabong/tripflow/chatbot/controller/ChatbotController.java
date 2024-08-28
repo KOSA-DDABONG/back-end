@@ -347,23 +347,33 @@ public class ChatbotController {
             JsonNode repBodyJson = jsonResponse.get("response");
 
             if(jsonResponse.has("message")){
-                chatbotDataResponseDTO.setChatbotMessage(String.valueOf(jsonResponse.get("scheduler")));
-                chatbotDataResponseDTO.setTravelSchedule(String.valueOf(jsonResponse.get("message")));
-                responseDTO.setMessage("GOOD");
-                responseDTO.setStatus(200);
-            }
+                String ss = String.valueOf(jsonResponse.get("second_sentence"));
+                System.out.println(ss);
+                System.out.println("message없음");
 
-            if(jsonResponse.has("is_valid")){
-                /*
-                if(jsonResponse.get("is_valid").asInt() == 0){
-                    System.out.println("AGAIN");
-                    updateKeyword(jsonResponse, userInput, responseBody, userStateDTO.getAge(), userStateDTO.getToken());
-
-                    responseDTO.setMessage("AGAIN");
+                if(ss.equals("\"Good\"")){
+                    chatbotDataResponseDTO.setTravelSchedule(String.valueOf(jsonResponse.get("scheduler")));
+                    chatbotDataResponseDTO.setChatbotMessage(String.valueOf(jsonResponse.get("expain")));
+                    responseDTO.setMessage("Good");
                     responseDTO.setStatus(200);
                 }
+                else if(ss.equals("")){
 
-                 */
+                    responseDTO.setMessage("Again");
+                    responseDTO.setStatus(200);
+                }
+                else if(ss.equals("\"Other\"")){
+
+                    chatbotDataResponseDTO.setChatbotMessage(String.valueOf(jsonResponse.get("scheduler")));
+                    chatbotDataResponseDTO.setTravelSchedule(String.valueOf(jsonResponse.get("explain")));
+                    responseDTO.setMessage("Other");
+                    responseDTO.setStatus(200);
+                }
+            }
+
+            /*
+            if(jsonResponse.has("is_valid")){
+
             }else{
                 if(jsonResponse.has("response")){
                     System.out.println("일정 저장");
@@ -383,6 +393,8 @@ public class ChatbotController {
                     responseDTO.setStatus(200);
                 }
             }
+
+             */
 
             /*
             if(jsonResponse.has("response")){
