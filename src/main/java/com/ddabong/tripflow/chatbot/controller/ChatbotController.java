@@ -7,6 +7,7 @@ import com.ddabong.tripflow.chatbot.service.IChatLogService;
 import com.ddabong.tripflow.member.service.GetMemberInfoService;
 import com.ddabong.tripflow.member.service.IMemberService;
 import com.ddabong.tripflow.place.service.IPlaceService;
+import com.ddabong.tripflow.travel.dto.TravelDTO;
 import com.ddabong.tripflow.travel.dto.TravelPlaceJoinDTO;
 import com.ddabong.tripflow.travel.service.ITravelService;
 import com.fasterxml.jackson.core.JsonParser;
@@ -25,7 +26,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -214,7 +217,7 @@ public class ChatbotController {
 
             // Flask API로 POST 요청 보내기
             System.out.println("Flask 요청 시작");
-            String flaskApiUrl = "http://localhost:5000/making";
+            String flaskApiUrl = flaskIP + "making";
             ResponseEntity<String> response = restTemplate.exchange(flaskApiUrl, HttpMethod.POST, request, String.class);
             System.out.println("Flask의 응답 : " + response.getBody());
 
@@ -335,7 +338,7 @@ public class ChatbotController {
 
             // Flask API로 POST 요청 보내기
             System.out.println("Flask 요청 시작");
-            String flaskApiUrl = "http://localhost:5000/validating";
+            String flaskApiUrl = flaskIP + "validating";
             ResponseEntity<String> response = restTemplate.exchange(flaskApiUrl, HttpMethod.POST, request, String.class);
             System.out.println("Flask의 응답 : " + response.getBody());
             System.out.println(response);
@@ -384,10 +387,16 @@ public class ChatbotController {
     private void saveSchedule(String response, String startTime, Long memberId) throws JsonProcessingException {
         response.replace('\'', '"');
         JsonNode jsonResponse = objectMapper.readTree(response);
-        //JsonNode scheduleJson = jsonResponse.get("scheduler");
-        //JsonNode keywordsJson = jsonResponse.get("keywords");
+        //TravelDTO travelDTO = new TravelDTO();
+        //travelDTO.setMemberId(memberId);
 
-        //String scheduleString = scheduleJson.toString();
+        //LocalDateTime now = LocalDateTime.now();
+        //DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        //travelDTO.setCreatedTime(Timestamp.valueOf(now.format(dateTimeFormatter)));
+
+        //travelDTO.setStartTime(startTime);
+        //travelDTO.setChatLogId(chatLogService.getChatLogId(memberId));
+
         System.out.println("다음 일정을 저장하겠습니다.");
         System.out.println(jsonResponse.toString());
         try {
@@ -400,42 +409,101 @@ public class ChatbotController {
                     JsonNode schedulerJson = objectMapper.readTree(String.valueOf(rootVal));
                     Map<String, Object> schedulerMap = objectMapper.convertValue(schedulerJson, Map.class);
 
+                    int dayNum = schedulerMap.size();
+                    if(dayNum <= 0) {dayNum = 0;}
+                    else {dayNum = dayNum - 1; }
+
+                    //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+                    //LocalDate date = LocalDate.parse(startTime, formatter);
+
+                    //LocalDate newDate = date.plusDays(dayNum);
+                    //String endTime = newDate.format(formatter);
+
+                    Long travelId = travelService.saveTravelSchedule(memberId, startTime, dayNum, chatLogService.getChatLogId(memberId));
 
 
                     for (String schedulerKey : schedulerMap.keySet()) {
                         Object schedulerVal = schedulerMap.get(schedulerKey);
 
                         System.out.println(schedulerKey + "일차--------");
-                        System.out.println(schedulerKey + " : " + schedulerVal);
+                        int sequence = 1;
+                        TravelPlaceJoinDTO travelPlaceJoinDTO = new TravelPlaceJoinDTO();
+                        travelPlaceJoinDTO.setDayNum(Integer.valueOf(schedulerKey));
+                        travelPlaceJoinDTO.setTravelId(travelId);
 
-                        //JsonNode dailyJson = objectMapper.readTree(String.valueOf(schedulerVal));
-
-                        objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-                        System.out.println("1");
-                        List<?> test = (List<?>) schedulerVal;
-                        System.out.println("00");
-                        for(Object item : test){
-                            System.out.println(item + " " + test);
+                        Map<String, List<Object>> dailyMap = ((Map<String, List<Object>>) schedulerVal);
+                        for(String dailyKey : dailyMap.keySet()){
+                            // 관광지 말고도 여러개 들어올때 있으면 size로 분기하기
+                            if(dailyKey.equals("tourist_spots")){
+                                List<Object> dailyVal = dailyMap.get(dailyKey);
+                                List<Object> tourist_spots = ((List<Object>) dailyVal);
+                                for(Object tourList : tourist_spots){
+                                    List<Object> tour = ((List<Object>) tourList);
+                                    //System.out.println(tour.get(0) + " " + tour.get(1) + " " + tour.get(2));
+                                    Long placeId = placeService.getPlaceIdByTourPlaceName(String.valueOf(tour.get(0)));
+                                    travelPlaceJoinDTO.setPlaceId(placeId);
+                                    travelPlaceJoinDTO.setSequence(sequence);
+                                    placeService.saveTravelPlace(travelPlaceJoinDTO);
+                                    sequence+=1;
+                                }
+                                //System.out.println();
+                            }
                         }
-                        System.out.println("0");
-                        JsonNode dailyJson = objectMapper.readTree(String.valueOf(schedulerVal));
-                        System.out.println("2");
-                        Map<String, List<Object>> dailyMap = objectMapper.convertValue(dailyJson, Map.class);
-                        System.out.println("3");
-                        for (String dailyKey : dailyMap.keySet()) {
-                            Object dailyVal = dailyMap.get(dailyKey);
+                        for(String dailyKey : dailyMap.keySet()){
+                            if(dailyKey.equals("breakfast")){
+                                List<Object> dailyVal = dailyMap.get(dailyKey);
+                                //System.out.println(dailyKey + " : " + dailyVal.get(0));
+                                //System.out.println(dailyKey + " : " + dailyVal.get(1));
+                                //System.out.println(dailyKey + " : " + dailyVal.get(2));
+                                Long placeId = placeService.getPlaceIdByRestaurantPlaceName(String.valueOf(dailyVal.get(0)));
+                                travelPlaceJoinDTO.setPlaceId(placeId);
+                                travelPlaceJoinDTO.setSequence(sequence);
+                                placeService.saveTravelPlace(travelPlaceJoinDTO);
+                                sequence+=1;
+                            }
+                        }
+                        for(String dailyKey : dailyMap.keySet()){
+                            if(dailyKey.equals("lunch")){
+                                List<Object> dailyVal = dailyMap.get(dailyKey);
+                                //System.out.println(dailyKey + " : " + dailyVal.get(0));
+                                //System.out.println(dailyKey + " : " + dailyVal.get(1));
+                                //System.out.println(dailyKey + " : " + dailyVal.get(2));
+                                Long placeId = placeService.getPlaceIdByRestaurantPlaceName(String.valueOf(dailyVal.get(0)));
+                                travelPlaceJoinDTO.setPlaceId(placeId);
+                                travelPlaceJoinDTO.setSequence(sequence);
+                                placeService.saveTravelPlace(travelPlaceJoinDTO);
+                                sequence+=1;
+                            }
+                        }
+                        for(String dailyKey : dailyMap.keySet()){
+                            if(dailyKey.equals("dinner")){
+                                List<Object> dailyVal = dailyMap.get(dailyKey);
+                                //System.out.println(dailyKey + " : " + dailyVal.get(0));
+                                //System.out.println(dailyKey + " : " + dailyVal.get(1));
+                                //System.out.println(dailyKey + " : " + dailyVal.get(2));
+                                Long placeId = placeService.getPlaceIdByRestaurantPlaceName(String.valueOf(dailyVal.get(0)));
+                                travelPlaceJoinDTO.setPlaceId(placeId);
+                                travelPlaceJoinDTO.setSequence(sequence);
+                                placeService.saveTravelPlace(travelPlaceJoinDTO);
+                                sequence+=1;
+                            }
+                        }
+                        if(schedulerKey.equals(String.valueOf(schedulerMap.size()))){
 
-                            System.out.println(dailyKey + " : " + dailyVal);
-                            if (String.valueOf(dailyKey).equals("tourist_spots")) {
-
-                            } else if (String.valueOf(dailyKey).equals("breakfast")) {
-
-                            } else if (String.valueOf(dailyKey).equals("lunch")) {
-
-                            } else if (String.valueOf(dailyKey).equals("dinner")) {
-
-                            } else if (String.valueOf(dailyKey).equals("hotel")) {
-
+                        }
+                        else {
+                            for(String dailyKey : dailyMap.keySet()){
+                                if(dailyKey.equals("hotel")){
+                                    List<Object> dailyVal = dailyMap.get(dailyKey);
+                                    //System.out.println(dailyKey + " : " + dailyVal.get(0));
+                                    //System.out.println(dailyKey + " : " + dailyVal.get(1));
+                                    //System.out.println(dailyKey + " : " + dailyVal.get(2));
+                                    Long placeId = placeService.getPlaceIdByHotelPlaceName(String.valueOf(dailyVal.get(0)));
+                                    travelPlaceJoinDTO.setPlaceId(placeId);
+                                    travelPlaceJoinDTO.setSequence(sequence);
+                                    placeService.saveTravelPlace(travelPlaceJoinDTO);
+                                    sequence+=1;
+                                }
                             }
                         }
                     }
