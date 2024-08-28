@@ -52,6 +52,15 @@
         <result property="age" column="age"/>
         <result property="token" column="token"/>
         <result property="pastChatId" column="pastchatid"/>
+        <result property="startTime" column="starttime"/>
+
+        <result property="scheduler" column="scheduler"/>
+        <result property="foodsContext" column="foods_context"/>
+        <result property="playingContext" column="playing_context"/>
+        <result property="hotelContext" column="hotel_context"/>
+        <result property="explain" column="explain"/>
+        <result property="secondSentence" column="second_sentence"/>
+        <result property="isValid" column="is_valid"/>
     </resultMap>
 
     <!-- 유저 상태 불러오기 쿼리 -->

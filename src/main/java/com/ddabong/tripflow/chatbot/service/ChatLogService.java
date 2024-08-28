@@ -79,18 +79,23 @@ public class ChatLogService implements IChatLogService {
 
         if (chatLog != null) {
             if(chatLog.getDays() != null){
+                System.out.println("DAYS 업데이트");
                 userStateDTO.setDays(chatLog.getDays());
             }
             if(chatLog.getTransport() != null){
+                System.out.println("대중교통 업데이트");
                 userStateDTO.setTransport(chatLog.getTransport());
             }
             if(chatLog.getCompanion() != null){
+                System.out.println("동행자 업데이트");
                 userStateDTO.setCompanion(chatLog.getCompanion());
             }
             if(chatLog.getTheme() != null){
+                System.out.println("테마 업데이트");
                 userStateDTO.setTheme(chatLog.getTheme());
             }
             if(chatLog.getFood() != null){
+                System.out.println("음식 업데이트");
                 userStateDTO.setFood(chatLog.getFood());
             }
             userStateDTO.setAge(chatLog.getAge());
@@ -98,21 +103,27 @@ public class ChatLogService implements IChatLogService {
             userStateDTO.setPastChatId(chatLog.getChatLogId()); // 이전 채팅 id 저장
             userStateDTO.setStartTime(chatLog.getStartTime());
             if(chatLog.getScheduler() != null){
+                System.out.println("일정 업데이트");
                 userStateDTO.setScheduler(chatLog.getScheduler());
             }
             if(chatLog.getFoodsContext() != null){
+                System.out.println("식당 업데이트");
                 userStateDTO.setFoodsContext(chatLog.getFoodsContext());
             }
             if(chatLog.getPlayingContext() != null){
+                System.out.println("관광지 업데이트");
                 userStateDTO.setPlayingContext(chatLog.getPlayingContext());
             }
             if(chatLog.getHotelContext() != null){
+                System.out.println("숙박 업데이트");
                 userStateDTO.setHotelContext(chatLog.getHotelContext());
             }
             if(chatLog.getExplain() != null){
+                System.out.println("설명 업데이트");
                 userStateDTO.setExplain(chatLog.getExplain());
             }
             if(chatLog.getSecondSentence() != null){
+                System.out.println("만족도 업데이트");
                 userStateDTO.setSecondSentence(chatLog.getSecondSentence());
             }
         } else {
