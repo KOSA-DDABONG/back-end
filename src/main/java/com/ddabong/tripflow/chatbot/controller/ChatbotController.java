@@ -346,7 +346,15 @@ public class ChatbotController {
             JsonNode jsonResponse = objectMapper.readTree(responseBody);
             JsonNode repBodyJson = jsonResponse.get("response");
 
+            if(jsonResponse.has("message")){
+                chatbotDataResponseDTO.setChatbotMessage(String.valueOf(jsonResponse.get("scheduler")));
+                chatbotDataResponseDTO.setTravelSchedule(String.valueOf(jsonResponse.get("message")));
+                responseDTO.setMessage("GOOD");
+                responseDTO.setStatus(200);
+            }
+
             if(jsonResponse.has("is_valid")){
+                /*
                 if(jsonResponse.get("is_valid").asInt() == 0){
                     System.out.println("AGAIN");
                     updateKeyword(jsonResponse, userInput, responseBody, userStateDTO.getAge(), userStateDTO.getToken());
@@ -354,16 +362,24 @@ public class ChatbotController {
                     responseDTO.setMessage("AGAIN");
                     responseDTO.setStatus(200);
                 }
+
+                 */
             }else{
                 if(jsonResponse.has("response")){
                     System.out.println("일정 저장");
                     //System.out.println(jsonResponse.get("response"));
-                    //saveSchedule(response.getBody(), userStateDTO.getStartTime(), userStateDTO.getToken());
+                    saveSchedule(response.getBody(), userStateDTO.getStartTime(), userStateDTO.getToken());
 
 
-                    chatbotDataResponseDTO.setChatbotMessage("미정 : GOOD or OTHER");
+                    chatbotDataResponseDTO.setChatbotMessage("미정 : OTHER");
                     chatbotDataResponseDTO.setTravelSchedule(responseBody);
-                    responseDTO.setMessage("GOOD or OTHER");
+                    responseDTO.setMessage("OTHER");
+                    responseDTO.setStatus(200);
+                }
+                else {
+                    chatbotDataResponseDTO.setChatbotMessage("미정 : GOOD");
+                    chatbotDataResponseDTO.setTravelSchedule(responseBody);
+                    responseDTO.setMessage("GOOD");
                     responseDTO.setStatus(200);
                 }
             }
@@ -391,9 +407,9 @@ public class ChatbotController {
         return responseDTO;
     }
     private void saveSchedule(String response, String startTime, Long memberId) throws JsonProcessingException {
-        JsonNode jsonResponse = objectMapper.readTree(response);
         System.out.println("다음 일정을 저장하겠습니다.");
         System.out.println(response);
+        JsonNode jsonResponse = objectMapper.readTree(response);
         try {
             //JsonNode jsonResponse = objectMapper.readTree(responseBody);
             System.out.println("---일정 저장 시작---");
@@ -418,21 +434,14 @@ public class ChatbotController {
 
                 // 관광지 처리
                 JsonNode touristSpotsNode = dayNode.get("tourist_spots");
+                System.out.println("관광지 목록 : " + touristSpotsNode.asText());
                 if (touristSpotsNode != null && touristSpotsNode.isArray()) {
                     System.out.println("관광 장소 저장 시작");
-                    for (JsonNode spot : touristSpotsNode) {
-                        String name = spot.get(0).asText();
-                        saveTourPlace(name, sequenceCnt, curTravelId, dayNum);
-                        sequenceCnt++;
-                    }
+
                 }
                 else{
                     System.out.println("관광 장소 저장 실패");
-                    for (JsonNode spot : touristSpotsNode) {
-                        String name = spot.get(0).asText();
-                        saveTourPlace(name, sequenceCnt, curTravelId, dayNum);
-                        sequenceCnt++;
-                    }
+
                 }
 
                 // 아침 식사 처리
