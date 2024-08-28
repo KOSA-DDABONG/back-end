@@ -6,12 +6,11 @@ import com.ddabong.tripflow.chatbot.dto.UserStateDTO;
 import com.ddabong.tripflow.chatbot.service.IChatLogService;
 import com.ddabong.tripflow.member.service.GetMemberInfoService;
 import com.ddabong.tripflow.member.service.IMemberService;
-import com.ddabong.tripflow.place.model.Place;
 import com.ddabong.tripflow.place.service.IPlaceService;
 import com.ddabong.tripflow.travel.dto.TravelDTO;
 import com.ddabong.tripflow.travel.dto.TravelPlaceJoinDTO;
-import com.ddabong.tripflow.travel.dto.TravelSequenceSaveFormDTO;
 import com.ddabong.tripflow.travel.service.ITravelService;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,15 +22,18 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.support.SimpleTriggerContext;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+
+import static org.springframework.data.util.TypeUtils.type;
 
 @RestController
 @RequestMapping("/chat")
@@ -215,7 +217,7 @@ public class ChatbotController {
 
             // Flask API로 POST 요청 보내기
             System.out.println("Flask 요청 시작");
-            String flaskApiUrl = "http://localhost:5000/making";
+            String flaskApiUrl = flaskIP + "making";
             ResponseEntity<String> response = restTemplate.exchange(flaskApiUrl, HttpMethod.POST, request, String.class);
             System.out.println("Flask의 응답 : " + response.getBody());
 
@@ -336,7 +338,7 @@ public class ChatbotController {
 
             // Flask API로 POST 요청 보내기
             System.out.println("Flask 요청 시작");
-            String flaskApiUrl = "http://localhost:5000/validating";
+            String flaskApiUrl = flaskIP + "validating";
             ResponseEntity<String> response = restTemplate.exchange(flaskApiUrl, HttpMethod.POST, request, String.class);
             System.out.println("Flask의 응답 : " + response.getBody());
             System.out.println(response);
@@ -344,7 +346,6 @@ public class ChatbotController {
             // Flask에서 받은 응답을 JSON 형태로 변환
             String responseBody = response.getBody();
             JsonNode jsonResponse = objectMapper.readTree(responseBody);
-            JsonNode repBodyJson = jsonResponse.get("response");
 
             if(jsonResponse.has("message")){
                 String ss = String.valueOf(jsonResponse.get("second_sentence"));
@@ -352,6 +353,11 @@ public class ChatbotController {
                 System.out.println("message없음");
 
                 if(ss.equals("\"Good\"")){
+                    //JsonNode scheduleJson = jsonResponse.get("scheduler");
+                    //String scheduleString = scheduleJson.toString();
+                    // 저장
+                    saveSchedule(responseBody, userStateDTO.getStartTime(), userStateDTO.getToken());
+
                     chatbotDataResponseDTO.setTravelSchedule(String.valueOf(jsonResponse.get("scheduler")));
                     chatbotDataResponseDTO.setChatbotMessage(String.valueOf(jsonResponse.get("expain")));
                     responseDTO.setMessage("Good");
@@ -371,124 +377,139 @@ public class ChatbotController {
                 }
             }
 
-            /*
-            if(jsonResponse.has("is_valid")){
-
-            }else{
-                if(jsonResponse.has("response")){
-                    System.out.println("일정 저장");
-                    //System.out.println(jsonResponse.get("response"));
-                    saveSchedule(response.getBody(), userStateDTO.getStartTime(), userStateDTO.getToken());
-
-
-                    chatbotDataResponseDTO.setChatbotMessage("미정 : OTHER");
-                    chatbotDataResponseDTO.setTravelSchedule(responseBody);
-                    responseDTO.setMessage("OTHER");
-                    responseDTO.setStatus(200);
-                }
-                else {
-                    chatbotDataResponseDTO.setChatbotMessage("미정 : GOOD");
-                    chatbotDataResponseDTO.setTravelSchedule(responseBody);
-                    responseDTO.setMessage("GOOD");
-                    responseDTO.setStatus(200);
-                }
-            }
-
-             */
-
-            /*
-            if(jsonResponse.has("response")){
-                JsonNode scheduleResponseJson = jsonResponse.get("response");
-                System.out.println("스케쥴 응답 : " + scheduleResponseJson.toString());
-                if(scheduleResponseJson.has("1")){
-                    //JsonNode scheduleJson = jsonResponse.get("scheduler");
-                    //System.out.println("일정이 저장되었습니다." + scheduleJson.toString());
-                    // 저장
-                    //saveSchedule(scheduleJson, userStateDTO.getStartTime(), userStateDTO.getToken());
-                    saveSchedule(response.getBody(), userStateDTO.getStartTime(), userStateDTO.getToken());
-                }
-            }
-
-             */
-
-
         } catch (Exception e){
             e.printStackTrace();
         }
 
         return responseDTO;
     }
+
     private void saveSchedule(String response, String startTime, Long memberId) throws JsonProcessingException {
-        System.out.println("다음 일정을 저장하겠습니다.");
-        System.out.println(response);
+        response.replace('\'', '"');
         JsonNode jsonResponse = objectMapper.readTree(response);
+        //TravelDTO travelDTO = new TravelDTO();
+        //travelDTO.setMemberId(memberId);
+
+        //LocalDateTime now = LocalDateTime.now();
+        //DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        //travelDTO.setCreatedTime(Timestamp.valueOf(now.format(dateTimeFormatter)));
+
+        //travelDTO.setStartTime(startTime);
+        //travelDTO.setChatLogId(chatLogService.getChatLogId(memberId));
+
+        System.out.println("다음 일정을 저장하겠습니다.");
+        System.out.println(jsonResponse.toString());
         try {
-            //JsonNode jsonResponse = objectMapper.readTree(responseBody);
-            System.out.println("---일정 저장 시작---");
-            System.out.println("---일정 저장 시작2---");
-            // 날짜 수 계산
-            int date = jsonResponse.size();
-            System.out.println("날짜 수: " + date);
+            Map<String, Object> responseMap = objectMapper.convertValue(jsonResponse, Map.class);
+            for(String rootKey : responseMap.keySet()){
+                if(String.valueOf(rootKey).equals("scheduler")){
+                    Object rootVal = responseMap.get(rootKey);
+                    System.out.println("String valueOf 꺼내기" + rootVal);
+                    //String schedulerString = rootVal.toString();
+                    JsonNode schedulerJson = objectMapper.readTree(String.valueOf(rootVal));
+                    Map<String, Object> schedulerMap = objectMapper.convertValue(schedulerJson, Map.class);
 
-            System.out.println("여행 일정 저장");
-            Long chatLogId = chatLogService.getChatLogId(memberId);
-            Long curTravelId = saveTravelSchedule(memberId, startTime, date, chatLogId);
+                    int dayNum = schedulerMap.size();
+                    if(dayNum <= 0) {dayNum = 0;}
+                    else {dayNum = dayNum - 1; }
 
-            System.out.println("일정 정리");
-            int dayNum = 1;
-            for (Iterator<String> it = jsonResponse.fieldNames(); it.hasNext(); dayNum++) {
-                String dayKey = it.next();
-                JsonNode dayNode = jsonResponse.get(dayKey);
-                System.out.println(dayNum + "일차------");
-                System.out.println(dayNode.toString());
+                    //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+                    //LocalDate date = LocalDate.parse(startTime, formatter);
 
-                int sequenceCnt = 1;
+                    //LocalDate newDate = date.plusDays(dayNum);
+                    //String endTime = newDate.format(formatter);
 
-                // 관광지 처리
-                JsonNode touristSpotsNode = dayNode.get("tourist_spots");
-                System.out.println("관광지 목록 : " + touristSpotsNode.asText());
-                if (touristSpotsNode != null && touristSpotsNode.isArray()) {
-                    System.out.println("관광 장소 저장 시작");
+                    Long travelId = travelService.saveTravelSchedule(memberId, startTime, dayNum, chatLogService.getChatLogId(memberId));
 
-                }
-                else{
-                    System.out.println("관광 장소 저장 실패");
 
-                }
+                    for (String schedulerKey : schedulerMap.keySet()) {
+                        Object schedulerVal = schedulerMap.get(schedulerKey);
 
-                // 아침 식사 처리
-                JsonNode breakfastNode = dayNode.get("breakfast");
-                if (breakfastNode != null && breakfastNode.isArray()) {
-                    String breakFastName = breakfastNode.get(0).asText();
-                    saveRestaurantPlace(breakFastName, sequenceCnt, curTravelId, dayNum);
-                    sequenceCnt++;
-                }
+                        System.out.println(schedulerKey + "일차--------");
+                        int sequence = 1;
+                        TravelPlaceJoinDTO travelPlaceJoinDTO = new TravelPlaceJoinDTO();
+                        travelPlaceJoinDTO.setDayNum(Integer.valueOf(schedulerKey));
+                        travelPlaceJoinDTO.setTravelId(travelId);
 
-                // 점심 식사 처리
-                JsonNode lunchNode = dayNode.get("lunch");
-                if (lunchNode != null && lunchNode.isArray()) {
-                    String lunchName = lunchNode.get(0).asText();
-                    saveRestaurantPlace(lunchName, sequenceCnt, curTravelId, dayNum);
-                    sequenceCnt++;
-                }
+                        Map<String, List<Object>> dailyMap = ((Map<String, List<Object>>) schedulerVal);
+                        for(String dailyKey : dailyMap.keySet()){
+                            // 관광지 말고도 여러개 들어올때 있으면 size로 분기하기
+                            if(dailyKey.equals("tourist_spots")){
+                                List<Object> dailyVal = dailyMap.get(dailyKey);
+                                List<Object> tourist_spots = ((List<Object>) dailyVal);
+                                for(Object tourList : tourist_spots){
+                                    List<Object> tour = ((List<Object>) tourList);
+                                    //System.out.println(tour.get(0) + " " + tour.get(1) + " " + tour.get(2));
+                                    Long placeId = placeService.getPlaceIdByTourPlaceName(String.valueOf(tour.get(0)));
+                                    travelPlaceJoinDTO.setPlaceId(placeId);
+                                    travelPlaceJoinDTO.setSequence(sequence);
+                                    placeService.saveTravelPlace(travelPlaceJoinDTO);
+                                    sequence+=1;
+                                }
+                                //System.out.println();
+                            }
+                        }
+                        for(String dailyKey : dailyMap.keySet()){
+                            if(dailyKey.equals("breakfast")){
+                                List<Object> dailyVal = dailyMap.get(dailyKey);
+                                //System.out.println(dailyKey + " : " + dailyVal.get(0));
+                                //System.out.println(dailyKey + " : " + dailyVal.get(1));
+                                //System.out.println(dailyKey + " : " + dailyVal.get(2));
+                                Long placeId = placeService.getPlaceIdByRestaurantPlaceName(String.valueOf(dailyVal.get(0)));
+                                travelPlaceJoinDTO.setPlaceId(placeId);
+                                travelPlaceJoinDTO.setSequence(sequence);
+                                placeService.saveTravelPlace(travelPlaceJoinDTO);
+                                sequence+=1;
+                            }
+                        }
+                        for(String dailyKey : dailyMap.keySet()){
+                            if(dailyKey.equals("lunch")){
+                                List<Object> dailyVal = dailyMap.get(dailyKey);
+                                //System.out.println(dailyKey + " : " + dailyVal.get(0));
+                                //System.out.println(dailyKey + " : " + dailyVal.get(1));
+                                //System.out.println(dailyKey + " : " + dailyVal.get(2));
+                                Long placeId = placeService.getPlaceIdByRestaurantPlaceName(String.valueOf(dailyVal.get(0)));
+                                travelPlaceJoinDTO.setPlaceId(placeId);
+                                travelPlaceJoinDTO.setSequence(sequence);
+                                placeService.saveTravelPlace(travelPlaceJoinDTO);
+                                sequence+=1;
+                            }
+                        }
+                        for(String dailyKey : dailyMap.keySet()){
+                            if(dailyKey.equals("dinner")){
+                                List<Object> dailyVal = dailyMap.get(dailyKey);
+                                //System.out.println(dailyKey + " : " + dailyVal.get(0));
+                                //System.out.println(dailyKey + " : " + dailyVal.get(1));
+                                //System.out.println(dailyKey + " : " + dailyVal.get(2));
+                                Long placeId = placeService.getPlaceIdByRestaurantPlaceName(String.valueOf(dailyVal.get(0)));
+                                travelPlaceJoinDTO.setPlaceId(placeId);
+                                travelPlaceJoinDTO.setSequence(sequence);
+                                placeService.saveTravelPlace(travelPlaceJoinDTO);
+                                sequence+=1;
+                            }
+                        }
+                        if(schedulerKey.equals(String.valueOf(schedulerMap.size()))){
 
-                // 저녁 식사 처리
-                JsonNode dinnerNode = dayNode.get("dinner");
-                if (dinnerNode != null && dinnerNode.isArray()) {
-                    String dinnerName = dinnerNode.get(0).asText();
-                    saveRestaurantPlace(dinnerName, sequenceCnt, curTravelId, dayNum);
-                    sequenceCnt++;
-                }
-
-                // 숙소 처리
-                JsonNode hotelNode = dayNode.get("hotel");
-                if (hotelNode != null && hotelNode.isArray()) {
-                    String hotelName = hotelNode.get(0).asText();
-                    saveHotelPlace(hotelName, sequenceCnt, curTravelId, dayNum);
-                    sequenceCnt++;
+                        }
+                        else {
+                            for(String dailyKey : dailyMap.keySet()){
+                                if(dailyKey.equals("hotel")){
+                                    List<Object> dailyVal = dailyMap.get(dailyKey);
+                                    //System.out.println(dailyKey + " : " + dailyVal.get(0));
+                                    //System.out.println(dailyKey + " : " + dailyVal.get(1));
+                                    //System.out.println(dailyKey + " : " + dailyVal.get(2));
+                                    Long placeId = placeService.getPlaceIdByHotelPlaceName(String.valueOf(dailyVal.get(0)));
+                                    travelPlaceJoinDTO.setPlaceId(placeId);
+                                    travelPlaceJoinDTO.setSequence(sequence);
+                                    placeService.saveTravelPlace(travelPlaceJoinDTO);
+                                    sequence+=1;
+                                }
+                            }
+                        }
+                    }
                 }
             }
-            
+
         }catch (Exception e){
             e.printStackTrace();
         }
