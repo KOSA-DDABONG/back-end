@@ -10,6 +10,8 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class TravelService implements ITravelService{
@@ -47,6 +49,26 @@ public class TravelService implements ITravelService{
 
         iTravelRepository.saveTravelSchedule(travel);
         return travel.getTravelId();
+    }
+
+    @Override
+    public List<TravelDTO> loadPastTravelList(Long memberId) {
+        List<Travel> travelList = iTravelRepository.loadPastTravelList(memberId);
+        List<TravelDTO> travelDTOs = new ArrayList<>();
+
+        for (Travel travel : travelList){
+            TravelDTO travelDTO = new TravelDTO();
+            travelDTO.setTravelId(travel.getTravelId());
+            travelDTO.setMemberId(memberId);
+            travelDTO.setCreatedTime(travel.getCreatedTime());
+            travelDTO.setStartTime(travel.getStartTime());
+            travelDTO.setEndTime(travel.getEndTime());
+            travelDTO.setChatLogId(travel.getChatLogId());
+
+            travelDTOs.add(travelDTO);
+        }
+
+        return travelDTOs;
     }
 
     private String getEndTime(String startTime, int date){

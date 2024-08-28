@@ -15,4 +15,12 @@
         VALUES
         (#{travelId}, #{memberId}, #{createdTime}, #{startTime}, #{endTime}, #{chatLogId})
     </insert>
+
+    <!-- 나의 여행 일정 조회 -->
+    <select id="loadPastTravelList" parameterType="Long" resultType="com.ddabong.tripflow.travel.model.Travel">
+        SELECT *
+        FROM TRAVEL
+        WHERE memberid = #{memberId}
+        ORDER BY endtime DESC;
+    </select>
 </mapper>
