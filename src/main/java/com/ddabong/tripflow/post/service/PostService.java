@@ -70,4 +70,13 @@ public class PostService implements IPostService {
     public String getContentByPostId(Long postId) {
         return iPostRepository.getContentByPostId(postId);
     }
+
+    @Override
+    public Boolean checkIsWrite(Long travelId) {
+        int cnt = iPostRepository.checkIsWrite(travelId);
+
+        if(cnt == 0) {return false;}
+        else if(cnt > 0) {return true;}
+        return false;
+    }
 }

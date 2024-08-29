@@ -21,4 +21,6 @@ public interface IPostRepository {
     Long getMemberIdByPostId(Long postId);
 
     String getContentByPostId(Long postId);
+
+    int checkIsWrite(Long travelId);
 }

@@ -2,6 +2,7 @@ package com.ddabong.tripflow.travel.controller;
 
 import com.ddabong.tripflow.member.service.GetMemberInfoService;
 import com.ddabong.tripflow.member.service.IMemberService;
+import com.ddabong.tripflow.post.service.IPostService;
 import com.ddabong.tripflow.travel.dto.TravelListResponseDTO;
 import com.ddabong.tripflow.travel.dto.LoadTravelScheduleListDTO;
 import com.ddabong.tripflow.travel.dto.TravelDTO;
@@ -21,13 +22,15 @@ import java.util.List;
 @Controller
 @ResponseBody
 @RequestMapping("/myinfo")
-public class LoadMyTravelScheduleController {
+public class LoadMyTravelScheduleListController {
     @Autowired
     private GetMemberInfoService getMemberInfoService;
     @Autowired
     private IMemberService memberService;
     @Autowired
     private ITravelService travelService;
+    @Autowired
+    private IPostService postService;
 
     @GetMapping("/past/list")
     public TravelListResponseDTO loadPastTravelList(){
@@ -49,6 +52,7 @@ public class LoadMyTravelScheduleController {
                 item.setTravelId(travelDTO.getTravelId());
                 item.setStartTime(travelDTO.getStartTime());
                 item.setEndTime(travelDTO.getEndTime());
+                item.setIsWrite(postService.checkIsWrite(travelDTO.getTravelId()));
 
                 if(isPast(travelDTO.getEndTime()) == false){
                     continue;
@@ -96,6 +100,7 @@ public class LoadMyTravelScheduleController {
                 item.setTravelId(travelDTO.getTravelId());
                 item.setStartTime(travelDTO.getStartTime());
                 item.setEndTime(travelDTO.getEndTime());
+                item.setIsWrite(true);
 
                 if(isFuture(travelDTO.getStartTime()) == false){
                     continue;
@@ -143,6 +148,7 @@ public class LoadMyTravelScheduleController {
                 item.setTravelId(travelDTO.getTravelId());
                 item.setStartTime(travelDTO.getStartTime());
                 item.setEndTime(travelDTO.getEndTime());
+                item.setIsWrite(true);
 
                 if(isPresent(travelDTO.getStartTime(), travelDTO.getEndTime()) == false){
                     continue;

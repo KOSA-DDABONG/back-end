@@ -15,4 +15,6 @@ public class LoadTravelScheduleListDTO {
     private String endTime;
     private String dayAndNights;
     private String dDay;
+
+    private Boolean isWrite;
 }
