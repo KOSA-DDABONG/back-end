@@ -47,6 +47,19 @@ public class BoardController {//클래스명 BoardController
         return "redirect:/list" ;
     }
 
+    //s3 업로드를 위한 데이터
+private final AmazonS3Client amazonS3Client;
+private String postFileUploadPath = "postimg/";
+@Value("${cloud.aws.s3.bucket}")
+private String bucket;
+
+    @GetMapping("/saveimg") // s3에 저장된 이미지를 자동으로 post와 매칭 postimg 내 폴더 번호가 postid
+    public  String saveimg(){
+        System.out.println("hello");
+        return "fin";
+    }
+
+
     @PostMapping("/list/{id}/savecomment")//댓글 저장 기능 + 완료
     public ResponseEntity<ResponseDTO_SaveComment> saveComment(@PathVariable("id") Long id, @RequestPart CommentDTO commentDTO)throws IOException{
         //postid 입력 및 postid로 memberid 까지 검색
@@ -74,12 +87,6 @@ public class BoardController {//클래스명 BoardController
         ResponseDTO_SaveComment responseDTO = new ResponseDTO_SaveComment("success",200, commentDTO);
         return  ResponseEntity.ok(responseDTO);
     }
-
-    //s3 업로드를 위한 데이터
-    private final AmazonS3Client amazonS3Client;
-    private String postFileUploadPath = "postimg/";
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
 
     @Transactional
     @PostMapping("/savepost")
@@ -388,6 +395,7 @@ public class BoardController {//클래스명 BoardController
         System.out.println("current_year" + current_year);
         Long age = Long.parseLong(current_year) - Long.parseLong(member_birth.substring(0,4));
         Long travelid = boardService.findTravelid(id);
+        System.out.println("travelid" + travelid);
         Long placeId = boardService.findPlaceId(travelid);
         RecommendPlaceDTO recommendPlaceDTO = new RecommendPlaceDTO();
         System.out.println("travelid: " + travelid);

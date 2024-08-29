@@ -257,7 +257,7 @@
 
     <select id="findPlaceId" parameterType="Long">
         select * from tripflow.TRAVEL_PLACE_JOIN
-        where travelid = #{id};
+        where travelid = #{id} limit 1;
     </select>
 
 </mapper>
