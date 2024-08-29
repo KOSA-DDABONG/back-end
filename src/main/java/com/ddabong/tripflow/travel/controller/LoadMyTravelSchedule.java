@@ -62,13 +62,6 @@ public class LoadMyTravelSchedule {
                 item.setDayAndNights(dayAndNights);
                 item.setDDay(dDay);
 
-                System.out.println("travel id : " + item.getTravelId());
-                System.out.println("start time : " + item.getStartTime());
-                System.out.println("end time : " + item.getEndTime());
-                System.out.println("낮 밤 : " + item.getDayAndNights());
-                System.out.println("디데이 : " + item.getDDay());
-                System.out.println("==========");
-
                 loadTravelScheduleListDTOs.add(item);
             }
 
@@ -116,13 +109,6 @@ public class LoadMyTravelSchedule {
                 item.setDayAndNights(dayAndNights);
                 item.setDDay(dDay);
 
-                System.out.println("travel id : " + item.getTravelId());
-                System.out.println("start time : " + item.getStartTime());
-                System.out.println("end time : " + item.getEndTime());
-                System.out.println("낮 밤 : " + item.getDayAndNights());
-                System.out.println("디데이 : " + item.getDDay());
-                System.out.println("==========");
-
                 loadTravelScheduleListDTOs.add(item);
             }
 
@@ -169,13 +155,6 @@ public class LoadMyTravelSchedule {
                 String dDay = "D-" + lDDay;
                 item.setDayAndNights(dayAndNights);
                 item.setDDay(dDay);
-
-                System.out.println("travel id : " + item.getTravelId());
-                System.out.println("start time : " + item.getStartTime());
-                System.out.println("end time : " + item.getEndTime());
-                System.out.println("낮 밤 : " + item.getDayAndNights());
-                System.out.println("디데이 : " + item.getDDay());
-                System.out.println("==========");
 
                 loadTravelScheduleListDTOs.add(item);
             }
