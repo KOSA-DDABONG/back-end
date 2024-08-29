@@ -270,8 +270,9 @@ public class ChatbotController {
         try {
             System.out.println("사용자 만족도 서버에 전송 중...");
             Long memberId = memberService.getMemberIdByUserId(getMemberInfoService.getUserIdByJWT());
-            System.out.println("회원 ID: " + memberId);
+            //System.out.println("회원 ID: " + memberId);
             UserStateDTO userStateDTO = chatLogService.setUserState(memberId);
+            /*
             System.out.println("사용자 입력 " + userStateDTO.getUserInput());
             System.out.println("봇 응답 " + userStateDTO.getBotResponse());
             System.out.println("일정 날짜 " + userStateDTO.getDays());
@@ -292,6 +293,7 @@ public class ChatbotController {
             System.out.println("설명 " + userStateDTO.getExplain());
             System.out.println("만족도 " + userStateDTO.getSecondSentence());
             System.out.println("is Valid " + userStateDTO.getIsValid());
+             */
 
             String jsonString = "{\"question\": " + null + ", " +
                     "\"keywords\": {\"days\": " + null + ", \"transport\": " + null + ", \"companion\": " + null + ", \"theme\": " + null + ", \"food\": " + null + "}, " +

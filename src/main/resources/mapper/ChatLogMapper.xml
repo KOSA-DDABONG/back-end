@@ -110,4 +110,12 @@
         WHERE chatlogid = #{pastChatId}
     </select>
 
+    <!-- Travel테이블에서 chatlogid 조회 후 chatLogtable의 상태값 가져옴-->
+    <select id="setUpdateUserState" parameterType="Long" resultType="com.ddabong.tripflow.chatbot.model.ChatLog">
+        SELECT *
+        FROM TRAVEL t
+        JOIN CHATLOGMAPPING clm ON t.chatlogid = clm.chatlogmapid
+        JOIN CHATLOG cl ON clm.lastchatid = cl.chatlogid
+        WHERE t.travelid = #{travelid};
+    </select>
 </mapper>

@@ -25,4 +25,6 @@ public interface IChatLogRepository {
     Long findChatLogMappingIdByMemberId(Long memberId);
 
     String getStartTimeByPastChatId(Long pastChatId);
+
+    ChatLog setUpdateUserState(Long travelId);
 }

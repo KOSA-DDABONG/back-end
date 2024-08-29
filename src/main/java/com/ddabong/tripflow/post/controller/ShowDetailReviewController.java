@@ -60,7 +60,6 @@ public class ShowDetailReviewController {
     private String bucket;
     private String postImgRootPath = "postimg/";
     private String profileRootPath = "profile/";
-
     @CrossOrigin
     @Transactional
     @GetMapping("/{id}")
