@@ -2,7 +2,7 @@ package com.ddabong.tripflow.travel.controller;
 
 import com.ddabong.tripflow.member.service.GetMemberInfoService;
 import com.ddabong.tripflow.member.service.IMemberService;
-import com.ddabong.tripflow.post.dto.TravelListResponseDTO;
+import com.ddabong.tripflow.travel.dto.TravelListResponseDTO;
 import com.ddabong.tripflow.travel.dto.LoadTravelScheduleListDTO;
 import com.ddabong.tripflow.travel.dto.TravelDTO;
 import com.ddabong.tripflow.travel.service.ITravelService;
@@ -21,7 +21,7 @@ import java.util.List;
 @Controller
 @ResponseBody
 @RequestMapping("/myinfo")
-public class LoadMyTravelSchedule {
+public class LoadMyTravelScheduleController {
     @Autowired
     private GetMemberInfoService getMemberInfoService;
     @Autowired

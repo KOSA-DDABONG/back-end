@@ -1,6 +1,5 @@
-package com.ddabong.tripflow.post.dto;
+package com.ddabong.tripflow.travel.dto;
 
-import com.ddabong.tripflow.travel.dto.LoadTravelScheduleListDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,8 +11,8 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TravelListResponseDTO {
+public class DetailTravelResponseDTO {
     private String message;
     private int status;
-    private List<LoadTravelScheduleListDTO> data;
+    private List<LoadDetailTravelScheduleDTO> data;
 }
