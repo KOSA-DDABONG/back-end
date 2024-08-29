@@ -16,4 +16,6 @@ public interface IPostService {
     Long getMemberIdByPostId(Long postId);
 
     String getContentByPostId(Long postId);
+
+    Boolean checkIsWrite(Long travelId);
 }
