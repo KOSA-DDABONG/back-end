@@ -1,6 +1,7 @@
 package com.ddabong.tripflow.chatbot.service;
 
 import com.ddabong.tripflow.chatbot.dao.IChatLogRepository;
+import com.ddabong.tripflow.chatbot.dto.UpdateUserStateDTO;
 import com.ddabong.tripflow.chatbot.dto.UserStateDTO;
 import com.ddabong.tripflow.chatbot.model.ChatLog;
 import com.ddabong.tripflow.chatbot.model.ChatLogMapping;
@@ -187,5 +188,73 @@ public class ChatLogService implements IChatLogService {
     @Override
     public Long getChatLogId(Long memberId) {
         return iChatLogRepository.findChatLogMappingIdByMemberId(memberId);
+    }
+
+    @Override
+    public UpdateUserStateDTO setUpdateUserState(Long travelId) {
+        UpdateUserStateDTO updateUserStateDTO = new UpdateUserStateDTO("", "", null,null,null,null,null,
+                0,0L,0L, null,
+                null,null,null,null,null,null,0, null);
+        ChatLog chatLog = iChatLogRepository.setUpdateUserState(travelId);
+
+        System.out.println("chat log 조회 : " + chatLog);
+        System.out.println("chat_log id : " + chatLog.getChatLogId());
+
+
+        if (chatLog != null) {
+            if(chatLog.getDays() != null){
+                System.out.println("DAYS 업데이트");
+                updateUserStateDTO.setDays(chatLog.getDays());
+            }
+            if(chatLog.getTransport() != null){
+                System.out.println("대중교통 업데이트");
+                updateUserStateDTO.setTransport(chatLog.getTransport());
+            }
+            if(chatLog.getCompanion() != null){
+                System.out.println("동행자 업데이트");
+                updateUserStateDTO.setCompanion(chatLog.getCompanion());
+            }
+            if(chatLog.getTheme() != null){
+                System.out.println("테마 업데이트");
+                updateUserStateDTO.setTheme(chatLog.getTheme());
+            }
+            if(chatLog.getFood() != null){
+                System.out.println("음식 업데이트");
+                updateUserStateDTO.setFood(chatLog.getFood());
+            }
+            updateUserStateDTO.setAge(chatLog.getAge());
+            updateUserStateDTO.setToken(chatLog.getToken());
+            updateUserStateDTO.setPastChatId(chatLog.getChatLogId()); // 이전 채팅 id 저장
+            updateUserStateDTO.setStartTime(chatLog.getStartTime());
+            if(chatLog.getScheduler() != null){
+                System.out.println("일정 업데이트");
+                updateUserStateDTO.setScheduler(chatLog.getScheduler());
+            }
+            if(chatLog.getFoodsContext() != null){
+                System.out.println("식당 업데이트");
+                updateUserStateDTO.setFoodsContext(chatLog.getFoodsContext());
+            }
+            if(chatLog.getPlayingContext() != null){
+                System.out.println("관광지 업데이트");
+                updateUserStateDTO.setPlayingContext(chatLog.getPlayingContext());
+            }
+            if(chatLog.getHotelContext() != null){
+                System.out.println("숙박 업데이트");
+                updateUserStateDTO.setHotelContext(chatLog.getHotelContext());
+            }
+            if(chatLog.getExplain() != null){
+                System.out.println("설명 업데이트");
+                updateUserStateDTO.setExplain(chatLog.getExplain());
+            }
+            if(chatLog.getSecondSentence() != null){
+                System.out.println("만족도 업데이트");
+                updateUserStateDTO.setSecondSentence(chatLog.getSecondSentence());
+            }
+        } else {
+            // chatLog가 null일 경우 기본값을 설정하거나 적절한 처리를 수행합니다.
+            System.out.println("chatLog is null");
+        }
+
+        return updateUserStateDTO;
     }
 }
