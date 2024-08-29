@@ -12,6 +12,6 @@ public class TravelDTO {
     private Long memberId;
     private Timestamp createdTime;
     private String startTime;
-    private String endTime;
+                                                                                    private String endTime;
     private Long chatLogId;
 }

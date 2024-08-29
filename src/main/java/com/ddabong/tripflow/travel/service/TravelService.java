@@ -1,7 +1,9 @@
 package com.ddabong.tripflow.travel.service;
 
 import com.ddabong.tripflow.travel.dao.ITravelRepository;
+import com.ddabong.tripflow.travel.dto.LoadDetailTravelScheduleDTO;
 import com.ddabong.tripflow.travel.dto.TravelDTO;
+import com.ddabong.tripflow.travel.model.MergeTravelPlace;
 import com.ddabong.tripflow.travel.model.Travel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,6 +12,8 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class TravelService implements ITravelService{
@@ -47,6 +51,71 @@ public class TravelService implements ITravelService{
 
         iTravelRepository.saveTravelSchedule(travel);
         return travel.getTravelId();
+    }
+
+    @Override
+    public List<TravelDTO> loadPastTravelList(Long memberId) {
+        List<Travel> travelList = iTravelRepository.loadPastTravelList(memberId);
+        List<TravelDTO> travelDTOs = new ArrayList<>();
+
+        for (Travel travel : travelList){
+            TravelDTO travelDTO = new TravelDTO();
+            travelDTO.setTravelId(travel.getTravelId());
+            travelDTO.setMemberId(memberId);
+            travelDTO.setCreatedTime(travel.getCreatedTime());
+            travelDTO.setStartTime(travel.getStartTime());
+            travelDTO.setEndTime(travel.getEndTime());
+            travelDTO.setChatLogId(travel.getChatLogId());
+
+            travelDTOs.add(travelDTO);
+        }
+
+        return travelDTOs;
+    }
+
+    @Override
+    public List<TravelDTO> loadFutureTravelList(Long memberId) {
+        List<Travel> travelList = iTravelRepository.loadFutureTravelList(memberId);
+        List<TravelDTO> travelDTOs = new ArrayList<>();
+
+        for (Travel travel : travelList){
+            TravelDTO travelDTO = new TravelDTO();
+            travelDTO.setTravelId(travel.getTravelId());
+            travelDTO.setMemberId(memberId);
+            travelDTO.setCreatedTime(travel.getCreatedTime());
+            travelDTO.setStartTime(travel.getStartTime());
+            travelDTO.setEndTime(travel.getEndTime());
+            travelDTO.setChatLogId(travel.getChatLogId());
+
+            travelDTOs.add(travelDTO);
+        }
+
+        return travelDTOs;
+    }
+
+    @Override
+    public List<TravelDTO> loadPresentTravelList(Long memberId) {
+        List<Travel> travelList = iTravelRepository.loadPresentTravelList(memberId);
+        List<TravelDTO> travelDTOs = new ArrayList<>();
+
+        for (Travel travel : travelList){
+            TravelDTO travelDTO = new TravelDTO();
+            travelDTO.setTravelId(travel.getTravelId());
+            travelDTO.setMemberId(memberId);
+            travelDTO.setCreatedTime(travel.getCreatedTime());
+            travelDTO.setStartTime(travel.getStartTime());
+            travelDTO.setEndTime(travel.getEndTime());
+            travelDTO.setChatLogId(travel.getChatLogId());
+
+            travelDTOs.add(travelDTO);
+        }
+
+        return travelDTOs;
+    }
+
+    @Override
+    public List<MergeTravelPlace> searchMyTravel(Long memberId, Long travelId) {
+        return iTravelRepository.searchMyTravel(memberId, travelId);
     }
 
     private String getEndTime(String startTime, int date){

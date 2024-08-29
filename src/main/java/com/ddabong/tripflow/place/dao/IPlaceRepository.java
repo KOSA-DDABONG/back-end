@@ -1,5 +1,6 @@
 package com.ddabong.tripflow.place.dao;
 
+import com.ddabong.tripflow.place.model.Place;
 import com.ddabong.tripflow.travel.model.TravelPlaceJoin;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -13,4 +14,6 @@ public interface IPlaceRepository {
     void saveTravelPlace(TravelPlaceJoin travelPlaceJoin);
 
     Long getPlaceIdByHotelPlaceName(String name);
+
+    Place getPlaceInfoByPlaceId(Long placeId);
 }

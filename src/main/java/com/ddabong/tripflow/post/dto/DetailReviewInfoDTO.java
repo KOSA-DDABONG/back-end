@@ -2,6 +2,8 @@ package com.ddabong.tripflow.post.dto;
 
 import com.ddabong.tripflow.comment.dto.CommentInfoDTO;
 import com.ddabong.tripflow.place.dto.LatAndLon;
+import com.ddabong.tripflow.place.dto.NameAndLatAndLon;
+import com.ddabong.tripflow.travel.dto.LoadDetailTravelScheduleDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,9 +19,10 @@ public class DetailReviewInfoDTO {
     private Long travelId;//
 
     private List<String> url;//
-    private List<LatAndLon> tour; // 관광지 위경도
-    private List<LatAndLon> restaurant; //식당 위경도
-    private List<LatAndLon> hotel; // 숙박 위경도
+    //private List<LatAndLon> tour; // 관광지 위경도
+    //private List<LatAndLon> restaurant; //식당 위경도
+    //private List<LatAndLon> hotel; // 숙박 위경도
+    private List<LoadDetailTravelScheduleDTO> loadDetailTravelScheduleDTOs;
 
     private String nickName;//
     private String content;

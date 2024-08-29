@@ -33,4 +33,10 @@
         VALUES
             (#{travelPlaceJoinId}, #{placeId}, #{travelId}, #{dayNum}, #{sequence})
     </insert>
+
+    <!-- 장소 정보 조회 -->
+    <select id="getPlaceInfoByPlaceId" parameterType="Long" resultType="com.ddabong.tripflow.place.model.Place">
+        SELECT * FROM PLACE
+        WHERE placeid = #{placeId}
+    </select>
 </mapper>
