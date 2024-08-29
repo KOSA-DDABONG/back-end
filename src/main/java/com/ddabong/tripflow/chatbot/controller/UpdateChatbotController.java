@@ -8,17 +8,22 @@ import com.ddabong.tripflow.member.service.IMemberService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.netty.handler.codec.json.JsonObjectDecoder;
 import org.apache.http.client.methods.HttpHead;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -121,31 +126,11 @@ public class UpdateChatbotController {
 
             // Flask에서 받은 응답을 JSON 형태로 변환
             String responseBody = response.getBody();
+            //String responseBody = new String(response.getBody().getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+            System.out.println("1");
             JsonNode jsonResponse = objectMapper.readTree(responseBody);
 
-            if (jsonResponse.has("answer")){
-                System.out.println("생성된 일정 ----------");
-                System.out.println(responseBody);
 
-                chatbotDataResponseDTO.setChatbotMessage("생성된 일정이 마음에 드시나요?");
-                chatbotDataResponseDTO.setTravelSchedule(responseBody);
-                responseDTO.setStatus(200);
-                responseDTO.setMessage("수정할 장소 목록");
-                responseDTO.setData(chatbotDataResponseDTO);
-            }
-            else{
-                String responseText = jsonResponse.get("answer").asText();
-                //JsonNode responseJson = objectMapper.readTree(responseText);
-                //return ResponseEntity.ok(responseJson);
-                System.out.println("챗봇 응담 >>>>>>>");
-                System.out.println(responseText);
-
-                chatbotDataResponseDTO.setChatbotMessage(responseText);
-                chatbotDataResponseDTO.setTravelSchedule("생성된 일정이 아직 없습니다.");
-                responseDTO.setStatus(200);
-                responseDTO.setMessage("??");
-                responseDTO.setData(chatbotDataResponseDTO);
-            }
         }catch(Exception e){
 
         }

@@ -35,6 +35,8 @@ dependencies {
 	// slf4j log
 	implementation 'org.slf4j:slf4j-api:2.0.7'
 	implementation 'ch.qos.logback:logback-classic:1.4.8'
+	// JSON 파싱을 위한 org.json 의존성 추가
+	implementation 'org.json:json:20210307'
 
 	// jasypt
 	implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
