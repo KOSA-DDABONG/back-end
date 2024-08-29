@@ -48,40 +48,59 @@ public class LoadMyDetailTravelScheduleController {
 
                 loadDetailTravelScheduleDTO.setTravelId(tp.getTravelId());
                 loadDetailTravelScheduleDTO.setMemberId(tp.getMemberId());
+                loadDetailTravelScheduleDTO.setDayNum(tp.getDayNum());
 
                 if(dayNum == tp.getDayNum()) { continue; }
                 loadDetailTravelScheduleDTOs.add(loadDetailTravelScheduleDTO);
-                int daynum = tp.getDayNum();
+                dayNum = tp.getDayNum();
             }
 
-            for(LoadDetailTravelScheduleDTO ldts : loadDetailTravelScheduleDTOs){
-                List<NameAndLatAndLon> tour = new ArrayList<>();
-                List<NameAndLatAndLon> hotel = new ArrayList<>();
-                List<NameAndLatAndLon> restaurant = new ArrayList<>();
-                for(MergeTravelPlace tp : mergeTravelPlaces){
-                    NameAndLatAndLon nll = new NameAndLatAndLon("", 0.0, 0.0);
+            for(LoadDetailTravelScheduleDTO ldts : loadDetailTravelScheduleDTOs) {
+                List<NameAndLatAndLon> tourList = new ArrayList<>();
+                List<NameAndLatAndLon> hotelList = new ArrayList<>();
+                List<NameAndLatAndLon> restaurantList = new ArrayList<>();
+                List<NameAndLatAndLon> placeList = new ArrayList<>();
+
+                int foodSeq = 0;
+                for (MergeTravelPlace tp : mergeTravelPlaces) {
+                    NameAndLatAndLon nll = new NameAndLatAndLon("", 0.0, 0.0, "");
 
                     PlaceDTO placeDTO = placeService.getPlaceInfoByPlaceId(tp.getPlaceId());
                     nll.setName(placeDTO.getPlaceName());
                     nll.setLatitude(placeDTO.getLatitude());
                     nll.setLongitude(placeDTO.getLongitude());
+                    nll.setPlaceType("");
 
-
-                    if(placeDTO.getPlaceType() == 0){
-                        tour.add(nll);
-                    }
-                    else if(placeDTO.getPlaceType() == 1){
-                        hotel.add(nll);
-                    }
-                    else if(placeDTO.getPlaceType() == 2){
-                        restaurant.add(nll);
+                    if (placeDTO.getPlaceType() == 0 && tp.getDayNum() == ldts.getDayNum()) {
+                        tourList.add(nll);
+                    } else if (placeDTO.getPlaceType() == 1 && tp.getDayNum() == ldts.getDayNum()) {
+                        hotelList.add(nll);
+                    } else if (placeDTO.getPlaceType() == 2 && tp.getDayNum() == ldts.getDayNum()) {
+                        if(foodSeq == 0){nll.setPlaceType("아침");}
+                        else if(foodSeq == 1){nll.setPlaceType("점심");}
+                        else if(foodSeq == 2){nll.setPlaceType("저녁");}
+                        foodSeq += 1;
+                        restaurantList.add(nll);
                     }
                 }
 
-                ldts.setTour(tour);
-                ldts.setHotel(hotel);
-                ldts.setRestaurant(restaurant);
+                for(NameAndLatAndLon p : tourList){
+                    placeList.add(p);
+                }
+                for(NameAndLatAndLon p : restaurantList){
+                    placeList.add(p);
+                }
+                // 아침, 점심, 저녁 장소를 순서대로 유지하면서 나머지 장소를 거리순으로 삽입
+                List<NameAndLatAndLon> sortedPlaces = sortPlaces(placeList);
+
+                for(NameAndLatAndLon p : hotelList){
+                    sortedPlaces.add(p);
+                }
+
+                ldts.setPlace(sortedPlaces);
             }
+
+
 
             detailTravelResponseDTO.setData(loadDetailTravelScheduleDTOs);
             detailTravelResponseDTO.setStatus(200);
@@ -93,4 +112,62 @@ public class LoadMyDetailTravelScheduleController {
 
         return detailTravelResponseDTO;
     }
+
+    // 장소들을 정렬하는 메소드
+    public static List<NameAndLatAndLon> sortPlaces(List<NameAndLatAndLon> places) {
+        // 아침, 점심, 저녁 식사 장소를 먼저 분리
+        NameAndLatAndLon breakfast = null, lunch = null, dinner = null;
+        List<NameAndLatAndLon> others = new ArrayList<>();
+
+        for (NameAndLatAndLon place : places) {
+            if (place.getPlaceType().equals("아침")) {
+                breakfast = place;
+            } else if (place.getPlaceType().equals("점심")) {
+                lunch = place;
+            } else if (place.getPlaceType().equals("저녁")) {
+                dinner = place;
+            } else {
+                others.add(place);
+            }
+        }
+
+        // 기타 장소들을 아침, 점심, 저녁 순서에 맞게 거리 기준으로 정렬
+        List<NameAndLatAndLon> sortedPlaces = new ArrayList<>();
+        sortedPlaces.add(breakfast);
+        sortedPlaces.addAll(getNearestPlaces(breakfast, others, lunch));
+        sortedPlaces.add(lunch);
+        sortedPlaces.addAll(getNearestPlaces(lunch, others, dinner));
+        sortedPlaces.add(dinner);
+        sortedPlaces.addAll(getNearestPlaces(dinner, others, null));
+
+        return sortedPlaces;
+    }
+
+    // 인접한 장소를 거리 순서대로 정렬하는 메소드
+    private static List<NameAndLatAndLon> getNearestPlaces(NameAndLatAndLon start, List<NameAndLatAndLon> others, NameAndLatAndLon end) {
+        List<NameAndLatAndLon> sorted = new ArrayList<>();
+        NameAndLatAndLon current = start;
+
+        while (!others.isEmpty()) {
+            NameAndLatAndLon nearest = null;
+            Double nearestDistance = Double.MAX_VALUE;
+
+            for (NameAndLatAndLon place : others) {
+                Double distance = current.distanceTo(place);
+                if (distance < nearestDistance) {
+                    nearestDistance = distance;
+                    nearest = place;
+                }
+            }
+
+            if (nearest != null) {
+                sorted.add(nearest);
+                others.remove(nearest);
+                current = nearest;
+            }
+        }
+
+        return sorted;
+    }
+
 }
