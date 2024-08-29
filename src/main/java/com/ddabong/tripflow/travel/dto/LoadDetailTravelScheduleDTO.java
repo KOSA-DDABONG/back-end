@@ -17,8 +17,10 @@ import java.util.List;
 public class LoadDetailTravelScheduleDTO {
     private Long memberId;
     private Long travelId;
+    private int dayNum;
 
-    private List<NameAndLatAndLon> tour; // 관광지 위경도
-    private List<NameAndLatAndLon> restaurant; //식당 위경도
-    private List<NameAndLatAndLon> hotel; // 숙박 위경도
+    //private List<NameAndLatAndLon> tour; // 관광지 위경도
+    //private List<NameAndLatAndLon> restaurant; //식당 위경도
+    //private List<NameAndLatAndLon> hotel; // 숙박 위경도
+    private List<NameAndLatAndLon> place;
 }
