@@ -12,4 +12,8 @@ public interface ITravelRepository {
     void saveTravelSchedule(Travel travel);
 
     List<Travel> loadPastTravelList(Long memberId);
+
+    List<Travel> loadFutureTravelList(Long memberId);
+
+    List<Travel> loadPresentTravelList(Long memberId);
 }

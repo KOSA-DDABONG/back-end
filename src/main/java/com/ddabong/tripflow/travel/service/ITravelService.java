@@ -11,4 +11,8 @@ public interface ITravelService {
     Long saveTravelSchedule(Long memberId, String startTime, int date, Long chatLogId);
 
     List<TravelDTO> loadPastTravelList(Long memberId);
+
+    List<TravelDTO> loadFutureTravelList(Long memberId);
+
+    List<TravelDTO> loadPresentTravelList(Long memberId);
 }

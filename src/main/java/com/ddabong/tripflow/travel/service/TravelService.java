@@ -71,6 +71,46 @@ public class TravelService implements ITravelService{
         return travelDTOs;
     }
 
+    @Override
+    public List<TravelDTO> loadFutureTravelList(Long memberId) {
+        List<Travel> travelList = iTravelRepository.loadFutureTravelList(memberId);
+        List<TravelDTO> travelDTOs = new ArrayList<>();
+
+        for (Travel travel : travelList){
+            TravelDTO travelDTO = new TravelDTO();
+            travelDTO.setTravelId(travel.getTravelId());
+            travelDTO.setMemberId(memberId);
+            travelDTO.setCreatedTime(travel.getCreatedTime());
+            travelDTO.setStartTime(travel.getStartTime());
+            travelDTO.setEndTime(travel.getEndTime());
+            travelDTO.setChatLogId(travel.getChatLogId());
+
+            travelDTOs.add(travelDTO);
+        }
+
+        return travelDTOs;
+    }
+
+    @Override
+    public List<TravelDTO> loadPresentTravelList(Long memberId) {
+        List<Travel> travelList = iTravelRepository.loadPresentTravelList(memberId);
+        List<TravelDTO> travelDTOs = new ArrayList<>();
+
+        for (Travel travel : travelList){
+            TravelDTO travelDTO = new TravelDTO();
+            travelDTO.setTravelId(travel.getTravelId());
+            travelDTO.setMemberId(memberId);
+            travelDTO.setCreatedTime(travel.getCreatedTime());
+            travelDTO.setStartTime(travel.getStartTime());
+            travelDTO.setEndTime(travel.getEndTime());
+            travelDTO.setChatLogId(travel.getChatLogId());
+
+            travelDTOs.add(travelDTO);
+        }
+
+        return travelDTOs;
+    }
+
     private String getEndTime(String startTime, int date){
         // 날짜 형식 정의
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
