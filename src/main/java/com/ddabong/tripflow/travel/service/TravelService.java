@@ -1,7 +1,9 @@
 package com.ddabong.tripflow.travel.service;
 
 import com.ddabong.tripflow.travel.dao.ITravelRepository;
+import com.ddabong.tripflow.travel.dto.LoadDetailTravelScheduleDTO;
 import com.ddabong.tripflow.travel.dto.TravelDTO;
+import com.ddabong.tripflow.travel.model.MergeTravelPlace;
 import com.ddabong.tripflow.travel.model.Travel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -109,6 +111,11 @@ public class TravelService implements ITravelService{
         }
 
         return travelDTOs;
+    }
+
+    @Override
+    public List<MergeTravelPlace> searchMyTravel(Long memberId, Long travelId) {
+        return iTravelRepository.searchMyTravel(memberId, travelId);
     }
 
     private String getEndTime(String startTime, int date){

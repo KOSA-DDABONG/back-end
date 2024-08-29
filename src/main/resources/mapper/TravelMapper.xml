@@ -39,4 +39,15 @@
         WHERE memberid = #{memberId}
         ORDER BY starttime ASC;
     </select>
+
+    <!-- 일정 상세 조회 -->
+    <select id="searchMyTravel" resultType="com.ddabong.tripflow.travel.model.MergeTravelPlace">
+        SELECT t.travelid, t.memberid, t.createdtime, t.starttime, t.endtime, t.chatlogid,
+        tp.travelplacejoinid, tp.placeid, tp.daynum, tp.sequence
+        FROM TRAVEL t
+        JOIN TRAVEL_PLACE_JOIN tp
+        ON t.travelid = tp.travelid
+        WHERE t.travelid = #{travelId}
+        AND t.memberid = #{memberId}
+    </select>
 </mapper>
