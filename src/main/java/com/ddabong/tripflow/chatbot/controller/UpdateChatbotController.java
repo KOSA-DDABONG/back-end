@@ -1,6 +1,7 @@
 package com.ddabong.tripflow.chatbot.controller;
 
 
+import aj.org.objectweb.asm.TypeReference;
 import com.ddabong.tripflow.chatbot.dto.*;
 import com.ddabong.tripflow.chatbot.service.IChatLogService;
 import com.ddabong.tripflow.member.service.GetMemberInfoService;
@@ -128,17 +129,17 @@ public class UpdateChatbotController {
             String responseBody = response.getBody();
             //String responseBody = new String(response.getBody().getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
             System.out.println("1");
-            //JsonNode jsonResponse = objectMapper.readTree(responseBody);
-            String cleanResponseBody = responseBody.replace("\t","");
-            System.out.println("리플레이스 바디 " + cleanResponseBody);
-            JsonNode jsonResponse = objectMapper.readTree(cleanResponseBody);
-            Map<String, Object> responseMap = objectMapper.convertValue(jsonResponse, Map.class);
-            for(String key : responseMap.keySet()){
-                System.out.println(key);
-            }
+            JsonNode jsonResponse = objectMapper.readTree(responseBody);
+            System.out.println("응답바디 : " + responseBody);
+
+            chatbotDataResponseDTO.setChatbotMessage("일정이 수정되었습니다.");
+            chatbotDataResponseDTO.setTravelSchedule(responseBody);
+            responseDTO.setData(chatbotDataResponseDTO);
+            responseDTO.setStatus(200);
+            responseDTO.setMessage("일정이 수정되었습니다.");
 
         }catch(Exception e){
-
+            e.printStackTrace();
         }
 
         return responseDTO;
