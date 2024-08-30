@@ -223,9 +223,41 @@
         delete from tripflow.POST_IMAGE where postid = #{id};
     </delete>
 
+    <select id="findBirth" parameterType="Long">
+        select birth from tripflow.MEMBER
+        where memberid = #{id}
+    </select>
+
+    <update id="increaseRecommend" parameterType="Long">
+        UPDATE tripflow.PLACE
+        SET
+        teenager = teenager + CASE WHEN #{age} &lt; 20 THEN 1 ELSE 0 END,
+        twenties = twenties + CASE WHEN #{age} &gt;= 20 AND #{age} &lt; 30 THEN 1 ELSE 0 END,
+        thirties = thirties + CASE WHEN #{age} &gt;= 30 AND #{age} &lt; 40 THEN 1 ELSE 0 END,
+        fourties = fourties + CASE WHEN #{age} &gt;= 40 AND #{age} &lt; 50 THEN 1 ELSE 0 END,
+        sixties = sixties + CASE WHEN #{age} &gt;= 60 THEN 1 ELSE 0 END
+        WHERE placeid = #{placeid};
+    </update>
+
+    <update id="decreaseRecommend" parameterType="Long">
+        UPDATE tripflow.PLACE
+        SET
+        teenager = teenager - CASE WHEN #{age} &lt; 20 THEN 1 ELSE 0 END,
+        twenties = twenties - CASE WHEN #{age} &gt;= 20 AND #{age} &lt; 30 THEN 1 ELSE 0 END,
+        thirties = thirties - CASE WHEN #{age} &gt;= 30 AND #{age} &lt; 40 THEN 1 ELSE 0 END,
+        fourties = fourties - CASE WHEN #{age} &gt;= 40 AND #{age} &lt; 50 THEN 1 ELSE 0 END,
+        sixties = sixties - CASE WHEN #{age} &gt;= 60 THEN 1 ELSE 0 END
+        WHERE placeid = #{placeid};
+    </update>
+
 <!--    게시물 수정 구간   -->
     <update id="updatePost" parameterType="com.ddabong.tripflow.board.dto.BoardDTO">
         UPDATE tripflow.POST SET content = #{content} WHERE (postid = #{postid});
     </update>
+
+    <select id="findPlaceId" parameterType="Long">
+        select * from tripflow.TRAVEL_PLACE_JOIN
+        where travelid = #{id} limit 1;
+    </select>
 
 </mapper>

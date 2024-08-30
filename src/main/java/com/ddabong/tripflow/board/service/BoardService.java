@@ -93,4 +93,9 @@ public class BoardService implements IBoardService {
     public Long findMemberidInPost(Long id){return  boardRepository.findMemberidInPost(id);}
     public void updatePost(BoardDTO boardDTO){boardRepository.updatePost(boardDTO);}
     public void deleteImage(Long id){boardRepository.deleteImage(id);}
+    public void increaseRecommend(RecommendPlaceDTO recommendPlaceDTO){boardRepository.increaseRecommend(recommendPlaceDTO);}
+    public void decreaseRecommend(RecommendPlaceDTO recommendPlaceDTO){boardRepository.decreaseRecommend(recommendPlaceDTO);}
+    public String findBirth(Long id){return boardRepository.findBirth(id);}
+
+    public Long findPlaceId(Long id){return  boardRepository.findPlaceId(id);}
 }
