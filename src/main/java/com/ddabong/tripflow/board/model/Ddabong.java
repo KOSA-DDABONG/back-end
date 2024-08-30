@@ -6,7 +6,6 @@ import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
 public class Ddabong {
     private Long likeid;
     private Long postid;

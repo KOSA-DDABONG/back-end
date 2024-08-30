@@ -47,4 +47,8 @@ public interface IBoardRepository {
     Long findMemberidInPost(Long id);
     void updatePost(BoardDTO boardDTO);
     void deleteImage(Long id);
+    String findBirth(Long id);
+    Long findPlaceId(Long id);
+    void increaseRecommend(RecommendPlaceDTO recommendPlaceDTO);
+    void decreaseRecommend(RecommendPlaceDTO recommendPlaceDTO);
 }
