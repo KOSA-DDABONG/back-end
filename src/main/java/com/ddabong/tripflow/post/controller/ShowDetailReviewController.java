@@ -103,8 +103,15 @@ public class ShowDetailReviewController {
             List<LatAndLon> hotels = getHotelLatAndLon(travelId);
             detailReviewInfoDTO.setHotel(hotels);
              */
-            Long memberId = memberService.getMemberIdByUserId(getMemberInfoService.getUserIdByJWT());
-            List<MergeTravelPlace> mergeTravelPlaces = travelService.searchMyTravel(memberId, travelId);
+            System.out.println("위경도 정보 저장");
+            //Long memberId = memberService.getMemberIdByUserId(getMemberInfoService.getUserIdByJWT());
+            Long writerId = postService.getMemberIdByPostId(postId);
+            System.out.println("memberid : " + writerId);
+            List<MergeTravelPlace> mergeTravelPlaces = travelService.searchMyTravel(writerId, travelId);
+            for(MergeTravelPlace mtp : mergeTravelPlaces){
+                System.out.println("Travel id : " + mtp.getTravelId());
+                System.out.println(mtp.getDayNum() + " " + mtp.getSequence());
+            }
             List<LoadDetailTravelScheduleDTO> loadDetailTravelScheduleDTOs = new ArrayList<>();
             int dayNum = 0;
             for(MergeTravelPlace tp : mergeTravelPlaces){
@@ -113,8 +120,15 @@ public class ShowDetailReviewController {
                 loadDetailTravelScheduleDTO.setTravelId(tp.getTravelId());
                 loadDetailTravelScheduleDTO.setMemberId(tp.getMemberId());
                 loadDetailTravelScheduleDTO.setDayNum(tp.getDayNum());
+                System.out.println("[[in tp]]");
+                System.out.println(tp.getTravelId());
+                System.out.println(tp.getMemberId());
+                System.out.println(tp.getDayNum());
 
-                if(dayNum == tp.getDayNum()) { continue; }
+                if(dayNum == tp.getDayNum()) {
+                    System.out.println("day NUM" + dayNum);
+                    continue;
+                }
                 loadDetailTravelScheduleDTOs.add(loadDetailTravelScheduleDTO);
                 dayNum = tp.getDayNum();
             }
