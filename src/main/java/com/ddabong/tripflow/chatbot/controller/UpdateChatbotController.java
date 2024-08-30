@@ -128,9 +128,14 @@ public class UpdateChatbotController {
             String responseBody = response.getBody();
             //String responseBody = new String(response.getBody().getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
             System.out.println("1");
-            JsonNode jsonResponse = objectMapper.readTree(responseBody);
-            String cleanResponseBody = responseBody.replace("\n","").replace("\\", "").replace("\t","");
+            //JsonNode jsonResponse = objectMapper.readTree(responseBody);
+            String cleanResponseBody = responseBody.replace("\t","");
             System.out.println("리플레이스 바디 " + cleanResponseBody);
+            JsonNode jsonResponse = objectMapper.readTree(cleanResponseBody);
+            Map<String, Object> responseMap = objectMapper.convertValue(jsonResponse, Map.class);
+            for(String key : responseMap.keySet()){
+                System.out.println(key);
+            }
 
         }catch(Exception e){
 
